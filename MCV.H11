@@ -18,8 +18,10 @@
 //:=============================================:CODING_STYLE://
 //:INCLUDES:=================================================://
 
-    #include "stdio.h"                              //:printf://
+    #include "stdio.h"           //:fflush( stdout ) , printf://
     #include "stdint.h"          //:int32_t , uint32_t , etc ://
+    #include "libloaderapi.h"  //:LoadLibraryA,GetProcAddress://
+    #include <stdlib.h>                           //: exit() ://
                              
 //:=================================================:INCLUDES://
 //:FILE_MACROS:==============================================://
@@ -27,17 +29,53 @@
     #define I32  int32_t
     #define U32 uint32_t
     #define VOD void
+    #define DLL void
+    #define CHR const char
+    #define ERR mcv_f_err
 
 //:==============================================:FILE_MACROS://
+//:DATA:=====================================================://
+
+    //:DLL:--------------------------------------------------://
+
+        DLL* mcv_d_dll_vul = ((DLL*)0);
+
+    //:--------------------------------------------------:DLL://
+
+//:=====================================================:DATA://
 //:FUNCTIONS:================================================://
 
-    VOD MCV_F_INI( VOD ){               //:Initialize Library://
+    VOD  mcv_f_err( CHR* msg ){
+
+        printf( "[mcv_f_err]:%s" , msg );
+        fflush( stdout );
+        exit( 0xFF );
+    }
+
+    DLL* mcv_f_dll_get( CHR* nam ){
+
+        DLL* dll = LoadLibraryA( nam );
+        if( ((DLL*)0) == dll ){
+            ERR( "[FAILED_TO_LOAD_DLL]" );
+        };;
+        return( dll );
+    }
+
+    DLL* mcv_f_dll_all( VOD ){
+
+        mcv_d_dll_vul = mcv_f_dll_get( "vulkan-1.dll" );
+
+    }
+
+    VOD  MCV_F_INI( VOD ){              //:Initialize Library://
+
+        mcv_f_dll_all( );               //:Load_All_Libraries://
 
         printf("[todo:code_here_for_init]\n");
 
     }
 
-    I32 MCV_F_DEM( VOD ){            //:Library_Demonstration://
+    I32  MCV_F_DEM( VOD ){           //:Library_Demonstration://
 
         MCV_F_INI( );
 
@@ -49,7 +87,9 @@
 
     #undef  I32  
     #undef  U32  
-    #undef  VOD  
+    #undef  VOD 
+    #undef  DLL
+    #undef  CHR
 
 //:==============================================:FILE_MACROS://
 
