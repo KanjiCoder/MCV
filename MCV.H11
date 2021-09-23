@@ -1,0 +1,34 @@
+//:CODING_STYLE:=============================================://
+/** ******************************************************** ***
+                                                     
+    Namespaces:                                               
+                                                            
+        1. All global tokens begin with "MCV_".               
+        2. All global tokens have a category namespace.       
+            MCV_F : Function                                   
+            MCV_D : Data (AKA: Variable)                       
+            MCV_U : Unit Test                                  
+            MCV_T : Type                                       
+            MCV_M : Macro                                      
+        3. Public  tokens are all   capital. EX: MCV_F_WHATEVER
+        4. Private tokens are all lowercase. EX: mcv_f_whatever
+        5. DONT MIX CAPITAL AND LOWERCASE: This_Is_Not_Allowed
+          
+*** ******************************************************** **/  
+//:=============================================:CODING_STYLE://
+
+
+    #include "stdio.h"                              //:printf://
+
+    void MCV_F_INI( void ){             //:Initialize Library://
+
+        printf("[todo:code_here_for_init]\n");
+
+    }
+
+    int MCV_F_DEM( void ){           //:Library_Demonstration://
+
+        MCV_F_INI( );
+
+        return( 0 );
+    }
