@@ -13,6 +13,11 @@
         3. Public  tokens are all   capital. EX: MCV_F_WHATEVER
         4. Private tokens are all lowercase. EX: mcv_f_whatever
         5. DONT MIX CAPITAL AND LOWERCASE: This_Is_Not_Allowed
+
+    Sub_Namespaces:
+
+        mcv_d_c : c for "create info"
+        mcv_d_o : o for "object" belonging to "create info"
           
 *** ******************************************************** **/  
 //:=============================================:CODING_STYLE://
@@ -32,13 +37,20 @@
     #define DLL void
     #define CHR const char
     #define ERR mcv_f_err
+    #define LOG mcv_f_log
+    #define CHK mcv_f_chk
     #define RES int32_t                      //:VkResult Type://
     #define FUN MCV_T_FUN                 //:Generic_Function://
 
 //:==============================================:FILE_MACROS://
+//:MACROS:===================================================://
+
+    #define mcv_m_num_ext ( 2 )
+
+//:===================================================:MACROS://
 //:TYPES:====================================================://
 
-    I32 ( MCV_T_FUN )(  );           //:Generic_Function_Type://
+    typedef I32 ( MCV_T_FUN )(  );   //:Generic_Function_Type://
 
 //:====================================================:TYPES://
 //:TYPES_VULKAN:=============================================://
@@ -73,7 +85,7 @@
 
         U32                                           flags;
 
-        const struct MCT_T_VKAPPLICATIONINFO*     
+        const struct MCV_T_VKAPPLICATIONINFO*     
                                            pApplicationInfo;
 
         uint32_t                          enabledLayerCount;
@@ -101,13 +113,42 @@
         DLL* mcv_d_dll_vul = ((DLL*)0);
 
     //:--------------------------------------------------:DLL://
+    //:VULKAN_MISC:------------------------------------------://
+
+        //:FOR: ppEnabledExtensionNames://
+
+            CHR* mcv_d_arr_ext[ mcv_m_num_ext ]={
+            /** ******************************************** ***                                 
+            *** www.khronos.org/registry/vulkan/specs/       ***
+            *** 1.2-khr-extensions/html/chap47.html          ***
+            ***                                              ***
+            *** Also: Cross Checked: GLFW Library            ***
+            *** glfwGetRequiredInstanceExtensions            ***
+            *** _glfwPlatformGetRequiredInstanceExtensions   ***
+            *** ******************************************** **/
+
+                "VK_KHR_surface"
+            //: "VK_KHR_swapchain"                <-- DEVICE_EXT 
+            ,   "VK_KHR_win32_surface"
+
+            //: "VK_KHR_external_memory_win32"  
+            //: "VK_KHR_win32_keyed_mutex"  
+            //: "VK_KHR_external_semaphore_win32"  
+            //: "VK_KHR_external_fence_win32" 
+            };
+
+    //:------------------------------------------:VULKAN_MISC://
     //:VULKAN_OBJECTS:---------------------------------------://
     #define ICI struct MCV_T_VKINSTANCECREATEINFO 
+    #define A_I struct MCV_T_VKAPPLICATIONINFO
+
+        A_I  mcv_d_applicationinfo ={ 0 };
          
-        ICI mcv_d_c_instance ={ 0 };
-        VOD mcv_d_o_instance ={ 0 };
+        ICI  mcv_d_c_instance  ={   0   };
+        VOD* mcv_d_o_instance  =((VOD*)0);
 
     #undef  ICI
+    #undef  A_I
     //:---------------------------------------:VULKAN_OBJECTS://
 
 //:=====================================================:DATA://
@@ -120,14 +161,44 @@
         exit( 0xFF );
     }
 
+    VOD  mcv_f_log( CHR* msg ){
+        printf( "[mcv_f_log]:%s" , msg );
+        fflush( stdout );
+    }
+
+    VOD  mcv_f_chk( I32  res , CHR* msg ){
+    #define P printf
+    #define B break
+
+        if( 0 != res ){ 
+            printf( "[chk_fail:res]:%d\n" , res );
+            printf( "[chk_fail:msg]:%s\n" , msg );
+
+            switch( res ){
+            case (0-7) : P("[EXTENSION_NOT_PRESENT]\n"); B;
+            default:
+            };;
+
+            ERR("[FAILED_CHECK]");
+        }else
+        if( 0 == res ){ 
+            printf( "[chk_pass:res]:%d\n" , res );
+            printf( "[chk_pass:msg]:%s\n" , msg );
+        };;
+
+    #undef  P
+    #undef  B
+    }
+
     FUN* mcv_f_gpa( DLL* dll , CHR* nam ){
 
         if( ((DLL*)0) == dll ){ ERR("[NIL:DLL]"); };
         if( ((CHR*)0) == nam ){ ERR("[NIL:NAM]"); };
 
-        FUN* fun = GetProcAddress( dll , nam );
+        FUN* fun = (FUN*)GetProcAddress( dll , nam );
         if( ((FUN*)0) == fun ){
-            ERR("[GPA_FAIL]:%s\n" , nam);
+            printf("[NAME_OF_FUNCTION]:%s\n" , nam );
+            ERR("[GPA_FAIL]:%s\n");
         };;
         return( fun );
     }
@@ -149,6 +220,30 @@
         return( fun( pCreateInfo,pAllocator,pInstance ) );
     }
 
+    U32 mcv_f_vmv( U32 maj , U32 min , U32 pat ){
+    /** vmv: VK_MAKE_VERSION **/
+
+        U32 out =( ((U32)0)
+        |   ( maj << 22 )
+        |   ( min << 12 )
+        |   ( pat <<  0 )
+        );;
+        return( out );
+    }
+
+    U32 mcv_f_mav( U32 var , U32 maj , U32 min , U32 pat ){
+    /** mav: VK_MAKE_API_VERSION **/
+
+        U32 out =( ((U32)0)
+        |   ( var << 29 )
+        |   ( maj << 22 )
+        |   ( min << 12 )
+        |   ( pat <<  0 )
+        );;
+        return( out );
+    }
+    
+
 //:=========================================:FUNCTIONS_VULKAN://
 //:FUNCTIONS:================================================://
 
@@ -168,19 +263,42 @@
     }
 
     VOD  MCV_F_INI( VOD ){              //:Initialize Library://
+           
+    #define A_I mcv_d_applicationinfo
+    #define ICI mcv_d_c_instance
 
         mcv_f_dll_all( );               //:Load_All_Libraries://
 
-        mcv_d_c_instance.xxxxxxxxxx = ( xxxxxxxxx );
+        //:VkApplicationInfo:
 
+            A_I.sType =( 0 );
+            A_I.pApplicationName   ="[Hello Triangle]"    ;
+            A_I.applicationVersion = mcv_f_vmv(   1, 0, 0);
+            A_I.pEngineName        ="[No Engine]"         ;
+            A_I.engineVersion      = mcv_f_vmv(   1, 0, 0);
+            A_I.apiVersion         = mcv_f_mav(0, 1, 2, 0);
+
+        //:VkInstanceCreateInfo:
+        
+            ICI.sType                   = (  1  )      ;
+            ICI.pApplicationInfo        =&( A_I )      ;
+            ICI.enabledExtensionCount   = mcv_m_num_ext;
+            ICI.ppEnabledExtensionNames = mcv_d_arr_ext;
+            ICI.enabledLayerCount       = 0            ;
+        
         RES res = MCV_F_VKCREATEINSTANCE(
             &( mcv_d_c_instance )
         ,    (       0          )      //:AllocationCallbacks://          
         ,   &( mcv_d_o_instance )
         );;
 
+        CHK( res , "[Instance_Create]" );
+
+
         printf("[todo:code_here_for_init]\n");
 
+    #undef  A_I
+    #undef  ICI
     }
 
     I32  MCV_F_DEM( VOD ){           //:Library_Demonstration://
@@ -193,13 +311,16 @@
 //:================================================:FUNCTIONS://
 //:FILE_MACROS:==============================================://
 
-    #undef  I32  
-    #undef  U32  
+    #undef  I32 
+    #undef  U32 
     #undef  VOD 
-    #undef  DLL
-    #undef  CHR
-    #undef  RES
-    #undef  FUN
+    #undef  DLL 
+    #undef  CHR 
+    #undef  ERR 
+    #undef  LOG 
+    #undef  CHK
+    #undef  RES 
+    #undef  FUN 
 
 //:==============================================:FILE_MACROS://
 
