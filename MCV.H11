@@ -32,8 +32,68 @@
     #define DLL void
     #define CHR const char
     #define ERR mcv_f_err
+    #define RES int32_t                      //:VkResult Type://
+    #define FUN MCV_T_FUN                 //:Generic_Function://
 
 //:==============================================:FILE_MACROS://
+//:TYPES:====================================================://
+
+    I32 ( MCV_T_FUN )(  );           //:Generic_Function_Type://
+
+//:====================================================:TYPES://
+//:TYPES_VULKAN:=============================================://
+
+//:VkStructureType://
+
+    //: typedef I32 MCV_T_VKSTRUCTURETYPE ;
+
+//:VkInstanceCreateFlags://
+
+    //: typedef U32 MCV_T_VKINSTANCECREATEFLAGS
+
+//:VkApplicationInfo://
+
+    struct MCV_T_VKAPPLICATIONINFO {
+              I32                    sType;
+        const VOD*                   pNext;
+              CHR*        pApplicationName;
+              U32       applicationVersion;
+              CHR*             pEngineName;
+              U32            engineVersion;
+              U32               apiVersion;
+    };
+
+//:VkInstanceCreateInfo://
+
+    struct MCV_T_VKINSTANCECREATEINFO {
+
+        I32                                           sType;
+
+        const void*                                   pNext;
+
+        U32                                           flags;
+
+        const struct MCT_T_VKAPPLICATIONINFO*     
+                                           pApplicationInfo;
+
+        uint32_t                          enabledLayerCount;
+
+        const char* const*              ppEnabledLayerNames;
+
+        uint32_t                      enabledExtensionCount;
+
+        const char* const*          ppEnabledExtensionNames;
+    };
+
+//:VkAllocationCallbacks://
+                
+    /** typedef void MCV_T_VKALLOCATIONCALLBACKS **/      
+
+//:VkInstance://
+            
+    /** typedef void MCV_T_VKINSTANCE **/                          
+
+//:=============================================:TYPES_VULKAN://
 //:DATA:=====================================================://
 
     //:DLL:--------------------------------------------------://
@@ -41,9 +101,17 @@
         DLL* mcv_d_dll_vul = ((DLL*)0);
 
     //:--------------------------------------------------:DLL://
+    //:VULKAN_OBJECTS:---------------------------------------://
+    #define ICI struct MCV_T_VKINSTANCECREATEINFO 
+         
+        ICI mcv_d_c_instance ={ 0 };
+        VOD mcv_d_o_instance ={ 0 };
+
+    #undef  ICI
+    //:---------------------------------------:VULKAN_OBJECTS://
 
 //:=====================================================:DATA://
-//:FUNCTIONS:================================================://
+//:FUNCTIONS_BASIC:==========================================://
 
     VOD  mcv_f_err( CHR* msg ){
 
@@ -51,6 +119,38 @@
         fflush( stdout );
         exit( 0xFF );
     }
+
+    FUN* mcv_f_gpa( DLL* dll , CHR* nam ){
+
+        if( ((DLL*)0) == dll ){ ERR("[NIL:DLL]"); };
+        if( ((CHR*)0) == nam ){ ERR("[NIL:NAM]"); };
+
+        FUN* fun = GetProcAddress( dll , nam );
+        if( ((FUN*)0) == fun ){
+            ERR("[GPA_FAIL]:%s\n" , nam);
+        };;
+        return( fun );
+    }
+
+//:==========================================:FUNCTIONS_BASIC://
+//:FUNCTIONS_VULKAN:=========================================://
+
+//:vkCreateInstance://
+
+    RES MCV_F_VKCREATEINSTANCE(
+        const struct MCV_T_VKINSTANCECREATEINFO*                 
+                                            pCreateInfo 
+    ,   const VOD*                           pAllocator 
+    ,   VOD*                                 pInstance
+    ){
+        FUN* fun =mcv_f_gpa( 
+            mcv_d_dll_vul , "vkCreateInstance" );
+        
+        return( fun( pCreateInfo,pAllocator,pInstance ) );
+    }
+
+//:=========================================:FUNCTIONS_VULKAN://
+//:FUNCTIONS:================================================://
 
     DLL* mcv_f_dll_get( CHR* nam ){
 
@@ -71,6 +171,14 @@
 
         mcv_f_dll_all( );               //:Load_All_Libraries://
 
+        mcv_d_c_instance.xxxxxxxxxx = ( xxxxxxxxx );
+
+        RES res = MCV_F_VKCREATEINSTANCE(
+            &( mcv_d_c_instance )
+        ,    (       0          )      //:AllocationCallbacks://          
+        ,   &( mcv_d_o_instance )
+        );;
+
         printf("[todo:code_here_for_init]\n");
 
     }
@@ -90,6 +198,8 @@
     #undef  VOD 
     #undef  DLL
     #undef  CHR
+    #undef  RES
+    #undef  FUN
 
 //:==============================================:FILE_MACROS://
 
