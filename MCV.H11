@@ -16,19 +16,40 @@
           
 *** ******************************************************** **/  
 //:=============================================:CODING_STYLE://
-
+//:INCLUDES:=================================================://
 
     #include "stdio.h"                              //:printf://
+    #include "stdint.h"          //:int32_t , uint32_t , etc ://
+                             
+//:=================================================:INCLUDES://
+//:FILE_MACROS:==============================================://
 
-    void MCV_F_INI( void ){             //:Initialize Library://
+    #define I32  int32_t
+    #define U32 uint32_t
+    #define VOD void
+
+//:==============================================:FILE_MACROS://
+//:FUNCTIONS:================================================://
+
+    VOD MCV_F_INI( VOD ){               //:Initialize Library://
 
         printf("[todo:code_here_for_init]\n");
 
     }
 
-    int MCV_F_DEM( void ){           //:Library_Demonstration://
+    I32 MCV_F_DEM( VOD ){            //:Library_Demonstration://
 
         MCV_F_INI( );
 
         return( 0 );
     }
+
+//:================================================:FUNCTIONS://
+//:FILE_MACROS:==============================================://
+
+    #undef  I32  
+    #undef  U32  
+    #undef  VOD  
+
+//:==============================================:FILE_MACROS://
+
