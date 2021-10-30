@@ -25,13 +25,26 @@
 //[=============================================|CODING_STYLE]//
 //|FUNCTION_INDEX:===========================================|//
 //|                                                          |//
-//| mcv_f_err  : ERRor (Halts Program Execution)             |//
-//| mcv_f_log  : LOG   (Informational Message  )             |//
-//| mcv_f_chk  : CHecK (Check Validity Of Something)         |//
-//| mcv_f_gpa  : Get_Proc_Address (Generic)                  |//
-//| mcv_f_gpav : Get_Proc_Address (Vulkan )                  |//
+//|     mcv_f_err  : ERRor (Halts Program Execution)         |//
+//|     mcv_f_log  : LOG   (Informational Message  )         |//
+//|     mcv_f_chk  : CHecK (Check Validity Of Something)     |//
+//|     mcv_f_gpa  : Get_Proc_Address (Generic)              |//
+//|     mcv_f_gpav : Get_Proc_Address (Vulkan )              |//
 //|                                                          |//
 //|===========================================:FUNCTION_INDEX|//
+//+ALL_OTHER_TOKENS_INDEX:===================================+//
+//+                                                          +//
+//+             rie : Required__Instance_Extensions          +//
+//+             aie : Available_Instance_Extensions          +//
+//+                                                          +//
+//+     mcv_m_n_rie : num_rie : Number Of [rie]              +//
+//+     mcv_d_a_rie : arr_rie : Array  Of [rie]              +//
+//+                                                          +//
+//+     mcv_d_n_aie : num_aie : Number Of [aie]              +//
+//+     mcv_d_a_aie : arr_aie : Array  Of [aie]              +//
+//+                                                          +//
+//+                                                          +//
+//+===================================|ALL_OTHER_TOKENS_INDEX+//
 //:INCLUDES:=================================================://
 
     #include "stdio.h"           //:fflush( stdout ) , printf://
@@ -66,11 +79,16 @@
 //:==============================================:FILE_MACROS://
 //:MACROS:===================================================://
 
-    #define mcv_m_num_ext ( 2 )       //:Number_Of_Extensions://
+    //: rie : RequiredInstanceExtensions :- - - - - - - - - -://
+    //: aie : AvailableInstanceExtensions( ins_ext ) :- - - -://
+    //: men : VK_MAX_EXTENSION_NAME_SIZE :- - - - - - - - - -://
 
-    #define mcv_m_men  ( 256U ) //:VK_MAX_EXTENSION_NAME_SIZE://
+        #define       mcv_m_n_rie ( 2 )   //: Number : rie ://
+        extern  CHR*  mcv_d_a_rie[  2 ] ; //: Array  : rie ://
+        #define       mcv_d_n_rie [USE:mcv_m_n_rie]
 
-    #define mcv_m_c_ins_ext ( 32 ) //: Capacity:InstanceExts ://
+        #define mcv_m_men     ( 256U )//: Max_Extension_Name ://
+        #define mcv_m_c_aie     ( 32 )          //: Capacity ://
 
 //:===================================================:MACROS://
 //:TYPES:====================================================://
@@ -149,16 +167,18 @@
 
         //:FOR: VkEnumerateInstanceExtensionProperties://
         
-            //:ins_ext == Instance_Extensions
+            //:ins_ext ==           Instance_Extensions
+            //:    aie == Available_Instance_Extensions
 
-            #define  mcv_m_c_ins_ext ( 32 )    
-            VEP      mcv_d_a_ins_ext[ mcv_m_c_ins_ext ]={0};
-            U32      mcv_d_n_ins_ext =( 0 ); 
-            #define  mcv_d_c_ins_ext [USE:mcv_m_c_ins_ext]
+            #define  mcv_m_c_aie                ( 32 )    
+            VEP      mcv_d_a_aie[ mcv_m_c_aie ]={  0 };
+            U32      mcv_d_n_aie               =(  0 ); 
+            #define  mcv_d_c_aie [USE:mcv_m_c_aie]
+            #define  mcv_m_n_aie [USE:mcv_d_n_aie]
             
         //:FOR: ppEnabledExtensionNames://
 
-            CHR* mcv_d_arr_ext[ mcv_m_num_ext ]={
+            CHR* mcv_d_a_rie[ mcv_m_n_rie ]={
             /** ******************************************** ***                                 
             *** www.khronos.org/registry/vulkan/specs/       ***
             *** 1.2-khr-extensions/html/chap47.html          ***
@@ -334,11 +354,11 @@
 
             mcv_f_dll_all( );               
 
-        //:Checking_For_Extension_Support:
+        //:Get_Available_Instance_Extensions( aie ):
 
-            #define NUM mcv_d_n_ins_ext
-            #define ARR mcv_d_a_ins_ext
-            #define CAP mcv_m_c_ins_ext
+            #define NUM mcv_d_n_aie
+            #define ARR mcv_d_a_aie
+            #define CAP mcv_m_c_aie
             
                 res = MCV_F_EIEP( NIL , &NUM , NIL );
                 CHK( res , "[MCV_F_EIEP:GET_NUM]"  );
@@ -348,7 +368,7 @@
                 res = MCV_F_EIEP( NIL, &(NUM) , &( ARR[ 0 ] ) );
                 CHK( res , "[MCV_F_EIEP:GET_ARR]"  );
 
-                P_F("[mcv_d_n_ins_ext]:%d\n", NUM );
+                P_F("[mcv_d_n_aie]:%d\n", NUM );
                 for( I32 i = 0 ; i <= (NUM-1) ; i++ ){
                     P_F( 
                         "ARR[%2d]( %42s )\n"
@@ -360,6 +380,61 @@
             #undef  NUM  
             #undef  ARR  
             #undef  CAP  
+
+        //:VIDEO_012:----------------------------------------://
+        //:VIDEO_012 : Has_Instance_Extensions ? :- - - - - -://
+        //:Required_Instance_Extensions_All_Available? :- - -://
+        {
+        //:Actual___Instance_Extensions :
+        #define NUM_AIE mcv_d_n_aie
+        #define ARR_AIE mcv_d_a_aie
+        {
+        //:Required_Instance_Extensions :
+        #define NUM_RIE mcv_m_n_rie
+        #define ARR_RIE mcv_d_a_rie
+        {
+
+            //:Compare_Actual_And_Required :- - - - - - - - -://
+            I32            sm ; //:sm: Strings_Match     ://
+            CHR* a_n ; I32 ai ; //:Actual[   Name | Index ]
+            CHR* r_n ; I32 ri ; //:Required[ Name | Index ]
+            
+            for( I32 r = 0 ; r <= (NUM_RIE-1) ; r++ ){
+            for( I32 a = 0 ; a <= (NUM_AIE-1) ; a++ ){
+            
+                a_n = &( ARR_AIE[ a ].ext_nam[ 0 ] );
+                r_n = &( ARR_RIE[ r ]        [ 0 ] );
+            
+                //:compare strings without strcmp://
+                sm =(   1   );     //:Matches_By_Default://
+                ai =(   0   );     //:CharIndex:ACTUAL  ://
+                ri =(   0   );     //:CharIndex:REQUIRED://
+                while(  1  ){
+                    if( a_n[ ai ] != r_n[ ri ] ){ sm-- ; };
+                    if( 0 == a_n[ ai ] ){ break; };
+                    if( 0 == r_n[ ri ] ){ break; };
+                    ai++;
+                    ri++;
+                };;
+            
+                if( sm >= 1 ){ break; }; 
+            };;
+                if( sm <= 0 ){
+                    P_F( "[sm]:%d\n"           , sm );
+                    P_F( "[Missing_RIE]:%s\n" , r_n );
+                    P_F( "[a_n]:%s\n"         , a_n );
+                    ERR( "[RIE_Not_Found]"          );
+                };;
+            };;
+
+        }
+        #undef  NUM_AIE 
+        #undef  ARR_AIE 
+        }
+        #undef  NUM_RIE 
+        #undef  ARR_RIE 
+        }
+        //:----------------------------------------:VIDEO_012://
 
         //:VkApplicationInfo:
 
@@ -374,8 +449,8 @@
         
             ICI.sType                   = (  1  )      ;
             ICI.pApplicationInfo        =&( A_I )      ;
-            ICI.enabledExtensionCount   = mcv_m_num_ext;
-            ICI.ppEnabledExtensionNames = mcv_d_arr_ext;
+            ICI.enabledExtensionCount   = mcv_m_n_rie  ;
+            ICI.ppEnabledExtensionNames = mcv_d_a_rie  ;
             ICI.enabledLayerCount       = 0            ;
         
         res = MCV_F_VKCREATEINSTANCE(
