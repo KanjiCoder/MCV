@@ -50,6 +50,7 @@
     #define I32  int32_t
     #define U32 uint32_t
     #define CHR const char
+    #define NCC       char
     #define ERR mcv_f_err
     #define LOG mcv_f_log
     #define CHK mcv_f_chk
@@ -132,11 +133,10 @@
 //:VkExtensionProperties://
 
     struct MCV_T_VKEXTENSIONPROPERTIES {
-        char        ext_nam[ mcv_m_men ];    //:extensionName://
-        uint32_t    spe_ver             ;    //:specVersion  ://
+        NCC  ext_nam[ mcv_m_men ];           //:extensionName://
+        U32  spe_ver             ;           //:specVersion  ://
     };
     
-
 //:=============================================:TYPES_VULKAN://
 //:DATA:=====================================================://
 
@@ -350,7 +350,11 @@
 
                 P_F("[mcv_d_n_ins_ext]:%d\n", NUM );
                 for( I32 i = 0 ; i <= (NUM-1) ; i++ ){
-                    P_F( "ARR[%2d]( %42s )\n" , i , ARR[ i ] );
+                    P_F( 
+                        "ARR[%2d]( %42s )\n"
+                    ,        i
+                    ,   &( ARR[ i ].ext_nam[ 0 ] )
+                    );;
                 };;
 
             #undef  NUM  
@@ -404,7 +408,8 @@
     #undef  DLL  
     #undef  I32  
     #undef  U32  
-    #undef  CHR  
+    #undef  CHR 
+    #undef  NCC
     #undef  ERR  
     #undef  LOG  
     #undef  CHK  
