@@ -1,4 +1,4 @@
-    gcc_exe="M:\SOF\GCC\bin\gcc.exe"
+    gcc_exe="M:\MCV_EXT\SOF\GCC\bin\gcc.exe"
 
     $gcc_exe -x c -c "DEMO.C11" -o "obj.obj"
     $gcc_exe -o "exe.exe" "obj.obj"
