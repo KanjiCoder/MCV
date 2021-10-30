@@ -1,26 +1,37 @@
-//:CODING_STYLE:=============================================://
-/** ******************************************************** ***
-                                                     
-    Namespaces:                                               
-                                                            
-        1. All global tokens begin with "MCV_".               
-        2. All global tokens have a category namespace.       
-            MCV_F : Function                                   
-            MCV_D : Data (AKA: Variable)                       
-            MCV_U : Unit Test                                  
-            MCV_T : Type                                       
-            MCV_M : Macro                                      
-        3. Public  tokens are all   capital. EX: MCV_F_WHATEVER
-        4. Private tokens are all lowercase. EX: mcv_f_whatever
-        5. DONT MIX CAPITAL AND LOWERCASE: This_Is_Not_Allowed
-
-    Sub_Namespaces:
-
-        mcv_d_c : c for "create info"
-        mcv_d_o : o for "object" belonging to "create info"
-          
-*** ******************************************************** **/  
-//:=============================================:CODING_STYLE://
+//[CODING_STYLE|=============================================]//
+//[                                                          ]//
+//[ Namespaces:                                              ]//
+//[                                                          ]//
+//[     1. All global tokens begin with "MCV_".              ]//
+//[     2. All global tokens have a category namespace.      ]//
+//[         MCV_F : Function                                 ]//
+//[         MCV_D : Data (AKA: Variable)                     ]//
+//[         MCV_U : Unit Test                                ]//
+//[         MCV_T : Type                                     ]//
+//[         MCV_M : Macro                                    ]//
+//[     3. Public  tokens all   capital. EX: MCV_F_WHATEVER  ]//
+//[     4. Private tokens all lowercase. EX: mcv_f_whatever  ]//
+//[     5. DONT MIX CAPITAL & LOWERCASE: This_Is_Not_Allowed ]//
+//[                                                          ]//
+//[ Sub_Namespaces:                                          ]//
+//[                                                          ]//
+//[     mcv_d_n : Number Of (Usually For Array)              ]//
+//[     mcv_d_c : Capacity Of Array                          ]//
+//[     mcv_d_a : Array Itself                               ]//
+//[                                                          ]//
+//[     mcv_d_c : c for "create info"                        ]//
+//[     mcv_d_o : o for "object" belonging to "create info"  ]//
+//[                                                          ]//
+//[=============================================|CODING_STYLE]//
+//|FUNCTION_INDEX:===========================================|//
+//|                                                          |//
+//| mcv_f_err  : ERRor (Halts Program Execution)             |//
+//| mcv_f_log  : LOG   (Informational Message  )             |//
+//| mcv_f_chk  : CHecK (Check Validity Of Something)         |//
+//| mcv_f_gpa  : Get_Proc_Address (Generic)                  |//
+//| mcv_f_gpav : Get_Proc_Address (Vulkan )                  |//
+//|                                                          |//
+//|===========================================:FUNCTION_INDEX|//
 //:INCLUDES:=================================================://
 
     #include "stdio.h"           //:fflush( stdout ) , printf://
@@ -31,21 +42,34 @@
 //:=================================================:INCLUDES://
 //:FILE_MACROS:==============================================://
 
+//: Basic File Macros ://
+
+    #define NIL ((void*)0)
+    #define VOD   void
+    #define DLL   void
     #define I32  int32_t
     #define U32 uint32_t
-    #define VOD void
-    #define DLL void
     #define CHR const char
     #define ERR mcv_f_err
     #define LOG mcv_f_log
     #define CHK mcv_f_chk
     #define RES int32_t                      //:VkResult Type://
     #define FUN MCV_T_FUN                 //:Generic_Function://
+    #define P_F printf
+    #define F_F fflush
+
+//: Vulkan Macros To Keep Stuff Terse ://
+
+    #define VEP struct MCV_T_VKEXTENSIONPROPERTIES
 
 //:==============================================:FILE_MACROS://
 //:MACROS:===================================================://
 
-    #define mcv_m_num_ext ( 2 )
+    #define mcv_m_num_ext ( 2 )       //:Number_Of_Extensions://
+
+    #define mcv_m_men  ( 256U ) //:VK_MAX_EXTENSION_NAME_SIZE://
+
+    #define mcv_m_c_ins_ext ( 32 ) //: Capacity:InstanceExts ://
 
 //:===================================================:MACROS://
 //:TYPES:====================================================://
@@ -103,7 +127,15 @@
 
 //:VkInstance://
             
-    /** typedef void MCV_T_VKINSTANCE **/                          
+    /** typedef void MCV_T_VKINSTANCE **/ 
+
+//:VkExtensionProperties://
+
+    struct MCV_T_VKEXTENSIONPROPERTIES {
+        char        ext_nam[ mcv_m_men ];    //:extensionName://
+        uint32_t    spe_ver             ;    //:specVersion  ://
+    };
+    
 
 //:=============================================:TYPES_VULKAN://
 //:DATA:=====================================================://
@@ -115,6 +147,15 @@
     //:--------------------------------------------------:DLL://
     //:VULKAN_MISC:------------------------------------------://
 
+        //:FOR: VkEnumerateInstanceExtensionProperties://
+        
+            //:ins_ext == Instance_Extensions
+
+            #define  mcv_m_c_ins_ext ( 32 )    
+            VEP      mcv_d_a_ins_ext[ mcv_m_c_ins_ext ]={0};
+            U32      mcv_d_n_ins_ext =( 0 ); 
+            #define  mcv_d_c_ins_ext [USE:mcv_m_c_ins_ext]
+            
         //:FOR: ppEnabledExtensionNames://
 
             CHR* mcv_d_arr_ext[ mcv_m_num_ext ]={
@@ -155,24 +196,23 @@
 //:FUNCTIONS_BASIC:==========================================://
 
     VOD  mcv_f_err( CHR* msg ){
-
-        printf( "[mcv_f_err]:%s" , msg );
-        fflush( stdout );
+        P_F( "[mcv_f_err]:%s" , msg );
+        F_F( stdout );
         exit( 0xFF );
     }
 
     VOD  mcv_f_log( CHR* msg ){
-        printf( "[mcv_f_log]:%s" , msg );
-        fflush( stdout );
+        P_F( "[mcv_f_log]:%s" , msg );
+        F_F( stdout );
     }
 
     VOD  mcv_f_chk( I32  res , CHR* msg ){
-    #define P printf
+    #define P P_F
     #define B break
 
         if( 0 != res ){ 
-            printf( "[chk_fail:res]:%d\n" , res );
-            printf( "[chk_fail:msg]:%s\n" , msg );
+            P_F( "[chk_fail:res]:%d\n" , res );
+            P_F( "[chk_fail:msg]:%s\n" , msg );
 
             switch( res ){
             case (0-7) : P("[EXTENSION_NOT_PRESENT]\n"); B;
@@ -182,8 +222,8 @@
             ERR("[FAILED_CHECK]");
         }else
         if( 0 == res ){ 
-            printf( "[chk_pass:res]:%d\n" , res );
-            printf( "[chk_pass:msg]:%s\n" , msg );
+            P_F( "[chk_pass:res]:%d\n" , res );
+            P_F( "[chk_pass:msg]:%s\n" , msg );
         };;
 
     #undef  P
@@ -197,16 +237,26 @@
 
         FUN* fun = (FUN*)GetProcAddress( dll , nam );
         if( ((FUN*)0) == fun ){
-            printf("[NAME_OF_FUNCTION]:%s\n" , nam );
+            P_F("[NAME_OF_FUNCTION]:%s\n" , nam );
             ERR("[GPA_FAIL]:%s\n");
         };;
         return( fun );
     }
 
+    FUN* mcv_f_gpav( CHR* nam ){
+
+        DLL* dll =( mcv_d_dll_vul );
+        if( ((DLL*)0) == dll ){ ERR("[GPAV_001:DLL]"); };
+        if( ((CHR*)0) == nam ){ ERR("[GPAV_002:NAM]"); };
+        FUN* fun =mcv_f_gpa( dll , nam );
+        return( fun );
+    }
+
 //:==========================================:FUNCTIONS_BASIC://
 //:FUNCTIONS_VULKAN:=========================================://
+//:VULKAN_FUNCTIONS:=========================================://
 
-//:vkCreateInstance://
+//: vkCreateInstance ://
 
     RES MCV_F_VKCREATEINSTANCE(
         const struct MCV_T_VKINSTANCECREATEINFO*                 
@@ -214,15 +264,13 @@
     ,   const VOD*                           pAllocator 
     ,   VOD*                                 pInstance
     ){
-        FUN* fun =mcv_f_gpa( 
-            mcv_d_dll_vul , "vkCreateInstance" );
-        
+        FUN* fun = mcv_f_gpav( "vkCreateInstance" );
         return( fun( pCreateInfo,pAllocator,pInstance ) );
     }
 
-    U32 mcv_f_vmv( U32 maj , U32 min , U32 pat ){
-    /** vmv: VK_MAKE_VERSION **/
+//: VK_MAKE_VERSION ( vmv ) ://
 
+    U32 mcv_f_vmv( U32 maj , U32 min , U32 pat ){
         U32 out =( ((U32)0)
         |   ( maj << 22 )
         |   ( min << 12 )
@@ -231,9 +279,9 @@
         return( out );
     }
 
-    U32 mcv_f_mav( U32 var , U32 maj , U32 min , U32 pat ){
-    /** mav: VK_MAKE_API_VERSION **/
+//: VK_MAKE_API_VERSION ( mav ) ://
 
+    U32 mcv_f_mav( U32 var , U32 maj , U32 min , U32 pat ){
         U32 out =( ((U32)0)
         |   ( var << 29 )
         |   ( maj << 22 )
@@ -243,8 +291,20 @@
         return( out );
     }
     
+//: vkEnumerateInstanceExtensionProperties ( EIEP ) ://
+
+    RES MCV_F_EIEP(
+        CHR*    N                  //: Name : pLayerName     ://
+    ,   U32*    C                  //: Count: pPropertyCount ://
+    ,   VEP*    A                  //: Array: pProperties    ://
+    ){
+        FUN* fun =mcv_f_gpav( 
+        "vkEnumerateInstanceExtensionProperties" );;
+        return( fun( N,C,A ) );
+    };;
 
 //:=========================================:FUNCTIONS_VULKAN://
+//:=========================================:VULKAN_FUNCTIONS://
 //:FUNCTIONS:================================================://
 
     DLL* mcv_f_dll_get( CHR* nam ){
@@ -263,11 +323,39 @@
     }
 
     VOD  MCV_F_INI( VOD ){              //:Initialize Library://
-           
     #define A_I mcv_d_applicationinfo
     #define ICI mcv_d_c_instance
+    
+        //:Declare_Variables:
 
-        mcv_f_dll_all( );               //:Load_All_Libraries://
+            RES res =( 0 );
+
+        //:Load_All_Libraries:
+
+            mcv_f_dll_all( );               
+
+        //:Checking_For_Extension_Support:
+
+            #define NUM mcv_d_n_ins_ext
+            #define ARR mcv_d_a_ins_ext
+            #define CAP mcv_m_c_ins_ext
+            
+                res = MCV_F_EIEP( NIL , &NUM , NIL );
+                CHK( res , "[MCV_F_EIEP:GET_NUM]"  );
+                if( NUM > CAP ){ ERR("[NUM>CAP]"); };
+                if( NUM <= 0  ){ ERR("[NUM<=00]"); };
+          
+                res = MCV_F_EIEP( NIL, &(NUM) , &( ARR[ 0 ] ) );
+                CHK( res , "[MCV_F_EIEP:GET_ARR]"  );
+
+                P_F("[mcv_d_n_ins_ext]:%d\n", NUM );
+                for( I32 i = 0 ; i <= (NUM-1) ; i++ ){
+                    P_F( "ARR[%2d]( %42s )\n" , i , ARR[ i ] );
+                };;
+
+            #undef  NUM  
+            #undef  ARR  
+            #undef  CAP  
 
         //:VkApplicationInfo:
 
@@ -286,7 +374,7 @@
             ICI.ppEnabledExtensionNames = mcv_d_arr_ext;
             ICI.enabledLayerCount       = 0            ;
         
-        RES res = MCV_F_VKCREATEINSTANCE(
+        res = MCV_F_VKCREATEINSTANCE(
             &( mcv_d_c_instance )
         ,    (       0          )      //:AllocationCallbacks://          
         ,   &( mcv_d_o_instance )
@@ -295,7 +383,7 @@
         CHK( res , "[Instance_Create]" );
 
 
-        printf("[todo:code_here_for_init]\n");
+        P_F("[todo:code_here_for_init]\n");
 
     #undef  A_I
     #undef  ICI
@@ -311,16 +399,21 @@
 //:================================================:FUNCTIONS://
 //:FILE_MACROS:==============================================://
 
-    #undef  I32 
-    #undef  U32 
-    #undef  VOD 
-    #undef  DLL 
-    #undef  CHR 
-    #undef  ERR 
-    #undef  LOG 
-    #undef  CHK
-    #undef  RES 
-    #undef  FUN 
+    #undef  NIL  
+    #undef  VOD  
+    #undef  DLL  
+    #undef  I32  
+    #undef  U32  
+    #undef  CHR  
+    #undef  ERR  
+    #undef  LOG  
+    #undef  CHK  
+    #undef  RES   
+    #undef  FUN   
+    #undef  P_F
+    #undef  F_F
+
+    #undef  VEP
 
 //:==============================================:FILE_MACROS://
 
