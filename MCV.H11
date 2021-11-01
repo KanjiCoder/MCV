@@ -401,6 +401,30 @@
     }
 
 //:==========================================:FUNCTIONS_BASIC://
+//:FUNCTIONS_DEBUGGING:======================================://
+
+    I32 MCV_F_CRA(          //: CRA: Compute_Relative_Address://
+        VOD*  a_s            //: Address Of Struct.           ://
+    ,   VOD*  a_m            //: Address Of Member.           ://
+    ){
+        I32  act =  (I32)( a_m - a_s );
+        return( act );
+    }
+
+    VOD MCV_F_ARA(          //: ABA: Assert_Relative_Address ://
+        VOD* a_s            //: Address Of Struct.           ://
+    ,   VOD* a_m            //: Address Of Member.           ://
+    ,   I32  rel            //: Relative Address Of Member   ://
+    ,   CHR* msg            //: On Error Message             ://
+    ){
+        I32  act =  MCV_F_CRA( a_s , a_m );
+        if(  act != rel ){
+            P_F( "[ARA_FAIL:MSG]:%s\n" , msg );
+            ERR( "[FAIL:ASSERT_RELATIVE_ADDRESS(ARA)]" );
+        };;
+    }
+
+//:======================================:FUNCTIONS_DEBUGGING://
 //:FUNCTIONS_VULKAN:=========================================://
 //:VULKAN_FUNCTIONS:=========================================://
 
@@ -484,6 +508,20 @@
     VOD  MCV_F_INI( VOD ){              //:Initialize Library://
     #define A_I mcv_d_applicationinfo
     #define ICI mcv_d_c_instance
+
+        //:Debug:--------------------------------------------://
+        {
+        #define A MCV_F_ARA
+
+            //:Make sure padding hack has not altered the
+            //:relative address of these memebers.
+            struct MCV_T_VKPHYSICALDEVICEPROPERTIES t={ 0 };
+            A( &( t ) , &( t.pipelineCacheUUID ) , 276 ,"[1]");
+            A( &( t ) , &( t.limits            ) , 296 ,"[2]");
+            A( &( t ) , &( t.sparseProperties  ) , 800 ,"[3]");
+             
+        }
+        //:--------------------------------------------:Debug://
     
         //:Declare_Variables:
 
@@ -632,11 +670,6 @@
 
         //:-----------------------:vkEnumeratePhysicalDevices://
         //:----------------------------------------:VIDEO_013://
-
-        P_F("[todo:code_here_for_init]\n");
-
-        siz = sizeof( struct MCV_T_VKPHYSICALDEVICEPROPERTIES );
-        printf("[siz]:%d\n" , siz );
 
     #undef  A_I
     #undef  ICI
