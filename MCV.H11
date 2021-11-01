@@ -43,7 +43,6 @@
 //+     mcv_d_n_aie : num_aie : Number Of [aie]              +//
 //+     mcv_d_a_aie : arr_aie : Array  Of [aie]              +//
 //+                                                          +//
-//+                                                          +//
 //+===================================|ALL_OTHER_TOKENS_INDEX+//
 //:INCLUDES:=================================================://
 
@@ -60,6 +59,7 @@
     #define NIL ((void*)0)
     #define VOD   void
     #define DLL   void
+    #define U08  uint8_t
     #define I32  int32_t
     #define U32 uint32_t
     #define CHR const char
@@ -71,10 +71,23 @@
     #define FUN MCV_T_FUN                 //:Generic_Function://
     #define P_F printf
     #define F_F fflush
+    #define S_A _Static_assert 
+    #define S_O sizeof
+    #define SIZ size_t
 
 //: Vulkan Macros To Keep Stuff Terse ://
 
+    //: VEP == "Vulkan_Extension_Properties" ://
+    //: PDL == "Physical_Device_Limits"      ://
+    //: DSP == "Device_Sparse_Properties"    ://
+
     #define VEP struct MCV_T_VKEXTENSIONPROPERTIES
+    #define PDL struct MCV_T_VKPHYSICALDEVICELIMITS
+    #define DSP struct MCV_T_VKPHYSICALDEVICESPARSEPROPERTIES
+
+    S_A( sizeof( U32 ) == 4 );
+    S_A( sizeof( I32 ) == 4 );
+    S_A( sizeof( U08 ) == 1 );
 
 //:==============================================:FILE_MACROS://
 //:MACROS:===================================================://
@@ -82,13 +95,20 @@
     //: rie : RequiredInstanceExtensions :- - - - - - - - - -://
     //: aie : AvailableInstanceExtensions( ins_ext ) :- - - -://
     //: men : VK_MAX_EXTENSION_NAME_SIZE :- - - - - - - - - -://
+    //: mpd : VK_MAX_PHYSICAL_DEVICE_NAME_SIZE :- - - - - - -://
+    //: uid : VK_UUID_SIZE :- - - - - - - - - -:- - - - - - -://
 
         #define       mcv_m_n_rie ( 2 )   //: Number : rie ://
         extern  CHR*  mcv_d_a_rie[  2 ] ; //: Array  : rie ://
         #define       mcv_d_n_rie [USE:mcv_m_n_rie]
 
         #define mcv_m_men     ( 256U )//: Max_Extension_Name ://
+        #define mcv_m_mpd     ( 256U )//: Max_PhyDev_Name    ://
+        #define mcv_m_uid     (  16U )//: VK_UUID_SIZE       ://
+
+
         #define mcv_m_c_aie     ( 32 )          //: Capacity ://
+        #define mcv_m_c_phy_dev (  8 )          //: Capacity ://
 
 //:===================================================:MACROS://
 //:TYPES:====================================================://
@@ -117,6 +137,7 @@
               U32            engineVersion;
               U32               apiVersion;
     };
+    S_A( sizeof( struct MCV_T_VKAPPLICATIONINFO ) == 48 );
 
 //:VkInstanceCreateInfo://
 
@@ -139,6 +160,7 @@
 
         const char* const*          ppEnabledExtensionNames;
     };
+    S_A( sizeof( struct MCV_T_VKINSTANCECREATEINFO ) == 64 );
 
 //:VkAllocationCallbacks://
                 
@@ -154,6 +176,97 @@
         NCC  ext_nam[ mcv_m_men ];           //:extensionName://
         U32  spe_ver             ;           //:specVersion  ://
     };
+    S_A( sizeof( struct MCV_T_VKEXTENSIONPROPERTIES ) == 260 );
+    S_A( sizeof( VEP )                                == 260 );
+
+//:VkPhysicalDevice://
+
+    /** typedef void MCV_T_VKPHYSICALDEVICE **/
+
+//:VkPhysicalDeviceType://
+
+    //:------------------------------------------------------://
+    //: I find enums kind of useless, so just use a I32      ://
+    //: whenever a member variable or parameter says         ://
+    //: that it is an enum.                                  ://
+    //:------------------------------------------------------://
+
+    //:------------------------------------------------------://
+        // Provided by VK_VERSION_1_0                         
+        enum MCV_T_VKPHYSICALDEVICETYPE {                   
+            VK_PHYSICAL_DEVICE_TYPE_OTHER = 0,                
+            VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU = 1,       
+            VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU = 2,         
+            VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU = 3,          
+            VK_PHYSICAL_DEVICE_TYPE_CPU = 4,                  
+        };                               
+    //:------------------------------------------------------://
+
+//:VkPhysicalDeviceLimits ( PDL ) ://
+
+    //: This struct has about 106 (+-1) members.
+    //: That is a lot of bloat. So in our code rather than
+    //: paste all of that bloat, we will just make a struct
+    //: that has the correct size in bytes of the vulkan
+    //: header type[ VkPhysicalDeviceLimits ].
+    struct MCV_T_VKPHYSICALDEVICELIMITS{
+        U08 data[ 504 ];
+    };
+    S_A( sizeof( struct MCV_T_VKPHYSICALDEVICELIMITS ) == 504 );
+    S_A( sizeof( PDL )                                 == 504 );
+
+//:VkPhysicalDeviceSparseProperties://
+
+    struct MCV_T_VKPHYSICALDEVICESPARSEPROPERTIES {
+    
+        //: rs == "residencyStandard"
+        //: re == "residencyExtra" (NOT residencyStandard)
+
+        //: residencyStandard2DBlockShape
+        U32 rs_2DBlockShape              ;
+
+        //: residencyStandard2DMultisampleBlockShape 
+        U32 rs_2DMultisampleBlockShape   ;
+
+        //: residencyStandard3DBlockShape:
+        U32 rs_3DBlockShape              ;
+
+        //: residencyAlignedMipSize
+        U32 re_AlignedMipSize            ;
+
+        //: residencyNonResidentStrict
+        U32 re_NonResidentStrict         ;
+    };
+    S_A( S_O( struct MCV_T_VKPHYSICALDEVICESPARSEPROPERTIES ) 
+                                                        == 20 );
+    S_A( S_O( DSP ) == 20 );
+
+//:VkPhysicalDeviceProperties://
+
+    S_A( sizeof( I32 ) == 4 );
+    struct MCV_T_VKPHYSICALDEVICEPROPERTIES {
+        U32            apiVersion             ;     //:   4  ://
+        U32         driverVersion             ;     //:   4  ://
+                                                    //:      ://
+        U32              vendorID             ;     //:   4  ://
+        U32              deviceID             ;     //:   4  ://
+                                                    //:      ://
+        I32           deviceType              ;     //:   4  ://
+                                                    //:      ://
+        NCC            deviceName[ mcv_m_mpd ];     //: 256  ://
+        U08     pipelineCacheUUID[ mcv_m_uid ];     //:  16  ://
+                                                    //:      ://
+                                                             
+        U08 pad_001[ 4 ]                      ;              
+        PDL                limits             ;     //: 504  ://
+        DSP      sparseProperties             ;     //:  20  ://
+        U08 pad_002[ 4 ]                      ;
+    };
+    S_A( (4+4 + 4+4 + 4 + 256+16 + 504+20)             == 816 );
+    S_A( S_O( struct MCV_T_VKPHYSICALDEVICEPROPERTIES )!= 816 );
+
+    S_A( (816 + 4 + 4 )                                == 824 );
+    S_A( S_O( struct MCV_T_VKPHYSICALDEVICEPROPERTIES )== 824 ); 
     
 //:=============================================:TYPES_VULKAN://
 //:DATA:=====================================================://
@@ -203,10 +316,25 @@
     #define ICI struct MCV_T_VKINSTANCECREATEINFO 
     #define A_I struct MCV_T_VKAPPLICATIONINFO
 
-        A_I  mcv_d_applicationinfo ={ 0 };
-         
-        ICI  mcv_d_c_instance  ={   0   };
-        VOD* mcv_d_o_instance  =((VOD*)0);
+        //:Application_Info:
+
+            A_I   mcv_d_applicationinfo ={ 0 };   
+ 
+        //:Vulkan_Instance :
+
+            ICI   mcv_d_c_instance  ={   0   };
+            VOD*  mcv_d_o_instance  =((VOD*)0);
+
+        //: Physical_Device:( phy_dev ):- - - - - - - - - - -://
+        //:     m_c : Macro_Capacity                         ://
+        //:     d_a : Data__Array                            ://
+        //:     d_n : Data__NumberOf( in array )             ://
+        //:     d_o : Data__Object( Choosen Physical Device )://
+
+            #define  mcv_m_c_phy_dev (  8 ) 
+            VOD*     mcv_d_a_phy_dev[ mcv_m_c_phy_dev ];
+            U32      mcv_d_n_phy_dev =( 0 );
+            VOD*     mcv_d_o_phy_dev ; 
 
     #undef  ICI
     #undef  A_I
@@ -323,6 +451,17 @@
         return( fun( N,C,A ) );
     };;
 
+//: vkEnumeratePhysicalDevices ( EPD ) ://
+
+    RES MCV_F_EPD(
+        VOD*  I //: VkInstance                               ://
+    ,   U32*  N //: NumberOf:Devices ( pPhysicalDeviceCount )://
+    ,   VOD** A //: Array_Of:Devices ( pPhysicalDevices     )://
+    ){
+        FUN* fun =mcv_f_gpav( "vkEnumeratePhysicalDevices" );
+        return( fun( I,N,A ) );
+    };;
+
 //:=========================================:FUNCTIONS_VULKAN://
 //:=========================================:VULKAN_FUNCTIONS://
 //:FUNCTIONS:================================================://
@@ -349,6 +488,7 @@
         //:Declare_Variables:
 
             RES res =( 0 );
+            SIZ siz =( 0 );
 
         //:Load_All_Libraries:
 
@@ -385,19 +525,19 @@
         //:VIDEO_012 : Has_Instance_Extensions ? :- - - - - -://
         //:Required_Instance_Extensions_All_Available? :- - -://
         {
-        //:Actual___Instance_Extensions :
+        //:Available_Instance_Extensions :
         #define NUM_AIE mcv_d_n_aie
         #define ARR_AIE mcv_d_a_aie
         {
-        //:Required_Instance_Extensions :
+        //:Required__Instance_Extensions :
         #define NUM_RIE mcv_m_n_rie
         #define ARR_RIE mcv_d_a_rie
         {
 
-            //:Compare_Actual_And_Required :- - - - - - - - -://
-            I32            sm ; //:sm: Strings_Match     ://
-            CHR* a_n ; I32 ai ; //:Actual[   Name | Index ]
-            CHR* r_n ; I32 ri ; //:Required[ Name | Index ]
+            //:Compare_Available_And_Required:- - - - - - - -://
+            I32            sm ; //:sm: Strings_Match         ://
+            CHR* a_n ; I32 ai ; //:Available[ Name | Index ] ://
+            CHR* r_n ; I32 ri ; //:Required[  Name | Index ] ://
             
             for( I32 r = 0 ; r <= (NUM_RIE-1) ; r++ ){
             for( I32 a = 0 ; a <= (NUM_AIE-1) ; a++ ){
@@ -406,9 +546,9 @@
                 r_n = &( ARR_RIE[ r ]        [ 0 ] );
             
                 //:compare strings without strcmp://
-                sm =(   1   );     //:Matches_By_Default://
-                ai =(   0   );     //:CharIndex:ACTUAL  ://
-                ri =(   0   );     //:CharIndex:REQUIRED://
+                sm =(   1   );       //: Matches_By_Default  ://
+                ai =(   0   );       //: CharIndex:AVAILABLE ://
+                ri =(   0   );       //: CharIndex:REQUIRED  ://
                 while(  1  ){
                     if( a_n[ ai ] != r_n[ ri ] ){ sm-- ; };
                     if( 0 == a_n[ ai ] ){ break; };
@@ -453,16 +593,50 @@
             ICI.ppEnabledExtensionNames = mcv_d_a_rie  ;
             ICI.enabledLayerCount       = 0            ;
         
-        res = MCV_F_VKCREATEINSTANCE(
-            &( mcv_d_c_instance )
-        ,    (       0          )      //:AllocationCallbacks://          
-        ,   &( mcv_d_o_instance )
-        );;
+        //:VkCreateInstance:
 
-        CHK( res , "[Instance_Create]" );
+            res = MCV_F_VKCREATEINSTANCE(
+                &( mcv_d_c_instance )
+            ,    (       0          )  //:AllocationCallbacks://          
+            ,   &( mcv_d_o_instance )
+            );;
+            CHK( res , "[Instance_Create]" );
 
+        //:VIDEO_013:----------------------------------------://
+        //:vkEnumeratePhysicalDevices:-----------------------://
+
+            #define INS mcv_d_o_instance      //:[ vul_ins  ]://
+            #define NUM mcv_d_n_phy_dev       //:[ number of]://
+            #define ARR mcv_d_a_phy_dev       //:[ array  of]://
+            #define CAP mcv_m_c_phy_dev       //:[ capacity ]://
+        
+                //:Get number of physical devices :
+
+                    res = MCV_F_EPD( INS , &NUM , NIL );
+                    CHK( res , "[Enum_Phy_Dev:001]" );
+                    if( NUM > CAP ){ ERR("[2MANY_PHY_DEV]"); };
+
+                //:Load physical devices into array :
+
+                    res = MCV_F_EPD( INS , &NUM , ARR );
+                    CHK( res , "[Enum_Phy_Dev:002]" );
+
+                //:Smoke Test : Print Number Of[ phy_dev ]:
+
+                    P_F( "[num_phy_dev]:%d\n" , NUM );
+
+            #undef  INS  //:---------------------------------://
+            #undef  NUM  //:---------------------------------://
+            #undef  ARR  //:---------------------------------://
+            #undef  CAP  //:---------------------------------://
+
+        //:-----------------------:vkEnumeratePhysicalDevices://
+        //:----------------------------------------:VIDEO_013://
 
         P_F("[todo:code_here_for_init]\n");
+
+        siz = sizeof( struct MCV_T_VKPHYSICALDEVICEPROPERTIES );
+        printf("[siz]:%d\n" , siz );
 
     #undef  A_I
     #undef  ICI
@@ -481,6 +655,7 @@
     #undef  NIL  
     #undef  VOD  
     #undef  DLL  
+    #undef  U08
     #undef  I32  
     #undef  U32  
     #undef  CHR 
@@ -492,8 +667,13 @@
     #undef  FUN   
     #undef  P_F
     #undef  F_F
+    #undef  S_A
+    #undef  S_O
+    #undef  SIZ 
 
     #undef  VEP
+    #undef  PDL
+    #undef  DSP
 
 //:==============================================:FILE_MACROS://
 
