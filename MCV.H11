@@ -192,14 +192,14 @@
     //:------------------------------------------------------://
 
     //:------------------------------------------------------://
-        // Provided by VK_VERSION_1_0                         
-        enum MCV_T_VKPHYSICALDEVICETYPE {                   
-            VK_PHYSICAL_DEVICE_TYPE_OTHER = 0,                
-            VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU = 1,       
-            VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU = 2,         
-            VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU = 3,          
-            VK_PHYSICAL_DEVICE_TYPE_CPU = 4,                  
-        };                               
+    //:  // Provided by VK_VERSION_1_0                       ://
+    //:  enum MCV_T_VKPHYSICALDEVICETYPE {                   ://
+    //:      VK_PHYSICAL_DEVICE_TYPE_OTHER = 0,              ://
+    //:      VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU = 1,     ://
+    //:      VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU = 2,       ://
+    //:      VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU = 3,        ://
+    //:      VK_PHYSICAL_DEVICE_TYPE_CPU = 4,                ://
+    //:  };                                                  ://
     //:------------------------------------------------------://
 
 //:VkPhysicalDeviceLimits ( PDL ) ://
@@ -255,8 +255,7 @@
                                                     //:      ://
         NCC            deviceName[ mcv_m_mpd ];     //: 256  ://
         U08     pipelineCacheUUID[ mcv_m_uid ];     //:  16  ://
-                                                    //:      ://
-                                                             
+                                                    //:      ://                                      
         U08 pad_001[ 4 ]                      ;              
         PDL                limits             ;     //: 504  ://
         DSP      sparseProperties             ;     //:  20  ://
@@ -267,6 +266,15 @@
 
     S_A( (816 + 4 + 4 )                                == 824 );
     S_A( S_O( struct MCV_T_VKPHYSICALDEVICEPROPERTIES )== 824 ); 
+
+//:VkPhysicalDeviceFeatures
+
+    S_A( 8 * 220 == 32 * 55 );
+    struct MCV_T_VKPHYSICALDEVICEFEATURES {
+        //: U08 data[ 220 ];
+        U32 data[ 55 ]; //:<--SizeOf[ VkBool32 ]://
+    };
+    S_A( S_O( struct MCV_T_VKPHYSICALDEVICEFEATURES ) == 220 );
     
 //:=============================================:TYPES_VULKAN://
 //:DATA:=====================================================://
@@ -334,7 +342,7 @@
             #define  mcv_m_c_phy_dev (  8 ) 
             VOD*     mcv_d_a_phy_dev[ mcv_m_c_phy_dev ];
             U32      mcv_d_n_phy_dev =( 0 );
-            VOD*     mcv_d_o_phy_dev ; 
+            VOD*     mcv_d_o_phy_dev =( NIL );
 
     #undef  ICI
     #undef  A_I
@@ -404,14 +412,14 @@
 //:FUNCTIONS_DEBUGGING:======================================://
 
     I32 MCV_F_CRA(          //: CRA: Compute_Relative_Address://
-        VOD*  a_s            //: Address Of Struct.           ://
-    ,   VOD*  a_m            //: Address Of Member.           ://
+        VOD*  a_s           //: Address Of Struct.           ://
+    ,   VOD*  a_m           //: Address Of Member.          ://
     ){
         I32  act =  (I32)( a_m - a_s );
         return( act );
     }
 
-    VOD MCV_F_ARA(          //: ABA: Assert_Relative_Address ://
+    VOD MCV_F_ARA(          //: ARA: Assert_Relative_Address ://
         VOD* a_s            //: Address Of Struct.           ://
     ,   VOD* a_m            //: Address Of Member.           ://
     ,   I32  rel            //: Relative Address Of Member   ://
@@ -473,7 +481,7 @@
         FUN* fun =mcv_f_gpav( 
         "vkEnumerateInstanceExtensionProperties" );;
         return( fun( N,C,A ) );
-    };;
+    }
 
 //: vkEnumeratePhysicalDevices ( EPD ) ://
 
@@ -484,7 +492,55 @@
     ){
         FUN* fun =mcv_f_gpav( "vkEnumeratePhysicalDevices" );
         return( fun( I,N,A ) );
-    };;
+    }
+
+//: vkGetPhysicalDeviceProperties ://
+
+    #define TMP struct MCV_T_VKPHYSICALDEVICEPROPERTIES
+    #define GET mcv_f_gpav
+
+        VOD MCV_F_VKGETPHYSICALDEVICEPROPERTIES(
+            VOD* phy_dev
+        ,   TMP*     pdp
+        ){
+            FUN* fun =GET( "vkGetPhysicalDeviceProperties" );
+            fun( phy_dev , pdp );
+        }
+    #undef  TMP
+    #undef  GET
+
+//: vkGetPhysicalDeviceFeatures ://
+
+    #define TMP struct MCV_T_VKPHYSICALDEVICEFEATURES
+    #define GET mcv_f_gpav
+
+        VOD MCV_F_VKGETPHYSICALDEVICEFEATURES(
+            VOD* phy_dev
+        ,   TMP*     pdf
+        ){
+            FUN* fun =GET( "vkGetPhysicalDeviceFeatures" );
+            fun( phy_dev , pdf );
+        }
+    #undef  TMP
+    #undef  GET
+
+//: PRINT: PhysicalDeviceProperties:
+
+    VOD MCV_F_P_VKPHYSICALDEVICEPROPERTIES(
+        struct MCV_T_VKPHYSICALDEVICEPROPERTIES * pdp
+    ){
+        P_F( "[apiVersion]:%d\n"        , (*pdp).apiVersion   );
+        P_F( "[driverVersion]:%d\n"     , (*pdp).driverVersion);
+        P_F( "[vendorID]:%d\n"          , (*pdp).vendorID     );
+        P_F( "[deviceID]:%d\n"          , (*pdp).deviceID     );
+        P_F( "[deviceType]:%d\n"        , (*pdp).deviceType   );
+                                                        
+        P_F( "[deviceName]:%s\n"        , (*pdp).deviceName   );
+
+        P_F( "[pipelineCacheUUID]:%s\n" , "[SKIP_PRINTING]"   );
+        P_F( "[limits]:%s\n"            , "[SKIP_PRINTING]"   );
+        P_F( "[sparseProperties]:%s\n"  , "[SKIP_PRINTING]"   );
+    }
 
 //:=========================================:FUNCTIONS_VULKAN://
 //:=========================================:VULKAN_FUNCTIONS://
@@ -670,6 +726,70 @@
 
         //:-----------------------:vkEnumeratePhysicalDevices://
         //:----------------------------------------:VIDEO_013://
+        //:VIDEO_014:----------------------------------------://
+        //:Pick a physical device by making calls to:
+        //:1: vkGetPhysicalDeviceProperties
+        //:2: vkGetPhysicalDeviceFeatures
+        //:And acting accordingly.
+        #define G_P MCV_F_VKGETPHYSICALDEVICEPROPERTIES
+        #define G_F MCV_F_VKGETPHYSICALDEVICEFEATURES
+        #define ARR mcv_d_a_phy_dev
+        #define NUM mcv_d_n_phy_dev
+        #define DEV mcv_d_o_phy_dev
+        {
+            if( NUM <= 0 ){ ERR("[NO_PHYSICAL_DEVICES]"); };
+
+            struct MCV_T_VKPHYSICALDEVICEPROPERTIES d_p ={ 0 };
+            struct MCV_T_VKPHYSICALDEVICEFEATURES   d_f ={ 0 };
+
+            I32 y =( 0 ); //:Y:YES:Has feature.
+            I32 n =( 0 ); //:N:NO :Missing Feature.
+
+            for( I32 i = 0 ; i <= (NUM-1) ; i++ ){
+
+                //: DEV is a void* opaque type:
+                DEV = ARR[ i ];
+                if( ((void*)0) == DEV ){ ERR("[NILDEV]"); }; 
+                G_P( DEV , &( d_p ) );
+                G_F( DEV , &( d_f ) );
+
+                //:Todo: Make choice based on[ d_p ]&[ d_f ]
+
+                //:Something Something Device PROPERTIES:
+
+                    //:No Logic Here Yet.://
+
+                //:Gather Number Of Active Device FEATURES:
+
+                    for( I32 f = 0 ; f <=(55-1) ; f++ ){
+
+                        if( 1 == d_f.data[ f ] ){ y++ ; }else
+                        if( 0 == d_f.data[ f ] ){ n++ ; }else
+                        {
+                            ERR("[EXP:1_OR_ZERO]");
+                        };; 
+                    };;
+
+                //:Is device suitable? (isDeviceSuitable):
+                if( 1 == NUM || ( y > n ) ){
+                    break; //:choosen device == DEV
+                };;
+            };;
+
+            P_F( "\n"                                   );
+            P_F( "[yes_features]:%d\n", y               );
+            P_F( "[not_features]:%d\n", n               );
+            P_F( "\n"                                   );
+            MCV_F_P_VKPHYSICALDEVICEPROPERTIES( &(d_p)  );
+            P_F( "\n"                                   );
+        }
+        if( NIL == DEV ){ ERR("[NIL_PHYSICAL_DEVICE]"); };
+        #undef  G_P
+        #undef  G_F
+        #undef  ARR
+        #undef  NUM
+        #undef  DEV
+        //:----------------------------------------:VIDEO_014://
 
     #undef  A_I
     #undef  ICI
