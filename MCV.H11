@@ -109,6 +109,7 @@
 
         #define mcv_m_c_aie     ( 32 )          //: Capacity ://
         #define mcv_m_c_phy_dev (  8 )          //: Capacity ://
+        #define mcv_m_c_qfp    ( 256 )          //: Capacity ://
 
 //:===================================================:MACROS://
 //:TYPES:====================================================://
@@ -275,6 +276,41 @@
         U32 data[ 55 ]; //:<--SizeOf[ VkBool32 ]://
     };
     S_A( S_O( struct MCV_T_VKPHYSICALDEVICEFEATURES ) == 220 );
+
+//:VkQueueFlags
+
+    /** Just use U32 to reduce abstraction. **/
+
+//:VkExtent3D
+
+    #define E3D struct MCV_T_VKEXTENT3D
+
+        // Provided by VK_VERSION_1_0
+        struct MCV_T_VKEXTENT3D{
+            U32 wid ; //: width  ://
+            U32 hig ; //: height ://
+            U32 dep ; //: depth  ://
+        };
+        S_A( S_O( E3D ) == 12 , "[E3D]" );
+
+    #undef  E3D
+
+//:VkQueueFamilyProperties
+
+    #define E3D struct MCV_T_VKEXTENT3D
+    #define QFP struct MCV_T_VKQUEUEFAMILYPROPERTIES
+
+        // Provided by VK_VERSION_1_0
+        struct MCV_T_VKQUEUEFAMILYPROPERTIES{
+            U32 q_f ;        //: queueFlags                  ://
+            U32 num ;        //: queueCount                  ://
+            U32 tim ;        //: timestampValidBits          ://
+            E3D min ;        //: minImageTransferGranularity ://
+        };
+        S_A( S_O( QFP ) == 24 , "[QFP]" );
+
+    #undef  EXT
+    #undef  QFP
     
 //:=============================================:TYPES_VULKAN://
 //:DATA:=====================================================://
@@ -323,6 +359,7 @@
     //:VULKAN_OBJECTS:---------------------------------------://
     #define ICI struct MCV_T_VKINSTANCECREATEINFO 
     #define A_I struct MCV_T_VKAPPLICATIONINFO
+    #define QFP struct MCV_T_VKQUEUEFAMILYPROPERTIES
 
         //:Application_Info:
 
@@ -344,8 +381,15 @@
             U32      mcv_d_n_phy_dev =( 0 );
             VOD*     mcv_d_o_phy_dev =( NIL );
 
+        //: queueFamilies for the given Physical_Device:- - -://
+
+            #define  mcv_m_c_qfp ( 256 ) //:TODO: Make lower when you know what a reasonable value is.
+            QFP      mcv_d_a_qfp[ mcv_m_c_qfp ];
+            U32      mcv_d_n_qfp =( 0 );
+
     #undef  ICI
     #undef  A_I
+    #undef  QFP
     //:---------------------------------------:VULKAN_OBJECTS://
 
 //:=====================================================:DATA://
@@ -541,6 +585,23 @@
         P_F( "[limits]:%s\n"            , "[SKIP_PRINTING]"   );
         P_F( "[sparseProperties]:%s\n"  , "[SKIP_PRINTING]"   );
     }
+
+//: vkGetPhysicalDeviceQueueFamilyProperties ://
+    #define DEV VOD*   //: MCV_T_VKPHYSICALDEVICE ://
+    #define QFP struct     MCV_T_VKQUEUEFAMILYPROPERTIES
+
+        VOD MCV_F_G_QFP(
+            DEV  phy_dev //: VkPhysicalDevice physicalDevice ://
+        ,   U32* qfp_num //:       pQueueFamilyPropertyCount ://
+        ,   QFP* qfp_arr //: VkQueueFamilyProperties*        ://
+                         //: pQueueFamilyProperties          ://
+        ){
+            FUN* fun =mcv_f_gpav( 
+                "vkGetPhysicalDeviceQueueFamilyProperties" );;
+            fun( phy_dev , qfp_num , qfp_arr );
+        }
+    #undef  DEV
+    #undef  QFP
 
 //:=========================================:FUNCTIONS_VULKAN://
 //:=========================================:VULKAN_FUNCTIONS://
@@ -790,6 +851,20 @@
         #undef  NUM
         #undef  DEV
         //:----------------------------------------:VIDEO_014://
+        //:VIDEO_015:( KanjiCoder_IID_0338 ):----------------://
+        #define GET_QFP MCV_F_G_QFP
+        #define     ARR mcv_d_a_qfp
+        #define     NUM mcv_d_n_qfp
+        #define     DEV mcv_d_o_phy_dev
+        
+            GET_QFP( DEV , &NUM ,   NIL     );
+            GET_QFP( DEV , &NUM , &(ARR[0]) );
+
+        #undef  GET_QFP
+        #undef      ARR 
+        #undef      NUM 
+        #undef      DEV
+        //:----------------------------------------:VIDEO_015://
 
     #undef  A_I
     #undef  ICI
