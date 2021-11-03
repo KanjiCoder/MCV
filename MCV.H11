@@ -386,6 +386,8 @@
             #define  mcv_m_c_qfp ( 256 ) //:TODO: Make lower when you know what a reasonable value is.
             QFP      mcv_d_a_qfp[ mcv_m_c_qfp ];
             U32      mcv_d_n_qfp =( 0 );
+            I32      mcv_d_i_qfp_gra =( 0 - 1 );  //:GRAPHICS://
+            I32      mcv_d_i_qfp_com =( 0 - 1 );  //:COMPUTE ://
 
     #undef  ICI
     #undef  A_I
@@ -859,6 +861,31 @@
         
             GET_QFP( DEV , &NUM ,   NIL     );
             GET_QFP( DEV , &NUM , &(ARR[0]) );
+
+            P_F( "[NUM_QFP]:%d\n" , NUM );
+            P_F( "\n" );
+            for( I32 i = 0 ; i <=( NUM-1 ) ; i++ ){
+
+                if( ARR[ i ].q_f & 0x00000001 ){
+                    P_F("\t[GOT_GRAPHICS]\n");
+                    mcv_d_i_qfp_gra =( i );
+                }else{
+                    P_F("\t[not_graphics]\n");
+                };;
+
+                if( ARR[ i ].q_f & 0x00000002 ){
+                    P_F("\t[GOT_COMPUTE]\n");
+                    mcv_d_i_qfp_com =( i );
+                }else{
+                    P_F("\t[not_compute]\n");
+                };;
+
+                P_F( "\n" );
+            };;
+
+            P_F( "[mcv_d_i_qfp_gra]:%d\n" , mcv_d_i_qfp_gra );
+            P_F( "[mcv_d_i_qfp_com]:%d\n" , mcv_d_i_qfp_com );
+            P_F( "\n\n" );
 
         #undef  GET_QFP
         #undef      ARR 
