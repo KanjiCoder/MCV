@@ -859,9 +859,11 @@
         #define GET_QFP MCV_F_G_QFP
         #define     ARR mcv_d_a_qfp
         #define     NUM mcv_d_n_qfp
+        #define     CAP mcv_m_c_qfp
         #define     DEV mcv_d_o_phy_dev
         
             GET_QFP( DEV , &NUM ,   NIL     );
+            if( NUM > CAP ){ ERR("[QFP_ARRAY_TOO_SMALL]"); };
             GET_QFP( DEV , &NUM , &(ARR[0]) );
 
             P_F( "[NUM_QFP]:%d\n" , NUM );
@@ -892,6 +894,7 @@
         #undef  GET_QFP
         #undef      ARR 
         #undef      NUM 
+        #undef      CAP
         #undef      DEV
         //:----------------------------------------:VIDEO_015://
 
