@@ -109,7 +109,7 @@
 
         #define mcv_m_c_aie     ( 32 )          //: Capacity ://
         #define mcv_m_c_phy_dev (  8 )          //: Capacity ://
-        #define mcv_m_c_qfp    ( 256 )          //: Capacity ://
+        #define mcv_m_c_qfp    (  16 )          //: Capacity ://
 
 //:===================================================:MACROS://
 //:TYPES:====================================================://
@@ -279,7 +279,8 @@
 
 //:VkQueueFlags
 
-    /** Just use U32 to reduce abstraction. **/
+    /** VkQueueFlags is a typedef for uint32_t **/
+    /** Just use U32 to reduce abstraction.    **/
 
 //:VkExtent3D
 
@@ -383,7 +384,7 @@
 
         //: queueFamilies for the given Physical_Device:- - -://
 
-            #define  mcv_m_c_qfp ( 256 ) //:TODO: Make lower when you know what a reasonable value is.
+            #define  mcv_m_c_qfp (  16 )  
             QFP      mcv_d_a_qfp[ mcv_m_c_qfp ];
             U32      mcv_d_n_qfp =( 0 );
             I32      mcv_d_i_qfp_gra =( 0 - 1 );  //:GRAPHICS://
@@ -589,12 +590,13 @@
     }
 
 //: vkGetPhysicalDeviceQueueFamilyProperties ://
+
     #define DEV VOD*   //: MCV_T_VKPHYSICALDEVICE ://
     #define QFP struct     MCV_T_VKQUEUEFAMILYPROPERTIES
 
         VOD MCV_F_G_QFP(
             DEV  phy_dev //: VkPhysicalDevice physicalDevice ://
-        ,   U32* qfp_num //:       pQueueFamilyPropertyCount ://
+        ,   U32* qfp_num //: pQueueFamilyPropertyCount       ://
         ,   QFP* qfp_arr //: VkQueueFamilyProperties*        ://
                          //: pQueueFamilyProperties          ://
         ){
