@@ -1,3 +1,17 @@
+//[MACROS_CONFIGURATION:=====================================]//
+//[CONFIGURATION_MACROS:=====================================]//
+
+    #define MCV_M_ECI ( 1 )         //:ECI:Error_Check_Inputs://
+
+    //:**************************************************:// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    //:TODO: [If/When] code starts to mysteriously crash,:// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    //:      create your own validation for all of the   :// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    //:      vulkan function calls and then prey that    :// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    //:      you discover a problem.                     :// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    //:**************************************************:// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+//[=====================================:MACROS_CONFIGURATION]//
+//[=====================================:CONFIGURATION_MACROS]//
 //[CODING_STYLE|=============================================]//
 //[                                                          ]//
 //[ Namespaces:                                              ]//
@@ -26,7 +40,7 @@
 //|FUNCTION_INDEX:===========================================|//
 //|                                                          |//
 //|     mcv_f_err  : ERRor (Halts Program Execution)         |//
-//|     mcv_f_log  : LOG   (Informational Message  )         |//
+//|     mcv_f_say  : SAY   (Informational Message  )         |//
 //|     mcv_f_chk  : CHecK (Check Validity Of Something)     |//
 //|     mcv_f_gpa  : Get_Proc_Address (Generic)              |//
 //|     mcv_f_gpav : Get_Proc_Address (Vulkan )              |//
@@ -56,16 +70,19 @@
 
 //: Basic File Macros ://
 
+    #define ECI MCV_M_ECI 
     #define NIL ((void*)0)
     #define VOD   void
     #define DLL   void
     #define U08  uint8_t
     #define I32  int32_t
     #define U32 uint32_t
+    #define U64 uint64_t
+    #define F32 float
     #define CHR const char
     #define NCC       char
     #define ERR mcv_f_err
-    #define LOG mcv_f_log
+    #define SAY mcv_f_say
     #define CHK mcv_f_chk
     #define RES int32_t                      //:VkResult Type://
     #define FUN MCV_T_FUN                 //:Generic_Function://
@@ -118,6 +135,7 @@
 
 //:====================================================:TYPES://
 //:TYPES_VULKAN:=============================================://
+//:VULKAN_TYPES:=============================================://
 
 //:VkStructureType://
 
@@ -182,7 +200,11 @@
 
 //:VkPhysicalDevice://
 
-    /** typedef void MCV_T_VKPHYSICALDEVICE **/
+    /** **************************************************** **/
+    /** DONT CREATE: typedef void MCV_T_VKPHYSICALDEVICE     **/
+    /** Just use void* when you want VkPhysicalDevice        **/
+    /** Documentation: VK_DEFINE_HANDLE(VkPhysicalDevice)    **/
+    /** **************************************************** **/
 
 //:VkPhysicalDeviceType://
 
@@ -270,6 +292,16 @@
 
 //:VkPhysicalDeviceFeatures
 
+    //:------------------------------------------------------://
+    //: Used TWICE:                                          ://
+    //:                                                      ://
+    //: 1st: To QUERY   physical device      FEATURES.       ://
+    //: 2nd: To REQUEST physical device with FEATURES.       ://
+    //:                                                      ://
+    //: 1st: VT/../Setup/Physical_devices_and_queue_families ://
+    //: 2nd: VT/../Setup/Logical_device_and_queues           ://
+    //:------------------------------------------------------://
+
     S_A( 8 * 220 == 32 * 55 );
     struct MCV_T_VKPHYSICALDEVICEFEATURES {
         //: U08 data[ 220 ];
@@ -312,7 +344,80 @@
 
     #undef  EXT
     #undef  QFP
+
+//:VkDeviceQueueCreateFlags
+
+    /** Typedef resolves to U32 , so use U32. **/
+
+//:VkDeviceQueueCreateInfo 
+
+    #define C_I struct MCV_T_VKDEVICEQUEUECREATEINFO
+
+        // Provided by VK_VERSION_1_0
+        struct MCV_T_VKDEVICEQUEUECREATEINFO {
+                  I32    typ ;    //: sType                  ://
+            const VOD*   nex ;    //: pNext                  ://
+                  U32    c_f ;    //: flags ( create flags ) ://
+                  U32    fam ;    //: queueFamilyIndex       ://
+                  U32    num ;    //: queueCount             ://
+            const F32*   q_p ;    //: pQueuePriorities       ://
+        };
+        S_A( S_O( C_I ) == 40 , "[D_Q_C_I]" );
+
+    #undef  C_I
+
+//:VkDevice ( logical device ):
+
+    /** Do not create this. It is just a void pointer. **/
+    /** SEE: mcv_d_log_dev *************************** **/
+
+//:VkDeviceCreateFlags:
+
+    /** Resolves to a U32 for bit packing flags. **/
+    /** So just use   U32.                       **/
+
+//:VkDeviceCreateInfo:
+
+    #define DCI struct MCV_T_VKDEVICECREATEINFO
+    #define C_I struct MCV_T_VKDEVICEQUEUECREATEINFO
+    #define LIS const char* const* //:Immutable List://
+    #define FET struct MCV_T_VKPHYSICALDEVICEFEATURES
+
+        struct MCV_T_VKDEVICECREATEINFO {
+                  I32       typ; //: sType                   ://
+            const VOD*      nex; //: pNext                   ://
+                  U32       c_f; //: flags                   ://
+                        
+                  U32   num_qci; //: queueCreateInfoCount    ://
+            const C_I*  arr_qci; //: pQueueCreateInfos       ://
+                                                    
+                  U32   num_lay; //: enabledLayerCount       ://
+                  LIS   arr_lay; //: ppEnabledLayerNames     ://
+                                     
+                  U32   num_ext; //: enabledExtensionCount   ://
+                  LIS   arr_ext; //: ppEnabledExtensionNames ://
+
+            const FET*      fet; //: pEnabledFeatures        ://
+        };
+        S_A( S_O( DCI ) == 72 , "[CHECKSUM_DCI]" );
+
+    #undef  DCI
+    #undef  C_I
+    #undef  LIS
+    #undef  FET
+
+//:VkAllocationCallbacks:
+
+    #define C_B struct MCV_T_VKALLOCATIONCALLBACKS
+
+        struct MCV_T_VKALLOCATIONCALLBACKS {
+            U64 data[ 6 ];   //:Six Pointer Members In Struct://
+        };
+        S_A( S_O( C_B ) == 48 , "[CHECKSUM:C_B]" );
+
+    #undef  C_B
     
+//:=============================================:VULKAN_TYPES://
 //:=============================================:TYPES_VULKAN://
 //:DATA:=====================================================://
 
@@ -356,6 +461,10 @@
             //: "VK_KHR_external_fence_win32" 
             };
 
+        //: FOR: VkDeviceQueueCreateInfo
+
+            F32 mcv_d_q_p =( 1.0 );  //: queuePriority  ://
+
     //:------------------------------------------:VULKAN_MISC://
     //:VULKAN_OBJECTS:---------------------------------------://
     #define ICI struct MCV_T_VKINSTANCECREATEINFO 
@@ -380,7 +489,8 @@
             #define  mcv_m_c_phy_dev (  8 ) 
             VOD*     mcv_d_a_phy_dev[ mcv_m_c_phy_dev ];
             U32      mcv_d_n_phy_dev =( 0 );
-            VOD*     mcv_d_o_phy_dev =( NIL );
+            VOD*     mcv_d_o_phy_dev =( NIL ); 
+            #define    mcv_d_phy_dev [USE:mcv_d_o_phy_dev]
 
         //: queueFamilies for the given Physical_Device:- - -://
 
@@ -389,6 +499,11 @@
             U32      mcv_d_n_qfp =( 0 );
             I32      mcv_d_i_qfp_gra =( 0 - 1 );  //:GRAPHICS://
             I32      mcv_d_i_qfp_com =( 0 - 1 );  //:COMPUTE ://
+
+        //: Logical_Device: ( log_dev ):- - - - - - - - - - -://
+
+            VOD*       mcv_d_log_dev =( NIL );
+            #define  mcv_d_o_log_dev [USE:mcv_d_log_dev]
 
     #undef  ICI
     #undef  A_I
@@ -404,8 +519,8 @@
         exit( 0xFF );
     }
 
-    VOD  mcv_f_log( CHR* msg ){
-        P_F( "[mcv_f_log]:%s" , msg );
+    VOD  mcv_f_say( CHR* msg ){
+        P_F( "[mcv_f_say]:%s" , msg );
         F_F( stdout );
     }
 
@@ -606,6 +721,34 @@
         }
     #undef  DEV
     #undef  QFP
+
+//: vkCreateDevice ://
+
+    #define DCI struct MCV_T_VKDEVICECREATEINFO
+    #define C_B struct MCV_T_VKALLOCATIONCALLBACKS
+    #define CON const
+
+        RES MCV_F_VKCREATEDEVICE(
+                VOD*      phy             //: physicalDevice ://
+        ,   CON DCI*      dci             //: pCreateInfo    ://
+        ,   CON C_B*  nil_001             //: pAllocator     ://
+        ,       VOD*      log             //: pDevice        ://
+        ){
+            if( ECI >= 1 ){
+                //:Hackish Validation:
+                if( NIL == phy       ){ ERR("[NIL_PHY]"); };
+                if(  3  != dci -> typ){ ERR("[DCI_TYP]"); };
+                if( NIL != nil_001   ){ ERR("[NIL!001]"); };
+                if( NIL == log       ){ ERR("[NIL_LOG]"); };
+            };;
+
+            FUN* fun =mcv_f_gpav( "vkCreateDevice" );
+            return( fun( phy , dci , nil_001 , log  ) );
+        };
+
+    #undef  DCI
+    #undef  C_B
+    #undef  CON
 
 //:=========================================:FUNCTIONS_VULKAN://
 //:=========================================:VULKAN_FUNCTIONS://
@@ -897,6 +1040,45 @@
         #undef      CAP
         #undef      DEV
         //:----------------------------------------:VIDEO_015://
+        //:VIDEO_016:----------------------------------------://
+        #define QCI struct MCV_T_VKDEVICEQUEUECREATEINFO
+        #define D_V struct MCV_T_VKPHYSICALDEVICEFEATURES
+        #define DCI struct MCV_T_VKDEVICECREATEINFO
+        #define C_D MCV_F_VKCREATEDEVICE
+        #define PHY mcv_d_o_phy_dev
+        #define LOG mcv_d_log_dev
+
+            //:QCI: Queue Create Info ( queueCreateInfo ) ://
+
+            QCI qci =  { 0 };
+            qci.typ =  ( 2 );  //:2==DEVICE_QUEUE_CREATE_INFO://
+            qci.fam =  ( mcv_d_i_qfp_gra ); //:q_family_index://
+            qci.q_p = &( mcv_d_q_p );     //:pQueuePriorities://
+            qci.num =  (     1     );           //:queueCount://
+
+            //:D_V: Specifiy[ deviceFeatures ]we will be using:
+
+            D_V d_v = { 0 }; //:REQUESTING_NO_FEATURES://
+
+            //:DCI: Device Create Info:
+
+            DCI dci     ={ 0 };
+            dci.typ     =( 3 /**sType:Device_Create_Info==3**/);
+            dci.num_qci = 1;          //:queueCreateInfoCount://
+            dci.arr_qci = &( qci );   //:pQueueCreateInfos   ://
+            dci.fet     = &( d_v );   //:pEnabledFeatures    ://
+
+            //: vkCreateDevice
+            res = C_D(  PHY, &dci, NIL, &LOG  );
+            CHK( res , "[C_D:vkCreateDevice]" );
+
+        #undef  QCI
+        #undef  D_V
+        #undef  DCI
+        #undef  C_D
+        #undef  PHY
+        #undef  LOG
+        //:----------------------------------------:VIDEO_016://
 
     #undef  A_I
     #undef  ICI
@@ -912,16 +1094,19 @@
 //:================================================:FUNCTIONS://
 //:FILE_MACROS:==============================================://
 
+    #undef  ECI
     #undef  NIL  
     #undef  VOD  
     #undef  DLL  
     #undef  U08
     #undef  I32  
-    #undef  U32  
+    #undef  U32 
+    #undef  U64
+    #undef  F32
     #undef  CHR 
     #undef  NCC
     #undef  ERR  
-    #undef  LOG  
+    #undef  SAY  
     #undef  CHK  
     #undef  RES   
     #undef  FUN   
