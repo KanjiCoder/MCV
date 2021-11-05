@@ -39,11 +39,11 @@
 //[=============================================|CODING_STYLE]//
 //|FUNCTION_INDEX:===========================================|//
 //|                                                          |//
-//|     mcv_f_err  : ERRor (Halts Program Execution)         |//
-//|     mcv_f_say  : SAY   (Informational Message  )         |//
-//|     mcv_f_chk  : CHecK (Check Validity Of Something)     |//
-//|     mcv_f_gpa  : Get_Proc_Address (Generic)              |//
-//|     mcv_f_gpav : Get_Proc_Address (Vulkan )              |//
+//|     mcv_f_err     : ERRor (Halts Program Execution)      |//
+//|     mcv_f_say     : SAY   (Informational Message  )      |//
+//|     mcv_f_chk     : CHecK (Check Validity Of Something)  |//
+//|     mcv_f_gpa     : Get_Proc_Address (Generic)           |//
+//|     mcv_f_gpa_vul : Get_Proc_Address (Vulkan )           |//
 //|                                                          |//
 //|===========================================:FUNCTION_INDEX|//
 //+ALL_OTHER_TOKENS_INDEX:===================================+//
@@ -133,9 +133,54 @@
 
     typedef I32 ( MCV_T_FUN )(  );   //:Generic_Function_Type://
 
+    //:Function_Pointer_Structs:-----------------------------://
+
+        //:WIN32:Function_Pointer_Structs:- - - - - - - - - -://
+
+            struct mcv_t_lib_g32{
+                FUN* ChoosePixelFormat ;
+                FUN* GetStockObject    ;
+                FUN* SetPixelFormat    ;
+                FUN* SwapBuffers       ;
+            };
+
+            struct mcv_t_lib_u32{
+                FUN* CreateWindowExW   ;
+                FUN* DefWindowProcW    ;
+                FUN* DestroyWindow     ;
+                FUN* DispatchMessageW  ;
+                FUN* GetClientRect     ;
+                FUN* GetDesktopWindow  ;
+                FUN* GetWindowDC       ;
+                FUN* LoadCursorA       ;
+                FUN* LoadIconA         ;
+                FUN* MessageBoxW       ;
+                FUN* PeekMessageW      ;
+                FUN* PostQuitMessage   ;
+                FUN* RegisterClassExW  ;
+                FUN* SetFocus          ;
+                FUN* ShowWindow        ;
+                FUN* TranslateMessage  ;
+                FUN* UpdateWindow      ;
+            };
+
+            struct mcv_t_lib_k32{
+                /** We might not need kernel32 since doing **/
+                /** window on a single thread.             **/
+
+                FUN* unused_function_pointer ;
+            };
+
+        //:- - - - - - - - - -:WIN32:Function_Pointer_Structs://
+
+    //:-----------------------------:Function_Pointer_Structs://
+
 //:====================================================:TYPES://
-//:TYPES_VULKAN:=============================================://
-//:VULKAN_TYPES:=============================================://
+//:VULKAN_CORE_TYPES:========================================://
+//:                                                          ://
+//: #VULKAN_TYPES# #TYPES_VULKAN# #VULKAN_HEADER_TYPES#      ://
+//:                                                          ://
+//:- - - - - - - - - - - - - - -- - - - - - - - - - - - - - -://
 
 //:VkStructureType://
 
@@ -417,15 +462,36 @@
 
     #undef  C_B
     
-//:=============================================:VULKAN_TYPES://
-//:=============================================:TYPES_VULKAN://
+//:========================================:VULKAN_CORE_TYPES://
 //:DATA:=====================================================://
 
     //:DLL:--------------------------------------------------://
+    
+        //:Vulkan DLL(s):
 
-        DLL* mcv_d_dll_vul = ((DLL*)0);
+            DLL* mcv_d_dll_vul = ((DLL*)0);
+
+        //: Microsoft Windows Window DLL(s):                 ://
+
+        //:**************************************************://
+        //: NO! WE ARE NOT PUTTING THIS INTO A STRUCT!       ://
+        //: DON'T CREATE SUB FUNCS THAT ARE ONLY CALLED ONCE!://
+        //: DOING SO DESTROYS THE LINEAR NARRATIVE           ://
+        //: AND CREATES SPAGHETTI CODE!                      ://
+        //:**************************************************://
+
+            DLL* mcv_d_dll_g32 = ((DLL*)0); //:"gdi32.dll"   ://
+            DLL* mcv_d_dll_u32 = ((DLL*)0); //:"kernel32.dll"://
+            DLL* mcv_d_dll_k32 = ((DLL*)0); //:"user32.dll"  ://
 
     //:--------------------------------------------------:DLL://
+    //:FUNCTION_POINTERS:====================================://
+
+        struct mcv_t_lib_g32 mcv_d_lib_g32 ={ 0 };
+        struct mcv_t_lib_u32 mcv_d_lib_u32 ={ 0 };
+        struct mcv_t_lib_k32 mcv_d_lib_k32 ={ 0 };
+
+    //:====================================:FUNCTION_POINTERS://
     //:VULKAN_MISC:------------------------------------------://
 
         //:FOR: VkEnumerateInstanceExtensionProperties://
@@ -548,27 +614,69 @@
     #undef  B
     }
 
-    FUN* mcv_f_gpa( DLL* dll , CHR* nam ){
+    //:GPA_Basic:--------------------------------------------://
 
-        if( ((DLL*)0) == dll ){ ERR("[NIL:DLL]"); };
-        if( ((CHR*)0) == nam ){ ERR("[NIL:NAM]"); };
+        FUN* mcv_f_gpa( DLL* dll , CHR* nam ){
 
-        FUN* fun = (FUN*)GetProcAddress( dll , nam );
-        if( ((FUN*)0) == fun ){
-            P_F("[NAME_OF_FUNCTION]:%s\n" , nam );
-            ERR("[GPA_FAIL]:%s\n");
-        };;
-        return( fun );
-    }
+            if( ((DLL*)0) == dll ){ ERR("[NIL:DLL]"); };
+            if( ((CHR*)0) == nam ){ ERR("[NIL:NAM]"); };
 
-    FUN* mcv_f_gpav( CHR* nam ){
+            FUN* fun = (FUN*)GetProcAddress( dll , nam );
+            if( ((FUN*)0) == fun ){
+                P_F("[NAME_OF_FUNCTION]:%s\n" , nam );
+                ERR("[FAILED:mcv_f_gpa]\n");
+            };;
+            return( fun );
+        }
 
-        DLL* dll =( mcv_d_dll_vul );
-        if( ((DLL*)0) == dll ){ ERR("[GPAV_001:DLL]"); };
-        if( ((CHR*)0) == nam ){ ERR("[GPAV_002:NAM]"); };
-        FUN* fun =mcv_f_gpa( dll , nam );
-        return( fun );
-    }
+    //:--------------------------------------------:GPA_Basic://
+    //:GPA_Specific:-----------------------------------------://
+
+        //:GPA: VULKAN DLL://
+
+            FUN* mcv_f_gpa_vul( CHR* nam ){
+
+                DLL* dll =( mcv_d_dll_vul );
+                if( ((DLL*)0) == dll ){ ERR("[VUL_DLL]"); };
+                if( ((CHR*)0) == nam ){ ERR("[VUL_NAM]"); };
+                FUN* fun =mcv_f_gpa( dll , nam );
+                return( fun );
+            }
+
+        //:GPA: GDI32 DLL://
+
+            FUN* mcv_f_gpa_g32( CHR* nam ){
+
+                DLL* dll =( mcv_d_dll_g32 );
+                if( ((DLL*)0) == dll ){ ERR("[G32_DLL]"); };
+                if( ((CHR*)0) == nam ){ ERR("[G32_NAM]"); };
+                FUN* fun =mcv_f_gpa( dll , nam );
+                return( fun );
+            }
+
+        //:GPA: USER32 DLL://
+
+            FUN* mcv_f_gpa_u32( CHR* nam ){
+
+                DLL* dll =( mcv_d_dll_u32 );
+                if( ((DLL*)0) == dll ){ ERR("[U32_DLL]"); };
+                if( ((CHR*)0) == nam ){ ERR("[U32_NAM]"); };
+                FUN* fun =mcv_f_gpa( dll , nam );
+                return( fun );
+            }
+
+        //:GPA: KERNEL32 DLL://
+
+            FUN* mcv_f_gpa_k32( CHR* nam ){
+
+                DLL* dll =( mcv_d_dll_k32 );
+                if( ((DLL*)0) == dll ){ ERR("[K32_DLL]"); };
+                if( ((CHR*)0) == nam ){ ERR("[K32_NAM]"); };
+                FUN* fun =mcv_f_gpa( dll , nam );
+                return( fun );
+            }
+
+    //:-----------------------------------------:GPA_Specific://
 
 //:==========================================:FUNCTIONS_BASIC://
 //:FUNCTIONS_DEBUGGING:======================================://
@@ -606,7 +714,7 @@
     ,   const VOD*                           pAllocator 
     ,   VOD*                                 pInstance
     ){
-        FUN* fun = mcv_f_gpav( "vkCreateInstance" );
+        FUN* fun = mcv_f_gpa_vul( "vkCreateInstance" );
         return( fun( pCreateInfo,pAllocator,pInstance ) );
     }
 
@@ -640,7 +748,7 @@
     ,   U32*    C                  //: Count: pPropertyCount ://
     ,   VEP*    A                  //: Array: pProperties    ://
     ){
-        FUN* fun =mcv_f_gpav( 
+        FUN* fun =mcv_f_gpa_vul( 
         "vkEnumerateInstanceExtensionProperties" );;
         return( fun( N,C,A ) );
     }
@@ -652,14 +760,14 @@
     ,   U32*  N //: NumberOf:Devices ( pPhysicalDeviceCount )://
     ,   VOD** A //: Array_Of:Devices ( pPhysicalDevices     )://
     ){
-        FUN* fun =mcv_f_gpav( "vkEnumeratePhysicalDevices" );
+        FUN* fun =mcv_f_gpa_vul( "vkEnumeratePhysicalDevices" );
         return( fun( I,N,A ) );
     }
 
 //: vkGetPhysicalDeviceProperties ://
 
     #define TMP struct MCV_T_VKPHYSICALDEVICEPROPERTIES
-    #define GET mcv_f_gpav
+    #define GET mcv_f_gpa_vul
 
         VOD MCV_F_VKGETPHYSICALDEVICEPROPERTIES(
             VOD* phy_dev
@@ -674,7 +782,7 @@
 //: vkGetPhysicalDeviceFeatures ://
 
     #define TMP struct MCV_T_VKPHYSICALDEVICEFEATURES
-    #define GET mcv_f_gpav
+    #define GET mcv_f_gpa_vul
 
         VOD MCV_F_VKGETPHYSICALDEVICEFEATURES(
             VOD* phy_dev
@@ -715,7 +823,7 @@
         ,   QFP* qfp_arr //: VkQueueFamilyProperties*        ://
                          //: pQueueFamilyProperties          ://
         ){
-            FUN* fun =mcv_f_gpav( 
+            FUN* fun =mcv_f_gpa_vul( 
                 "vkGetPhysicalDeviceQueueFamilyProperties" );;
             fun( phy_dev , qfp_num , qfp_arr );
         }
@@ -742,7 +850,7 @@
                 if( NIL == log       ){ ERR("[NIL_LOG]"); };
             };;
 
-            FUN* fun =mcv_f_gpav( "vkCreateDevice" );
+            FUN* fun =mcv_f_gpa_vul( "vkCreateDevice" );
             return( fun( phy , dci , nil_001 , log  ) );
         };
 
@@ -763,11 +871,7 @@
         return( dll );
     }
 
-    DLL* mcv_f_dll_all( VOD ){
-
-        mcv_d_dll_vul = mcv_f_dll_get( "vulkan-1.dll" );
-
-    }
+    #define mcv_f_dll_all [JUST_INLINE_THE_LOGIC]  //: @MWM@ ://                                             
 
     VOD  MCV_F_INI( VOD ){              //:Initialize Library://
     #define A_I mcv_d_applicationinfo
@@ -786,17 +890,80 @@
              
         }
         //:--------------------------------------------:Debug://
-    
-        //:Declare_Variables:
+        //:Declare_Variables:--------------------------------://
 
             RES res =( 0 );
             SIZ siz =( 0 );
 
-        //:Load_All_Libraries:
+        //:--------------------------------:Declare_Variables://
+        //:Load_All_Libraries:-------------------------------://
+        
+            //: Conceptually : mcv_f_dll_all( ) ://        
+            #define GET mcv_f_dll_get
 
-            mcv_f_dll_all( );               
+                mcv_d_dll_vul = GET( "vulkan-1.dll" );
 
-        //:Get_Available_Instance_Extensions( aie ):
+                mcv_d_dll_g32 = GET(    "gdi32.dll" );
+                mcv_d_dll_u32 = GET(   "user32.dll" );
+                mcv_d_dll_k32 = GET( "kernel32.dll" );
+
+            #undef  GET
+
+        //:-------------------------------:Load_All_Libraries://
+        //:Function_Pointer_Frontloading:--------------------://
+
+            //:REFERENCE[ <AAC>/AAC2020/LIB/GINAWIN.D._ ]://
+
+            #define g32 mcv_d_lib_g32
+            #define u32 mcv_d_lib_u32
+            #define k32 mcv_d_lib_k32
+
+            #define   G mcv_f_gpa_g32
+            #define   U mcv_f_gpa_u32
+            #define   K mcv_f_gpa_k32
+            
+            //:G32:GDI32:
+
+            g32.ChoosePixelFormat =G( "ChoosePixelFormat" );
+            g32.GetStockObject    =G( "GetStockObject"    );
+            g32.SetPixelFormat    =G( "SetPixelFormat"    );
+            g32.SwapBuffers       =G( "SwapBuffers"       );
+
+            //:U32:USER32:
+
+            u32.CreateWindowExW   =U( "CreateWindowExW"    );
+            u32.DefWindowProcW    =U( "DefWindowProcW"     );
+            u32.DestroyWindow     =U( "DestroyWindow"      );
+            u32.DispatchMessageW  =U( "DispatchMessageW"   );
+            u32.GetClientRect     =U( "GetClientRect"      );
+            u32.GetDesktopWindow  =U( "GetDesktopWindow"   );
+            u32.GetWindowDC       =U( "GetWindowDC"        );
+            u32.LoadCursorA       =U( "LoadCursorA"        );
+            u32.LoadIconA         =U( "LoadIconA"          );
+            u32.MessageBoxW       =U( "MessageBoxW"        );
+            u32.PeekMessageW      =U( "PeekMessageW"       );
+            u32.PostQuitMessage   =U( "PostQuitMessage"    );
+            u32.RegisterClassExW  =U( "RegisterClassExW"   );
+            u32.SetFocus          =U( "SetFocus"           );
+            u32.ShowWindow        =U( "ShowWindow"         );
+            u32.TranslateMessage  =U( "TranslateMessage"   );
+            u32.UpdateWindow      =U( "UpdateWindow"       );
+
+            //:K32:KERNEL32:
+
+            //:I THINK WE ONLY NEED THIS IF WE USE MULTI
+            //:THREADED WINDOW. LETS __NOT__ DO THAT.
+
+            #undef   g32
+            #undef   u32
+            #undef   k32
+
+            #undef     G 
+            #undef     U 
+            #undef     K 
+            
+        //:--------------------:Function_Pointer_Frontloading://
+        //:Get_Available_Instance_Extensions( aie ):---------://
 
             #define NUM mcv_d_n_aie
             #define ARR mcv_d_a_aie
@@ -823,6 +990,7 @@
             #undef  ARR  
             #undef  CAP  
 
+        //:---------:Get_Available_Instance_Extensions( aie )://
         //:VIDEO_012:----------------------------------------://
         //:VIDEO_012 : Has_Instance_Extensions ? :- - - - - -://
         //:Required_Instance_Extensions_All_Available? :- - -://
@@ -877,33 +1045,35 @@
         #undef  ARR_RIE 
         }
         //:----------------------------------------:VIDEO_012://
+        //:WHEN_WAS_THIS:------------------------------------://
 
-        //:VkApplicationInfo:
+            //:VkApplicationInfo:
 
-            A_I.sType =( 0 );
-            A_I.pApplicationName   ="[Hello Triangle]"    ;
-            A_I.applicationVersion = mcv_f_vmv(   1, 0, 0);
-            A_I.pEngineName        ="[No Engine]"         ;
-            A_I.engineVersion      = mcv_f_vmv(   1, 0, 0);
-            A_I.apiVersion         = mcv_f_mav(0, 1, 2, 0);
+                A_I.sType =( 0 );
+                A_I.pApplicationName   ="[Hello Triangle]"    ;
+                A_I.applicationVersion = mcv_f_vmv(   1, 0, 0);
+                A_I.pEngineName        ="[No Engine]"         ;
+                A_I.engineVersion      = mcv_f_vmv(   1, 0, 0);
+                A_I.apiVersion         = mcv_f_mav(0, 1, 2, 0);
 
-        //:VkInstanceCreateInfo:
-        
-            ICI.sType                   = (  1  )      ;
-            ICI.pApplicationInfo        =&( A_I )      ;
-            ICI.enabledExtensionCount   = mcv_m_n_rie  ;
-            ICI.ppEnabledExtensionNames = mcv_d_a_rie  ;
-            ICI.enabledLayerCount       = 0            ;
-        
-        //:VkCreateInstance:
+            //:VkInstanceCreateInfo:
+            
+                ICI.sType                   = (  1  )      ;
+                ICI.pApplicationInfo        =&( A_I )      ;
+                ICI.enabledExtensionCount   = mcv_m_n_rie  ;
+                ICI.ppEnabledExtensionNames = mcv_d_a_rie  ;
+                ICI.enabledLayerCount       = 0            ;
+            
+            //:VkCreateInstance:
 
-            res = MCV_F_VKCREATEINSTANCE(
-                &( mcv_d_c_instance )
-            ,    (       0          )  //:AllocationCallbacks://          
-            ,   &( mcv_d_o_instance )
-            );;
-            CHK( res , "[Instance_Create]" );
+                res = MCV_F_VKCREATEINSTANCE(
+                    &( mcv_d_c_instance )
+                ,    (       0          )   //:Allo_Callbacks://          
+                ,   &( mcv_d_o_instance )
+                );;
+                CHK( res , "[Instance_Create]" );
 
+        //:------------------------------------:WHEN_WAS_THIS://
         //:VIDEO_013:----------------------------------------://
         //:vkEnumeratePhysicalDevices:-----------------------://
 
@@ -1121,4 +1291,9 @@
     #undef  DSP
 
 //:==============================================:FILE_MACROS://
+//:SHORTHAND_COMMENTS:=======================================://
+
+//:     MWM : Monkey Wrench Macro
+
+//:=======================================:SHORTHAND_COMMENTS://
 
