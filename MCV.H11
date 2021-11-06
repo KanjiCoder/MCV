@@ -42,8 +42,11 @@
 //|     mcv_f_err     : ERRor (Halts Program Execution)      |//
 //|     mcv_f_say     : SAY   (Informational Message  )      |//
 //|     mcv_f_chk     : CHecK (Check Validity Of Something)  |//
-//|     mcv_f_gpa     : Get_Proc_Address (Generic)           |//
-//|     mcv_f_gpa_vul : Get_Proc_Address (Vulkan )           |//
+//|     mcv_f_gpa     : Get_Proc_Address (Generic  )         |//
+//|     mcv_f_gpa_vul : Get_Proc_Address (Vulkan   )         |//
+//|     mcv_f_gpa_g32 : Get_Proc_Address (GDI32    )         |//
+//|     mcv_f_gpa_u32 : Get_Proc_Address (USER32   )         |//
+//|     mcv_f_gpa_k32 : Get_Proc_Address (KERNEL32 )         |//
 //|                                                          |//
 //|===========================================:FUNCTION_INDEX|//
 //+ALL_OTHER_TOKENS_INDEX:===================================+//
@@ -473,25 +476,20 @@
 
         //: Microsoft Windows Window DLL(s):                 ://
 
-        //:**************************************************://
-        //: NO! WE ARE NOT PUTTING THIS INTO A STRUCT!       ://
-        //: DON'T CREATE SUB FUNCS THAT ARE ONLY CALLED ONCE!://
-        //: DOING SO DESTROYS THE LINEAR NARRATIVE           ://
-        //: AND CREATES SPAGHETTI CODE!                      ://
-        //:**************************************************://
-
             DLL* mcv_d_dll_g32 = ((DLL*)0); //:"gdi32.dll"   ://
             DLL* mcv_d_dll_u32 = ((DLL*)0); //:"kernel32.dll"://
             DLL* mcv_d_dll_k32 = ((DLL*)0); //:"user32.dll"  ://
 
     //:--------------------------------------------------:DLL://
-    //:FUNCTION_POINTERS:====================================://
+    //:FPS:FUNCTION_POINTER_STRUCTS:=========================://
+
+        //: #_DO_NOT_POPULATE_FPS_USING_HELPER_FUNCTIONS_#   ://
 
         struct mcv_t_lib_g32 mcv_d_lib_g32 ={ 0 };
         struct mcv_t_lib_u32 mcv_d_lib_u32 ={ 0 };
         struct mcv_t_lib_k32 mcv_d_lib_k32 ={ 0 };
 
-    //:====================================:FUNCTION_POINTERS://
+    //:=========================:FPS:FUNCTION_POINTER_STRUCTS://
     //:VULKAN_MISC:------------------------------------------://
 
         //:FOR: VkEnumerateInstanceExtensionProperties://
@@ -897,6 +895,7 @@
 
         //:--------------------------------:Declare_Variables://
         //:Load_All_Libraries:-------------------------------://
+        //:VIDEO_017:----------------------------------------://
         
             //: Conceptually : mcv_f_dll_all( ) ://        
             #define GET mcv_f_dll_get
@@ -909,7 +908,9 @@
 
             #undef  GET
 
+        //:----------------------------------------:VIDEO_017://
         //:-------------------------------:Load_All_Libraries://
+        //:VIDEO_017:----------------------------------------://
         //:Function_Pointer_Frontloading:--------------------://
 
             //:REFERENCE[ <AAC>/AAC2020/LIB/GINAWIN.D._ ]://
@@ -963,6 +964,7 @@
             #undef     K 
             
         //:--------------------:Function_Pointer_Frontloading://
+        //:----------------------------------------:VIDEO_017://
         //:Get_Available_Instance_Extensions( aie ):---------://
 
             #define NUM mcv_d_n_aie
@@ -1296,4 +1298,17 @@
 //:     MWM : Monkey Wrench Macro
 
 //:=======================================:SHORTHAND_COMMENTS://
+/** LONGHAND_COMMENTS ************************************** ***
+
+    #_DO_NOT_POPULATE_FPS_USING_HELPER_FUNCTIONS_#
+
+        Do not use helper function to populate function
+        pointer structs for different DLL files.
+        Reasoning: Creates spaghetti code. Do not create
+        helper functions that are only called once.
+        Makes it harder to understand the linear narrative
+        when reading code from top to bottom.
+
+
+*** ************************************** LONGHAND_COMMENTS **/
 
