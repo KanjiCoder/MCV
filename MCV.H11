@@ -78,6 +78,7 @@
     #define VOD   void
     #define DLL   void
     #define U08  uint8_t
+    #define U16 uint16_t  
     #define I32  int32_t
     #define U32 uint32_t
     #define U64 uint64_t
@@ -171,7 +172,7 @@
                 /** We might not need kernel32 since doing **/
                 /** window on a single thread.             **/
 
-                FUN* unused_function_pointer ;
+                FUN* GetModuleHandleW ;
             };
 
         //:- - - - - - - - - -:WIN32:Function_Pointer_Structs://
@@ -179,6 +180,31 @@
     //:-----------------------------:Function_Pointer_Structs://
 
 //:====================================================:TYPES://
+//:WIN32_WINDOW_TYPES:=======================================://
+
+    #define CON const
+    #define TYP struct mcv_t_wndclassexw
+
+        struct mcv_t_wndclassexw {
+                U32   cbSize       ;
+                U32   style        ;
+                FUN*  lpfnWndProc  ;
+                I32   cbClsExtra   ;
+                I32   cbWndExtra   ;
+                VOD*  hInstance    ;
+                VOD*  hIcon        ;
+                VOD*  hCursor      ;
+                VOD*  hbrBackground;
+            CON U16*  lpszMenuName ;
+            CON U16*  lpszClassName;
+                VOD*  hIconSm      ;
+        };
+        S_A( S_O( TYP ) == 80 , "[mcv_t_wndclassexw]" );
+
+    #undef  CON
+    #undef  TYP
+
+//:=======================================:WIN32_WINDOW_TYPES://
 //:VULKAN_CORE_TYPES:========================================://
 //:                                                          ://
 //: #VULKAN_TYPES# #TYPES_VULKAN# #VULKAN_HEADER_TYPES#      ://
@@ -952,8 +978,7 @@
 
             //:K32:KERNEL32:
 
-            //:I THINK WE ONLY NEED THIS IF WE USE MULTI
-            //:THREADED WINDOW. LETS __NOT__ DO THAT.
+            k32.GetModuleHandleW  =K( "GetModuleHandleW"   );
 
             #undef   g32
             #undef   u32
@@ -1271,6 +1296,7 @@
     #undef  VOD  
     #undef  DLL  
     #undef  U08
+    #undef  U16
     #undef  I32  
     #undef  U32 
     #undef  U64
