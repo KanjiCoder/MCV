@@ -90,9 +90,9 @@
     #define ERR mcv_f_err
     #define SAY mcv_f_say
     #define CHK mcv_f_chk
-    #define RES int32_t                      //:VkResult Type://
-    #define FUN MCV_T_FUN                 //:Generic_Function://
-    #define GEN MCV_T_GEN                 //:Generic_Function://
+    #define RES int32_t                    //:VkResult Type  ://
+    #define GI3 MCV_T_GI3                  //:GenericFunc:I32://
+    #define G00 MCV_T_G00                  //:GenericFunc:VOD://
     #define P_F printf
     #define F_F fflush
     #define S_A _Static_assert 
@@ -138,45 +138,46 @@
 //:===================================================:MACROS://
 //:TYPES:====================================================://
 
-    typedef I32  ( MCV_T_FUN )(  );  //:Generic_Function_Type://
-    typedef VOD* ( MCV_T_GEN )(  );  //:Generic_Function_Type://
+    
+    typedef VOD* ( MCV_T_G00 )(  );  //:Generic_Function_Type://
+    typedef I32  ( MCV_T_GI3 )(  );  //:Generic_Function_Type://
 
     //:Function_Pointer_Structs:-----------------------------://
 
         //:WIN32:Function_Pointer_Structs:- - - - - - - - - -://
 
             struct mcv_t_lib_g32{
-                FUN* ChoosePixelFormat ;
-                FUN* GetStockObject    ;
-                FUN* SetPixelFormat    ;
-                FUN* SwapBuffers       ;
+                GI3* ChoosePixelFormat ;
+                GI3* GetStockObject    ;
+                GI3* SetPixelFormat    ;
+                GI3* SwapBuffers       ;
             };
 
             struct mcv_t_lib_u32{
-                GEN* CreateWindowExW   ;
-                FUN* DefWindowProcW    ;
-                FUN* DestroyWindow     ;
-                FUN* DispatchMessageW  ;
-                FUN* GetClientRect     ;
-                GEN* GetDesktopWindow  ;
-                FUN* GetWindowDC       ;
-                FUN* LoadCursorA       ;
-                FUN* LoadIconA         ;
-                FUN* MessageBoxW       ;
-                FUN* PeekMessageW      ;
-                FUN* PostQuitMessage   ;
-                FUN* RegisterClassExW  ;
-                FUN* SetFocus          ;
-                FUN* ShowWindow        ;
-                FUN* TranslateMessage  ;
-                FUN* UpdateWindow      ;
+                G00* CreateWindowExW   ;
+                GI3* DefWindowProcW    ;
+                GI3* DestroyWindow     ;
+                GI3* DispatchMessageW  ;
+                GI3* GetClientRect     ;
+                G00* GetDesktopWindow  ;
+                GI3* GetWindowDC       ;
+                GI3* LoadCursorA       ;
+                GI3* LoadIconA         ;
+                GI3* MessageBoxW       ;
+                GI3* PeekMessageW      ;
+                GI3* PostQuitMessage   ;
+                GI3* RegisterClassExW  ;
+                GI3* SetFocus          ;
+                GI3* ShowWindow        ;
+                GI3* TranslateMessage  ;
+                GI3* UpdateWindow      ;
             };
 
             struct mcv_t_lib_k32{
                 /** We might not need kernel32 since doing **/
                 /** window on a single thread.             **/
 
-                GEN* GetModuleHandleW ;
+                G00* GetModuleHandleW ;
             };
 
         //:- - - - - - - - - -:WIN32:Function_Pointer_Structs://
@@ -192,7 +193,7 @@
         struct mcv_t_wndclassexw {
                 U32   cbSize       ;
                 U32   style        ;
-                FUN*  lpfnWndProc  ;
+                GI3*  lpfnWndProc  ;
                 I32   cbClsExtra   ;
                 I32   cbWndExtra   ;
                 VOD*  hInstance    ;
@@ -670,13 +671,13 @@
 
     //:GPA_Basic:--------------------------------------------://
 
-        FUN* mcv_f_gpa( DLL* dll , CHR* nam ){
+        GI3* mcv_f_gpa( DLL* dll , CHR* nam ){
 
             if( ((DLL*)0) == dll ){ ERR("[NIL:DLL]"); };
             if( ((CHR*)0) == nam ){ ERR("[NIL:NAM]"); };
 
-            FUN* fun = (FUN*)GetProcAddress( dll , nam );
-            if( ((FUN*)0) == fun ){
+            GI3* fun = (GI3*)GetProcAddress( dll , nam );
+            if( ((GI3*)0) == fun ){
                 P_F("[NAME_OF_FUNCTION]:%s\n" , nam );
                 ERR("[FAILED:mcv_f_gpa]\n");
             };;
@@ -688,45 +689,45 @@
 
         //:GPA: VULKAN DLL://
 
-            FUN* mcv_f_gpa_vul( CHR* nam ){
+            GI3* mcv_f_gpa_vul( CHR* nam ){
 
                 DLL* dll =( mcv_d_dll_vul );
                 if( ((DLL*)0) == dll ){ ERR("[VUL_DLL]"); };
                 if( ((CHR*)0) == nam ){ ERR("[VUL_NAM]"); };
-                FUN* fun =mcv_f_gpa( dll , nam );
+                GI3* fun =mcv_f_gpa( dll , nam );
                 return( fun );
             }
 
         //:GPA: GDI32 DLL://
 
-            FUN* mcv_f_gpa_g32( CHR* nam ){
+            GI3* mcv_f_gpa_g32( CHR* nam ){
 
                 DLL* dll =( mcv_d_dll_g32 );
                 if( ((DLL*)0) == dll ){ ERR("[G32_DLL]"); };
                 if( ((CHR*)0) == nam ){ ERR("[G32_NAM]"); };
-                FUN* fun =mcv_f_gpa( dll , nam );
+                GI3* fun =mcv_f_gpa( dll , nam );
                 return( fun );
             }
 
         //:GPA: USER32 DLL://
 
-            FUN* mcv_f_gpa_u32( CHR* nam ){
+            GI3* mcv_f_gpa_u32( CHR* nam ){
 
                 DLL* dll =( mcv_d_dll_u32 );
                 if( ((DLL*)0) == dll ){ ERR("[U32_DLL]"); };
                 if( ((CHR*)0) == nam ){ ERR("[U32_NAM]"); };
-                FUN* fun =mcv_f_gpa( dll , nam );
+                GI3* fun =mcv_f_gpa( dll , nam );
                 return( fun );
             }
 
         //:GPA: KERNEL32 DLL://
 
-            FUN* mcv_f_gpa_k32( CHR* nam ){
+            GI3* mcv_f_gpa_k32( CHR* nam ){
 
                 DLL* dll =( mcv_d_dll_k32 );
                 if( ((DLL*)0) == dll ){ ERR("[K32_DLL]"); };
                 if( ((CHR*)0) == nam ){ ERR("[K32_NAM]"); };
-                FUN* fun =mcv_f_gpa( dll , nam );
+                GI3* fun =mcv_f_gpa( dll , nam );
                 return( fun );
             }
 
@@ -768,8 +769,8 @@
     ,   const VOD*                           pAllocator 
     ,   VOD*                                 pInstance
     ){
-        FUN* fun = mcv_f_gpa_vul( "vkCreateInstance" );
-        return( fun( pCreateInfo,pAllocator,pInstance ) );
+        GI3* fun = mcv_f_gpa_vul( "vkCreateInstance" );
+        return( (RES)fun( pCreateInfo,pAllocator,pInstance ) );
     }
 
 //: VK_MAKE_VERSION ( vmv ) ://
@@ -802,7 +803,7 @@
     ,   U32*    C                  //: Count: pPropertyCount ://
     ,   VEP*    A                  //: Array: pProperties    ://
     ){
-        FUN* fun =mcv_f_gpa_vul( 
+        GI3* fun =mcv_f_gpa_vul( 
         "vkEnumerateInstanceExtensionProperties" );;
         return( fun( N,C,A ) );
     }
@@ -814,8 +815,8 @@
     ,   U32*  N //: NumberOf:Devices ( pPhysicalDeviceCount )://
     ,   VOD** A //: Array_Of:Devices ( pPhysicalDevices     )://
     ){
-        FUN* fun =mcv_f_gpa_vul( "vkEnumeratePhysicalDevices" );
-        return( fun( I,N,A ) );
+        GI3* fun =mcv_f_gpa_vul( "vkEnumeratePhysicalDevices" );
+        return( (RES)fun( I,N,A ) );
     }
 
 //: vkGetPhysicalDeviceProperties ://
@@ -827,7 +828,7 @@
             VOD* phy_dev
         ,   TMP*     pdp
         ){
-            FUN* fun =GET( "vkGetPhysicalDeviceProperties" );
+            GI3* fun =GET( "vkGetPhysicalDeviceProperties" );
             fun( phy_dev , pdp );
         }
     #undef  TMP
@@ -842,7 +843,7 @@
             VOD* phy_dev
         ,   TMP*     pdf
         ){
-            FUN* fun =GET( "vkGetPhysicalDeviceFeatures" );
+            GI3* fun =GET( "vkGetPhysicalDeviceFeatures" );
             fun( phy_dev , pdf );
         }
     #undef  TMP
@@ -877,7 +878,7 @@
         ,   QFP* qfp_arr //: VkQueueFamilyProperties*        ://
                          //: pQueueFamilyProperties          ://
         ){
-            FUN* fun =mcv_f_gpa_vul( 
+            GI3* fun =mcv_f_gpa_vul( 
                 "vkGetPhysicalDeviceQueueFamilyProperties" );;
             fun( phy_dev , qfp_num , qfp_arr );
         }
@@ -904,8 +905,8 @@
                 if( NIL == log       ){ ERR("[NIL_LOG]"); };
             };;
 
-            FUN* fun =mcv_f_gpa_vul( "vkCreateDevice" );
-            return( fun( phy , dci , nil_001 , log  ) );
+            GI3* fun =mcv_f_gpa_vul( "vkCreateDevice" );
+            return( (RES)fun( phy , dci , nil_001 , log  ) );
         };
 
     #undef  DCI
@@ -1027,12 +1028,12 @@
 
             //:U32:USER32:
 
-            u32.CreateWindowExW   =(GEN*)U( "CreateWindowExW"    );
+            u32.CreateWindowExW   =(G00*)U( "CreateWindowExW"    );
             u32.DefWindowProcW    =U( "DefWindowProcW"     );
             u32.DestroyWindow     =U( "DestroyWindow"      );
             u32.DispatchMessageW  =U( "DispatchMessageW"   );
             u32.GetClientRect     =U( "GetClientRect"      );
-            u32.GetDesktopWindow  =(GEN*)U( "GetDesktopWindow"   );
+            u32.GetDesktopWindow  =(G00*)U( "GetDesktopWindow"   );
             u32.GetWindowDC       =U( "GetWindowDC"        );
             u32.LoadCursorA       =U( "LoadCursorA"        );
             u32.LoadIconA         =U( "LoadIconA"          );
@@ -1047,7 +1048,7 @@
 
             //:K32:KERNEL32:
 
-            k32.GetModuleHandleW  =(GEN*)K( "GetModuleHandleW");
+            k32.GetModuleHandleW  =(G00*)K( "GetModuleHandleW");
 
             #undef   g32
             #undef   u32
@@ -1351,6 +1352,8 @@
         #define W_C struct mcv_t_wndclassexw
         #define DEF ((I32)0x80000000)        /**CW_USEDEFAULT**/
 
+            //:REFERENCE[ <AAC>/AAC2020/LIB/GINAWIN.F._ ]://
+
             //:Misc Variables:
 
                 VOD*  hin = k32.GetModuleHandleW( NIL );
@@ -1467,8 +1470,8 @@
     #undef  SAY  
     #undef  CHK  
     #undef  RES   
-    #undef  FUN 
-    #undef  GEN
+    #undef  GI3 
+    #undef  G00
     #undef  P_F
     #undef  F_F
     #undef  S_A
