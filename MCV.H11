@@ -82,14 +82,17 @@
     #define I32  int32_t
     #define U32 uint32_t
     #define U64 uint64_t
+    #define I64  int64_t  
     #define F32 float
-    #define CHR const char
-    #define NCC       char
+    #define CHR const char                  //:Ascii___String://
+    #define UNI const wchar_t               //:Unicode_String://
+    #define NCC       char                  //:Mutable_Ascii ://
     #define ERR mcv_f_err
     #define SAY mcv_f_say
     #define CHK mcv_f_chk
     #define RES int32_t                      //:VkResult Type://
     #define FUN MCV_T_FUN                 //:Generic_Function://
+    #define GEN MCV_T_GEN                 //:Generic_Function://
     #define P_F printf
     #define F_F fflush
     #define S_A _Static_assert 
@@ -135,7 +138,8 @@
 //:===================================================:MACROS://
 //:TYPES:====================================================://
 
-    typedef I32 ( MCV_T_FUN )(  );   //:Generic_Function_Type://
+    typedef I32  ( MCV_T_FUN )(  );  //:Generic_Function_Type://
+    typedef VOD* ( MCV_T_GEN )(  );  //:Generic_Function_Type://
 
     //:Function_Pointer_Structs:-----------------------------://
 
@@ -149,12 +153,12 @@
             };
 
             struct mcv_t_lib_u32{
-                FUN* CreateWindowExW   ;
+                GEN* CreateWindowExW   ;
                 FUN* DefWindowProcW    ;
                 FUN* DestroyWindow     ;
                 FUN* DispatchMessageW  ;
                 FUN* GetClientRect     ;
-                FUN* GetDesktopWindow  ;
+                GEN* GetDesktopWindow  ;
                 FUN* GetWindowDC       ;
                 FUN* LoadCursorA       ;
                 FUN* LoadIconA         ;
@@ -172,7 +176,7 @@
                 /** We might not need kernel32 since doing **/
                 /** window on a single thread.             **/
 
-                FUN* GetModuleHandleW ;
+                GEN* GetModuleHandleW ;
             };
 
         //:- - - - - - - - - -:WIN32:Function_Pointer_Structs://
@@ -203,6 +207,27 @@
 
     #undef  CON
     #undef  TYP
+    #define P_T struct mcv_t_point
+
+        //:[ wtypes.h ]://
+
+            struct mcv_t_point {
+                I32 x ;
+                I32 y ;
+            };
+
+        //:[ winuser.h ]&[ wtypes.h ]://
+
+            struct mcv_t_msg {
+                VOD*    hwnd;
+                U32  message;
+                U64   wParam;   
+                I64   lParam;   
+                U32     time;  
+                P_T       pt;
+            };
+
+    #undef  P_T
 
 //:=======================================:WIN32_WINDOW_TYPES://
 //:VULKAN_CORE_TYPES:========================================://
@@ -516,6 +541,11 @@
         struct mcv_t_lib_k32 mcv_d_lib_k32 ={ 0 };
 
     //:=========================:FPS:FUNCTION_POINTER_STRUCTS://
+    //:WIN32_DATA:-------------------------------------------://
+
+        VOD* mcv_d_win = ((VOD*)0); //:hwnd://
+
+    //:-------------------------------------------:WIN32_DATA://
     //:VULKAN_MISC:------------------------------------------://
 
         //:FOR: VkEnumerateInstanceExtensionProperties://
@@ -895,6 +925,45 @@
         return( dll );
     }
 
+    //:Default_Win32_WindowProc:-----------------------------://
+
+        I64 __stdcall mcv_f_windowproc(
+            VOD*    hwnd
+        ,   U32     uMsg
+        ,   U64   wParam  
+        ,   I64   lParam  
+        ){
+
+            I64 res =( 64 );        //: init result to error ://
+
+            switch (uMsg){
+
+            case 0x0002 /** WM_DESTROY **/ :{
+
+                mcv_d_lib_u32.PostQuitMessage(0);
+                res=( 0 );
+
+            };break;
+            case 0x000F /** WM_PAINT **/ :{
+
+                //:DONT DO ANY PAINTING HERE, VULKAN IS GOING
+                //:TO TAKE CARE OF THAT FOR US.
+                res=( 0 );
+
+            };break;
+            default:{
+
+                res =( mcv_d_lib_u32.DefWindowProcW(
+                    hwnd, uMsg, wParam, lParam));
+
+            };break;}
+
+            return( res ); 
+        }
+
+
+    //:Default_Win32_WindowProc:-----------------------------://
+
     #define mcv_f_dll_all [JUST_INLINE_THE_LOGIC]  //: @MWM@ ://                                             
 
     VOD  MCV_F_INI( VOD ){              //:Initialize Library://
@@ -958,12 +1027,12 @@
 
             //:U32:USER32:
 
-            u32.CreateWindowExW   =U( "CreateWindowExW"    );
+            u32.CreateWindowExW   =(GEN*)U( "CreateWindowExW"    );
             u32.DefWindowProcW    =U( "DefWindowProcW"     );
             u32.DestroyWindow     =U( "DestroyWindow"      );
             u32.DispatchMessageW  =U( "DispatchMessageW"   );
             u32.GetClientRect     =U( "GetClientRect"      );
-            u32.GetDesktopWindow  =U( "GetDesktopWindow"   );
+            u32.GetDesktopWindow  =(GEN*)U( "GetDesktopWindow"   );
             u32.GetWindowDC       =U( "GetWindowDC"        );
             u32.LoadCursorA       =U( "LoadCursorA"        );
             u32.LoadIconA         =U( "LoadIconA"          );
@@ -978,7 +1047,7 @@
 
             //:K32:KERNEL32:
 
-            k32.GetModuleHandleW  =K( "GetModuleHandleW"   );
+            k32.GetModuleHandleW  =(GEN*)K( "GetModuleHandleW");
 
             #undef   g32
             #undef   u32
@@ -1276,14 +1345,103 @@
         #undef  PHY
         #undef  LOG
         //:----------------------------------------:VIDEO_016://
+        //:VIDEO_18:Win32_Window_002:------------------------://
+        #define k32 mcv_d_lib_k32
+        #define u32 mcv_d_lib_u32
+        #define W_C struct mcv_t_wndclassexw
+        #define DEF ((I32)0x80000000)        /**CW_USEDEFAULT**/
+
+            //:Misc Variables:
+
+                VOD*  hin = k32.GetModuleHandleW( NIL );
+                UNI*  nam = L"SAMPLE_WINDOW_CLASS";
+                UNI*  txt = L"LEARN_TO_PROGRAM_WINDOWS"      ;
+                U32   w_s = (U32)0x00CF0000 /**OVERLAPPED**/ ;
+
+                if( NIL == hin ){ ERR("[FAIL:GMHW]"); };
+                wprintf( L"[nam]:%ls\n" , nam );
+                wprintf( L"[txt]:%ls\n" , txt );
+        
+            //:Window Class:
+
+                W_C w_c = { 0 };
+                w_c.cbSize = sizeof( W_C );
+                w_c.lpfnWndProc   = (VOD*)&( mcv_f_windowproc );   
+                w_c.hInstance     = hin              ;
+                w_c.lpszClassName = nam              ;
+
+            //:Register Window Class:
+
+                u32.RegisterClassExW( &( w_c ) );
+
+            //:Create Window:
+
+                VOD* mcv_d_win = u32.CreateWindowExW(
+                    //:ExtendedStyle,Class,Text,WindowStyle
+                    0 , nam , txt , w_s
+                    //: _X_ , _Y_ , WID , HIG - - - - - - - -://
+                ,       DEF , DEF , DEF , DEF 
+
+                    //:ParentWin,Menu,hin,ExtraAppData- - - -://
+                ,       u32.GetDesktopWindow()   //:ParentWin://
+                ,       NIL                      //:hMenu    ://
+                ,       hin                      //:hInstance://
+                ,       NIL                      //:lParam(?)://
+                );;
+                if( NIL == mcv_d_win ){ ERR("[WINFAIL]"); };
+
+            //:Make Window Visible:
+
+                u32.ShowWindow( 
+                    mcv_d_win
+                ,  (I32)1 /**nCmdShow==SW_NORMAL**/ 
+                );;
+
+        #undef  k32
+        #undef  u32
+        #undef  W_C
+        #undef  DEF
+        //:------------------------:VIDEO_18:Win32_Window_002://
 
     #undef  A_I
     #undef  ICI
     }
 
+    VOD  MCF_F_TIK( VOD ){
+
+        /** Tick Function. Once Per Frame. **/
+
+        #define u32    mcv_d_lib_u32
+        #define P_M u32.PeekMessageW
+        #define MSG struct mcv_t_msg  
+        #define WIN        mcv_d_win 
+        #define REM        (U32)0x0001 /** PM_REMOVE **/
+
+            //: Exit Once Drained. DON'T use "GetMessage"    ://
+            //: Because "GetMessage" will block.             ://
+
+            MSG msg = { 0 };
+            while( P_M( &msg , WIN , 0 , 0 , REM ) > 0){
+
+                u32.TranslateMessage( &msg );
+                u32.DispatchMessageW( &msg );
+            };;
+ 
+        #undef  u32
+        #undef  P_M
+        #undef  MSG
+        #undef  WIN
+        #undef  REM
+    }
+
     I32  MCV_F_DEM( VOD ){           //:Library_Demonstration://
 
         MCV_F_INI( );
+        while( 1 ){
+
+            MCF_F_TIK();
+    
+        };;
 
         return( 0 );
     }
@@ -1300,14 +1458,17 @@
     #undef  I32  
     #undef  U32 
     #undef  U64
+    #undef  I64
     #undef  F32
     #undef  CHR 
+    #undef  UNI
     #undef  NCC
     #undef  ERR  
     #undef  SAY  
     #undef  CHK  
     #undef  RES   
-    #undef  FUN   
+    #undef  FUN 
+    #undef  GEN
     #undef  P_F
     #undef  F_F
     #undef  S_A
