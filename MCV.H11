@@ -516,10 +516,39 @@
         S_A( S_O( C_B ) == 48 , "[CHECKSUM:C_B]" );
 
     #undef  C_B
+
+//:VkSurfaceKHR://
+
+    /** Just use void pointer because is defined as opaque.  **/
+
+//:VkWin32SurfaceCreateFlagsKHR://
+    
+    /** Just Use U32 because that's what it resolves to. **/
+
+//:VkWin32SurfaceCreateInfoKHR://
+
+    #define W_S struct mct_t_vkwin32surfacecreateinfokhr
+
+        // Provided by VK_KHR_win32_surface
+        struct mct_t_vkwin32surfacecreateinfokhr{
+                  I32   typ;                //: sType        ://
+            const VOD*  nex;                //: pNext        ://
+                  I32   c_f;                //: Create_Flags ://
+                  VOD*  hin;                //: hInstance    ://
+                  VOD*  win;                //: hwnd         ://
+        };
+        S_A( S_O( W_S ) == 40 , "[win32_surf_size]" );
+    
+    #undef  W_S
     
 //:========================================:VULKAN_CORE_TYPES://
 //:DATA:=====================================================://
 
+    //:MISC_DATA:--------------------------------------------://
+
+        I32 mcv_d_kot =( 1 );          //:KOT:Keep_On_ticking://
+
+    //:--------------------------------------------:MISC_DATA://
     //:DLL:--------------------------------------------------://
     
         //:Vulkan DLL(s):
@@ -547,7 +576,7 @@
         VOD* mcv_d_win = ((VOD*)0); //:hwnd://
 
     //:-------------------------------------------:WIN32_DATA://
-    //:VULKAN_MISC:------------------------------------------://
+    //:VULKAN_MISC:(Not Vulkan Object Instances):------------://
 
         //:FOR: VkEnumerateInstanceExtensionProperties://
         
@@ -625,6 +654,10 @@
 
             VOD*       mcv_d_log_dev =( NIL );
             #define  mcv_d_o_log_dev [USE:mcv_d_log_dev]
+
+        //: Surface:- - - - - - - - - - - - - - - - - - - - -://
+
+            VOD* mcv_d_sur =((VOD*)0);        //:VkSurfaceKHR://
 
     #undef  ICI
     #undef  A_I
@@ -942,6 +975,7 @@
             case 0x0002 /** WM_DESTROY **/ :{
 
                 mcv_d_lib_u32.PostQuitMessage(0);
+                mcv_d_kot =( 0-1 );
                 res=( 0 );
 
             };break;
@@ -1439,12 +1473,15 @@
 
     I32  MCV_F_DEM( VOD ){           //:Library_Demonstration://
 
-        MCV_F_INI( );
-        while( 1 ){
+        MCV_F_INI( ); 
+        F_F( stdout );
+
+        while( mcv_d_kot >= 1 ){
 
             MCF_F_TIK();
     
         };;
+        P_F( "\n\n[Outside_Of_Window_Loop]\n\n\n" );
 
         return( 0 );
     }
@@ -1486,6 +1523,7 @@
 //:SHORTHAND_COMMENTS:=======================================://
 
 //:     MWM : Monkey Wrench Macro
+//:     KOT : Keep_On_Ticking
 
 //:=======================================:SHORTHAND_COMMENTS://
 /** LONGHAND_COMMENTS ************************************** ***
