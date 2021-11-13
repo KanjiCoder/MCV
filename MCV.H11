@@ -71,7 +71,25 @@
 //:=================================================:INCLUDES://
 //:FILE_MACROS:==============================================://
 
-//: Basic File Macros ://
+//: MISC_FILE_MACROS ://
+
+    #define PUBLIC_FUNCTION       /** FOR SELF DOCUMENTATION **/
+    #define PRIVATE_FUNCTION      [DONT_USE_MOST_THINGS_PRIVATE]
+
+//: MONKEY_WRENCH_MACROS ://
+
+    #define num_qci [BAD_NAME:USE_GENERAL_TO_SPECIFIC:qci_num]
+    #define arr_qci [BAD_NAME:USE_GENERAL_TO_SPECIFIC:qci_arr]
+  
+    #define num_lay [BAD_NAME:USE_GENERAL_TO_SPECIFIC:lay_num]
+    #define arr_lay [BAD_NAME:USE_GENERAL_TO_SPECIFIC:lay_arr]
+    
+    #define num_ext [BAD_NAME:USE_GENERAL_TO_SPECIFIC:ext_num]
+    #define arr_ext [BAD_NAME:USE_GENERAL_TO_SPECIFIC:ext_arr]
+
+    #define mcv_f_dll_all [JUST_INLINE_THE_LOGIC]  //: @MWM@ ://
+
+//: Basic_File_Macros ://
 
     #define ECI MCV_M_ECI 
     #define NIL ((void*)0)
@@ -99,15 +117,15 @@
     #define S_O sizeof
     #define SIZ size_t
 
-//: Vulkan Macros To Keep Stuff Terse ://
+//: Vulkan_Macros_To_Keep_Stuff_Terse ://
 
     //: VEP == "Vulkan_Extension_Properties" ://
     //: PDL == "Physical_Device_Limits"      ://
     //: DSP == "Device_Sparse_Properties"    ://
 
-    #define VEP struct MCV_T_VKEXTENSIONPROPERTIES
-    #define PDL struct MCV_T_VKPHYSICALDEVICELIMITS
-    #define DSP struct MCV_T_VKPHYSICALDEVICESPARSEPROPERTIES
+    #define VEP struct mcv_t_vkextensionproperties
+    #define PDL struct mcv_t_vkphysicaldevicelimits
+    #define DSP struct mcv_t_vkphysicaldevicesparseproperties
 
     S_A( sizeof( U32 ) == 4 );
     S_A( sizeof( I32 ) == 4 );
@@ -247,55 +265,63 @@
 
 //:VkApplicationInfo://
 
-    struct MCV_T_VKAPPLICATIONINFO {
-              I32                    sType;
-        const VOD*                   pNext;
-              CHR*        pApplicationName;
-              U32       applicationVersion;
-              CHR*             pEngineName;
-              U32            engineVersion;
-              U32               apiVersion;
+    struct mcv_t_vkapplicationinfo {
+              I32       typ;           //:             sType ://
+        const VOD*      nex;           //:             pNext ://
+                                       
+              CHR*  app_nam;           //:  pApplicationName ://
+              U32   app_ver;           //:applicationVersion ://
+                                       
+              CHR*  eng_nam;           //:       pEngineName ://
+              U32   eng_ver;           //:     engineVersion ://
+                                       
+              U32   api_ver;           //:        apiVersion ://
     };
-    S_A( sizeof( struct MCV_T_VKAPPLICATIONINFO ) == 48 );
+    S_A( sizeof( struct mcv_t_vkapplicationinfo ) == 48 );
 
 //:VkInstanceCreateInfo://
 
-    struct MCV_T_VKINSTANCECREATEINFO {
+    #define CON const
+    #define C_I struct mcv_t_vkinstancecreateinfo
+    #define A_I struct mcv_t_vkapplicationinfo
+    #define CCC const char* const*
 
-        I32                                           sType;
+        struct mcv_t_vkinstancecreateinfo {
 
-        const void*                                   pNext;
+            I32      typ ;   //: sType                       ://
+        CON VOD*     nex ;   //: pNext                       ://
+            U32      c_f ;   //: VkInstanceCreateFlags flags ://
+                             
+        CON A_I*     a_i ;   //: pApplicationInfo            ://
+                                                             
+            U32  lay_num ;   //: enabledLayerCount           ://
+            CCC  lay_arr ;   //: ppEnabledLayerNames         ://
+                             
+            U32  ext_num ;   //: enabledExtensionCount       ://
+            CCC  ext_arr ;   //: ppEnabledExtensionNames     ://
+        };
+        S_A( S_O( C_I ) == 64 );
 
-        U32                                           flags;
-
-        const struct MCV_T_VKAPPLICATIONINFO*     
-                                           pApplicationInfo;
-
-        uint32_t                          enabledLayerCount;
-
-        const char* const*              ppEnabledLayerNames;
-
-        uint32_t                      enabledExtensionCount;
-
-        const char* const*          ppEnabledExtensionNames;
-    };
-    S_A( sizeof( struct MCV_T_VKINSTANCECREATEINFO ) == 64 );
+    #undef  CON
+    #undef  C_I
+    #undef  A_I
+    #undef  CCC
 
 //:VkAllocationCallbacks://
                 
-    /** typedef void MCV_T_VKALLOCATIONCALLBACKS **/      
+    /** typedef void mcv_t_vkallocationcallbacks **/      
 
 //:VkInstance://
             
-    /** typedef void MCV_T_VKINSTANCE **/ 
+    /** typedef void mcv_t_vkinstance **/ 
 
 //:VkExtensionProperties://
 
-    struct MCV_T_VKEXTENSIONPROPERTIES {
+    struct mcv_t_vkextensionproperties {
         NCC  ext_nam[ mcv_m_men ];           //:extensionName://
         U32  spe_ver             ;           //:specVersion  ://
     };
-    S_A( sizeof( struct MCV_T_VKEXTENSIONPROPERTIES ) == 260 );
+    S_A( sizeof( struct mcv_t_vkextensionproperties ) == 260 );
     S_A( sizeof( VEP )                                == 260 );
 
 //:VkPhysicalDevice://
@@ -316,7 +342,7 @@
 
     //:------------------------------------------------------://
     //:  // Provided by VK_VERSION_1_0                       ://
-    //:  enum MCV_T_VKPHYSICALDEVICETYPE {                   ://
+    //:  enum mcv_t_vkphysicaldevicetype {                   ://
     //:      VK_PHYSICAL_DEVICE_TYPE_OTHER = 0,              ://
     //:      VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU = 1,     ://
     //:      VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU = 2,       ://
@@ -332,15 +358,15 @@
     //: paste all of that bloat, we will just make a struct
     //: that has the correct size in bytes of the vulkan
     //: header type[ VkPhysicalDeviceLimits ].
-    struct MCV_T_VKPHYSICALDEVICELIMITS{
+    struct mcv_t_vkphysicaldevicelimits{
         U08 data[ 504 ];
     };
-    S_A( sizeof( struct MCV_T_VKPHYSICALDEVICELIMITS ) == 504 );
+    S_A( sizeof( struct mcv_t_vkphysicaldevicelimits ) == 504 );
     S_A( sizeof( PDL )                                 == 504 );
 
 //:VkPhysicalDeviceSparseProperties://
 
-    struct MCV_T_VKPHYSICALDEVICESPARSEPROPERTIES {
+    struct mcv_t_vkphysicaldevicesparseproperties {
     
         //: rs == "residencyStandard"
         //: re == "residencyExtra" (NOT residencyStandard)
@@ -360,14 +386,14 @@
         //: residencyNonResidentStrict
         U32 re_NonResidentStrict         ;
     };
-    S_A( S_O( struct MCV_T_VKPHYSICALDEVICESPARSEPROPERTIES ) 
+    S_A( S_O( struct mcv_t_vkphysicaldevicesparseproperties ) 
                                                         == 20 );
     S_A( S_O( DSP ) == 20 );
 
 //:VkPhysicalDeviceProperties://
 
     S_A( sizeof( I32 ) == 4 );
-    struct MCV_T_VKPHYSICALDEVICEPROPERTIES {
+    struct mcv_t_vkphysicaldeviceproperties {
         U32            apiVersion             ;     //:   4  ://
         U32         driverVersion             ;     //:   4  ://
                                                     //:      ://
@@ -385,10 +411,10 @@
         U08 pad_002[ 4 ]                      ;
     };
     S_A( (4+4 + 4+4 + 4 + 256+16 + 504+20)             == 816 );
-    S_A( S_O( struct MCV_T_VKPHYSICALDEVICEPROPERTIES )!= 816 );
+    S_A( S_O( struct mcv_t_vkphysicaldeviceproperties )!= 816 );
 
     S_A( (816 + 4 + 4 )                                == 824 );
-    S_A( S_O( struct MCV_T_VKPHYSICALDEVICEPROPERTIES )== 824 ); 
+    S_A( S_O( struct mcv_t_vkphysicaldeviceproperties )== 824 ); 
 
 //:VkPhysicalDeviceFeatures
 
@@ -403,11 +429,11 @@
     //:------------------------------------------------------://
 
     S_A( 8 * 220 == 32 * 55 );
-    struct MCV_T_VKPHYSICALDEVICEFEATURES {
+    struct mcv_t_vkphysicaldevicefeatures {
         //: U08 data[ 220 ];
         U32 data[ 55 ]; //:<--SizeOf[ VkBool32 ]://
     };
-    S_A( S_O( struct MCV_T_VKPHYSICALDEVICEFEATURES ) == 220 );
+    S_A( S_O( struct mcv_t_vkphysicaldevicefeatures ) == 220 );
 
 //:VkQueueFlags
 
@@ -416,10 +442,9 @@
 
 //:VkExtent3D
 
-    #define E3D struct MCV_T_VKEXTENT3D
+    #define E3D struct mcv_t_vkextent3d
 
-        // Provided by VK_VERSION_1_0
-        struct MCV_T_VKEXTENT3D{
+        struct mcv_t_vkextent3d{
             U32 wid ; //: width  ://
             U32 hig ; //: height ://
             U32 dep ; //: depth  ://
@@ -430,11 +455,10 @@
 
 //:VkQueueFamilyProperties
 
-    #define E3D struct MCV_T_VKEXTENT3D
-    #define QFP struct MCV_T_VKQUEUEFAMILYPROPERTIES
+    #define E3D struct mcv_t_vkextent3d
+    #define QFP struct mcv_t_vkqueuefamilyproperties
 
-        // Provided by VK_VERSION_1_0
-        struct MCV_T_VKQUEUEFAMILYPROPERTIES{
+        struct mcv_t_vkqueuefamilyproperties{
             U32 q_f ;        //: queueFlags                  ://
             U32 num ;        //: queueCount                  ://
             U32 tim ;        //: timestampValidBits          ://
@@ -451,10 +475,10 @@
 
 //:VkDeviceQueueCreateInfo 
 
-    #define C_I struct MCV_T_VKDEVICEQUEUECREATEINFO
+    #define C_I struct mcv_t_vkdevicequeuecreateinfo
 
         // Provided by VK_VERSION_1_0
-        struct MCV_T_VKDEVICEQUEUECREATEINFO {
+        struct mcv_t_vkdevicequeuecreateinfo {
                   I32    typ ;    //: sType                  ://
             const VOD*   nex ;    //: pNext                  ://
                   U32    c_f ;    //: flags ( create flags ) ://
@@ -478,24 +502,24 @@
 
 //:VkDeviceCreateInfo:
 
-    #define DCI struct MCV_T_VKDEVICECREATEINFO
-    #define C_I struct MCV_T_VKDEVICEQUEUECREATEINFO
+    #define DCI struct mcv_t_vkdevicecreateinfo
+    #define C_I struct mcv_t_vkdevicequeuecreateinfo
     #define LIS const char* const* //:Immutable List://
-    #define FET struct MCV_T_VKPHYSICALDEVICEFEATURES
+    #define FET struct mcv_t_vkphysicaldevicefeatures
 
-        struct MCV_T_VKDEVICECREATEINFO {
+        struct mcv_t_vkdevicecreateinfo {
                   I32       typ; //: sType                   ://
             const VOD*      nex; //: pNext                   ://
                   U32       c_f; //: flags                   ://
                         
-                  U32   num_qci; //: queueCreateInfoCount    ://
-            const C_I*  arr_qci; //: pQueueCreateInfos       ://
+                  U32   qci_num; //: queueCreateInfoCount    ://
+            const C_I*  qci_arr; //: pQueueCreateInfos       ://
                                                     
-                  U32   num_lay; //: enabledLayerCount       ://
-                  LIS   arr_lay; //: ppEnabledLayerNames     ://
+                  U32   lay_num; //: enabledLayerCount       ://
+                  LIS   lay_arr; //: ppEnabledLayerNames     ://
                                      
-                  U32   num_ext; //: enabledExtensionCount   ://
-                  LIS   arr_ext; //: ppEnabledExtensionNames ://
+                  U32   ext_num; //: enabledExtensionCount   ://
+                  LIS   ext_arr; //: ppEnabledExtensionNames ://
 
             const FET*      fet; //: pEnabledFeatures        ://
         };
@@ -508,9 +532,9 @@
 
 //:VkAllocationCallbacks:
 
-    #define C_B struct MCV_T_VKALLOCATIONCALLBACKS
+    #define C_B struct mcv_t_vkallocationcallbacks
 
-        struct MCV_T_VKALLOCATIONCALLBACKS {
+        struct mcv_t_vkallocationcallbacks {
             U64 data[ 6 ];   //:Six Pointer Members In Struct://
         };
         S_A( S_O( C_B ) == 48 , "[CHECKSUM:C_B]" );
@@ -527,14 +551,14 @@
 
 //:VkWin32SurfaceCreateInfoKHR://
 
-    #define W_S struct mct_t_vkwin32surfacecreateinfokhr
+    #define W_S struct mcv_t_vkwin32surfacecreateinfokhr
 
         // Provided by VK_KHR_win32_surface
-        struct mct_t_vkwin32surfacecreateinfokhr{
+        struct mcv_t_vkwin32surfacecreateinfokhr{
                   I32   typ;                //: sType        ://
             const VOD*  nex;                //: pNext        ://
                   I32   c_f;                //: Create_Flags ://
-                  VOD*  hin;                //: hInstance    ://
+                  VOD*  exe;                //: hInstance    ://
                   VOD*  win;                //: hwnd         ://
         };
         S_A( S_O( W_S ) == 40 , "[win32_surf_size]" );
@@ -573,7 +597,8 @@
     //:=========================:FPS:FUNCTION_POINTER_STRUCTS://
     //:WIN32_DATA:-------------------------------------------://
 
-        VOD* mcv_d_win = ((VOD*)0); //:hwnd://
+        VOD* mcv_d_exe = ((VOD*)0); //:hInstance ://
+        VOD* mcv_d_win = ((VOD*)0); //:hwnd      ://
 
     //:-------------------------------------------:WIN32_DATA://
     //:VULKAN_MISC:(Not Vulkan Object Instances):------------://
@@ -617,9 +642,9 @@
 
     //:------------------------------------------:VULKAN_MISC://
     //:VULKAN_OBJECTS:---------------------------------------://
-    #define ICI struct MCV_T_VKINSTANCECREATEINFO 
-    #define A_I struct MCV_T_VKAPPLICATIONINFO
-    #define QFP struct MCV_T_VKQUEUEFAMILYPROPERTIES
+    #define ICI struct mcv_t_vkinstancecreateinfo 
+    #define A_I struct mcv_t_vkapplicationinfo
+    #define QFP struct mcv_t_vkqueuefamilyproperties
 
         //:Application_Info:
 
@@ -656,8 +681,18 @@
             #define  mcv_d_o_log_dev [USE:mcv_d_log_dev]
 
         //: Surface:- - - - - - - - - - - - - - - - - - - - -://
+        
+            #define C_I struct mcv_t_vkwin32surfacecreateinfokhr
+            #define OBJ VOD
+        
+                //: mcv_d_c_sur =VkWin32SurfaceCreateInfoKHR ://
+                //: mcv_d_o_sur =VkSurfaceKHR                ://
 
-            VOD* mcv_d_sur =((VOD*)0);        //:VkSurfaceKHR://
+                C_I  mcv_d_c_sur ={ 0 }    ;   
+                OBJ* mcv_d_o_sur =((VOD*)0);  
+
+            #undef  C_I
+            #undef  OBJ
 
     #undef  ICI
     #undef  A_I
@@ -769,7 +804,7 @@
 //:==========================================:FUNCTIONS_BASIC://
 //:FUNCTIONS_DEBUGGING:======================================://
 
-    I32 MCV_F_CRA(          //: CRA: Compute_Relative_Address://
+    I32 mcv_f_cra(          //: CRA: Compute_Relative_Address://
         VOD*  a_s           //: Address Of Struct.           ://
     ,   VOD*  a_m           //: Address Of Member.          ://
     ){
@@ -777,13 +812,13 @@
         return( act );
     }
 
-    VOD MCV_F_ARA(          //: ARA: Assert_Relative_Address ://
+    VOD mcv_f_ara(          //: ARA: Assert_Relative_Address ://
         VOD* a_s            //: Address Of Struct.           ://
     ,   VOD* a_m            //: Address Of Member.           ://
     ,   I32  rel            //: Relative Address Of Member   ://
     ,   CHR* msg            //: On Error Message             ://
     ){
-        I32  act =  MCV_F_CRA( a_s , a_m );
+        I32  act =  mcv_f_cra( a_s , a_m );
         if(  act != rel ){
             P_F( "[ARA_FAIL:MSG]:%s\n" , msg );
             ERR( "[FAIL:ASSERT_RELATIVE_ADDRESS(ARA)]" );
@@ -796,8 +831,8 @@
 
 //: vkCreateInstance ://
 
-    RES MCV_F_VKCREATEINSTANCE(
-        const struct MCV_T_VKINSTANCECREATEINFO*                 
+    RES mcv_f_vkcreateinstance(
+        const struct mcv_t_vkinstancecreateinfo*                 
                                             pCreateInfo 
     ,   const VOD*                           pAllocator 
     ,   VOD*                                 pInstance
@@ -831,7 +866,7 @@
     
 //: vkEnumerateInstanceExtensionProperties ( EIEP ) ://
 
-    RES MCV_F_EIEP(
+    RES mcv_f_eiep(
         CHR*    N                  //: Name : pLayerName     ://
     ,   U32*    C                  //: Count: pPropertyCount ://
     ,   VEP*    A                  //: Array: pProperties    ://
@@ -843,7 +878,7 @@
 
 //: vkEnumeratePhysicalDevices ( EPD ) ://
 
-    RES MCV_F_EPD(
+    RES mcv_f_epd(
         VOD*  I //: VkInstance                               ://
     ,   U32*  N //: NumberOf:Devices ( pPhysicalDeviceCount )://
     ,   VOD** A //: Array_Of:Devices ( pPhysicalDevices     )://
@@ -854,10 +889,10 @@
 
 //: vkGetPhysicalDeviceProperties ://
 
-    #define TMP struct MCV_T_VKPHYSICALDEVICEPROPERTIES
+    #define TMP struct mcv_t_vkphysicaldeviceproperties
     #define GET mcv_f_gpa_vul
 
-        VOD MCV_F_VKGETPHYSICALDEVICEPROPERTIES(
+        VOD mcv_f_vkgetphysicaldeviceproperties(
             VOD* phy_dev
         ,   TMP*     pdp
         ){
@@ -869,10 +904,10 @@
 
 //: vkGetPhysicalDeviceFeatures ://
 
-    #define TMP struct MCV_T_VKPHYSICALDEVICEFEATURES
+    #define TMP struct mcv_t_vkphysicaldevicefeatures
     #define GET mcv_f_gpa_vul
 
-        VOD MCV_F_VKGETPHYSICALDEVICEFEATURES(
+        VOD mcv_f_vkgetphysicaldevicefeatures(
             VOD* phy_dev
         ,   TMP*     pdf
         ){
@@ -884,9 +919,11 @@
 
 //: PRINT: PhysicalDeviceProperties:
 
-    VOD MCV_F_P_VKPHYSICALDEVICEPROPERTIES(
-        struct MCV_T_VKPHYSICALDEVICEPROPERTIES * pdp
+    VOD mcv_f_p_vkphysicaldeviceproperties(
+        struct mcv_t_vkphysicaldeviceproperties * pdp
     ){
+        /** mcv_f_p : MCVnamespace_Function_Print **/
+
         P_F( "[apiVersion]:%d\n"        , (*pdp).apiVersion   );
         P_F( "[driverVersion]:%d\n"     , (*pdp).driverVersion);
         P_F( "[vendorID]:%d\n"          , (*pdp).vendorID     );
@@ -903,9 +940,9 @@
 //: vkGetPhysicalDeviceQueueFamilyProperties ://
 
     #define DEV VOD*   //: MCV_T_VKPHYSICALDEVICE ://
-    #define QFP struct     MCV_T_VKQUEUEFAMILYPROPERTIES
+    #define QFP struct     mcv_t_vkqueuefamilyproperties
 
-        VOD MCV_F_G_QFP(
+        VOD mcv_f_g_qfp(
             DEV  phy_dev //: VkPhysicalDevice physicalDevice ://
         ,   U32* qfp_num //: pQueueFamilyPropertyCount       ://
         ,   QFP* qfp_arr //: VkQueueFamilyProperties*        ://
@@ -920,11 +957,11 @@
 
 //: vkCreateDevice ://
 
-    #define DCI struct MCV_T_VKDEVICECREATEINFO
-    #define C_B struct MCV_T_VKALLOCATIONCALLBACKS
+    #define DCI struct mcv_t_vkdevicecreateinfo
+    #define C_B struct mcv_t_vkallocationcallbacks
     #define CON const
 
-        RES MCV_F_VKCREATEDEVICE(
+        RES mcv_f_vkcreatedevice(
                 VOD*      phy             //: physicalDevice ://
         ,   CON DCI*      dci             //: pCreateInfo    ://
         ,   CON C_B*  nil_001             //: pAllocator     ://
@@ -945,6 +982,49 @@
     #undef  DCI
     #undef  C_B
     #undef  CON
+
+//: vkcreatewin32surfacekhr ://
+
+    #define CON const
+    #define C_I struct mcv_t_vkwin32surfacecreateinfokhr
+    #define C_B struct mcv_t_vkallocationcallbacks
+
+        RES mcv_f_vkcreatewin32surfacekhr(
+                VOD*    v_i      //: (vulkan)instance        ://
+        ,   CON C_I*    c_i      //: pCreateInfo             ://
+        ,   CON C_B*    c_b      //: pAllocator              ://
+        ,       VOD*    out      //: VkSurfaceKHR : pSurface ://
+        ){
+            GI3* fun = mcv_f_gpa_vul( 
+                "vkCreateWin32SurfaceKHR" 
+            );;
+
+            if( ECI >= 1 ){  //:- - - - - - - - - - - - - - -://
+
+                if( ((VOD*)0) == v_i ){ ERR("[cw32s:v_i]"); };
+                if( ((VOD*)0) == c_i ){ ERR("[cw32s:c_i]"); };
+                if( ((VOD*)0) != c_b ){ ERR("[cw32s:c_b]"); };
+                if( ((VOD*)0) == out ){ ERR("[cw32s:out]"); };
+
+                //:VK_STRUCTURE_TYPE_...
+                //:            WIN32_SURFACE_CREATE_INFO_KHR ://
+                if( (*c_i).typ != 1000009000 ){ 
+                    ERR("[cw32s:(*c_i).typ]" ); };;
+
+            };; //:- - - - - - - - - - - - - - - - - -( ECI )://
+
+            SAY( "[BEFORE_CALL:vkCreateWin32SurfaceKHR]" );
+
+            RES res = (RES)fun( v_i , c_i , c_b , out  );
+
+            SAY( "[AFTER__CALL:vkCreateWin32SurfaceKHR]" );
+
+            return( (res) );
+        }
+
+    #undef  CON
+    #undef  C_I
+    #undef  C_B
 
 //:=========================================:FUNCTIONS_VULKAN://
 //:=========================================:VULKAN_FUNCTIONS://
@@ -997,21 +1077,19 @@
         }
 
 
-    //:Default_Win32_WindowProc:-----------------------------://
+    //:-----------------------------:Default_Win32_WindowProc://
 
-    #define mcv_f_dll_all [JUST_INLINE_THE_LOGIC]  //: @MWM@ ://                                             
+    PUBLIC_FUNCTION
 
     VOD  MCV_F_INI( VOD ){              //:Initialize Library://
-    #define A_I mcv_d_applicationinfo
-    #define ICI mcv_d_c_instance
 
         //:Debug:--------------------------------------------://
         {
-        #define A MCV_F_ARA
+        #define A mcv_f_ara
 
             //:Make sure padding hack has not altered the
             //:relative address of these memebers.
-            struct MCV_T_VKPHYSICALDEVICEPROPERTIES t={ 0 };
+            struct mcv_t_vkphysicaldeviceproperties t={ 0 };
             A( &( t ) , &( t.pipelineCacheUUID ) , 276 ,"[1]");
             A( &( t ) , &( t.limits            ) , 296 ,"[2]");
             A( &( t ) , &( t.sparseProperties  ) , 800 ,"[3]");
@@ -1093,6 +1171,73 @@
             #undef     K 
             
         //:--------------------:Function_Pointer_Frontloading://
+        //:VIDEO_18:Win32_Window_002:------------------------://
+        //:                                                  ://
+        //:     #_CREATE_WINDOW_BEFORE_ALL_VULKAN_CODE_#     ://
+        //:                                                  ://
+        //:VIDEO_18:Win32_Window_002:- - - - - ---- - - - - -://
+        #define k32 mcv_d_lib_k32
+        #define u32 mcv_d_lib_u32
+        #define W_C struct mcv_t_wndclassexw
+        #define DEF ((I32)0x80000000)        /**CW_USEDEFAULT**/
+
+            //:REFERENCE[ <AAC>/AAC2020/LIB/GINAWIN.F._ ]://
+
+            //:Misc Variables:
+
+                VOD*  hin = k32.GetModuleHandleW( NIL );
+                UNI*  nam = L"SAMPLE_WINDOW_CLASS";
+                UNI*  txt = L"LEARN_TO_PROGRAM_WINDOWS"      ;
+                U32   w_s = (U32)0x00CF0000 /**OVERLAPPED**/ ;
+
+                if( NIL == hin ){ ERR("[FAIL:GMHW]"); };
+                wprintf( L"[nam]:%ls\n" , nam );
+                wprintf( L"[txt]:%ls\n" , txt );
+        
+            //:Window Class:
+
+                W_C w_c = { 0 };
+                w_c.cbSize = sizeof( W_C );
+                w_c.lpfnWndProc   = (VOD*)&( mcv_f_windowproc );   
+                w_c.hInstance     = hin              ;
+                w_c.lpszClassName = nam              ;
+
+            //:Register Window Class:
+
+                u32.RegisterClassExW( &( w_c ) );
+
+            //:Create Window:
+
+                VOD* mcv_d_win = u32.CreateWindowExW(
+                    //:ExtendedStyle,Class,Text,WindowStyle
+                    0 , nam , txt , w_s
+                    //: _X_ , _Y_ , WID , HIG - - - - - - - -://
+                ,       DEF , DEF , DEF , DEF 
+
+                    //:ParentWin,Menu,hin,ExtraAppData- - - -://
+                ,       u32.GetDesktopWindow()   //:ParentWin://
+                ,       NIL                      //:hMenu    ://
+                ,       hin                      //:hInstance://
+                ,       NIL                      //:lParam(?)://
+                );;
+                if( NIL == mcv_d_win ){ ERR("[WINFAIL]"); };
+
+            //:Make Window Visible:
+
+                u32.ShowWindow( 
+                    mcv_d_win
+                ,  (I32)1 /**nCmdShow==SW_NORMAL**/ 
+                );;
+
+            //:Store Handle To Instance As Global For Later
+
+                mcv_d_exe =( hin );
+
+        #undef  k32
+        #undef  u32
+        #undef  W_C
+        #undef  DEF
+        //:------------------------:VIDEO_18:Win32_Window_002://
         //:----------------------------------------:VIDEO_017://
         //:Get_Available_Instance_Extensions( aie ):---------://
 
@@ -1100,13 +1245,13 @@
             #define ARR mcv_d_a_aie
             #define CAP mcv_m_c_aie
             
-                res = MCV_F_EIEP( NIL , &NUM , NIL );
-                CHK( res , "[MCV_F_EIEP:GET_NUM]"  );
+                res = mcv_f_eiep( NIL , &NUM , NIL );
+                CHK( res , "[mcv_f_eiep:GET_NUM]"  );
                 if( NUM > CAP ){ ERR("[NUM>CAP]"); };
                 if( NUM <= 0  ){ ERR("[NUM<=00]"); };
           
-                res = MCV_F_EIEP( NIL, &(NUM) , &( ARR[ 0 ] ) );
-                CHK( res , "[MCV_F_EIEP:GET_ARR]"  );
+                res = mcv_f_eiep( NIL, &(NUM) , &( ARR[ 0 ] ) );
+                CHK( res , "[mcv_f_eiep:GET_ARR]"  );
 
                 P_F("[mcv_d_n_aie]:%d\n", NUM );
                 for( I32 i = 0 ; i <= (NUM-1) ; i++ ){
@@ -1176,35 +1321,79 @@
         #undef  ARR_RIE 
         }
         //:----------------------------------------:VIDEO_012://
-        //:WHEN_WAS_THIS:------------------------------------://
+        //+==================================================+//
+        //|INSTANCE_CREATION:THEN:WINDOW_SURFACE:============|//
+        //|-- - - - - - - - - - - -- - - - - - - - - - - - --|//
+        
 
-            //:VkApplicationInfo:
+                //:INSTANCE_CREATION:------------------------://
+                #define A_I  mcv_d_applicationinfo
+                #define C_I  mcv_d_c_instance
+                
+                    //:VkApplicationInfo:
+                
+                        A_I.typ =(I32 )( 0 )               ;
+                        A_I.nex =(VOD*)( 0 )               ;
+                        A_I.app_nam = "[Hello Triangle]"   ;
+                        A_I.app_ver = mcv_f_vmv(   1, 0, 0);
+                        A_I.eng_nam = "[No Engine]"        ;
+                        A_I.eng_ver = mcv_f_vmv(   1, 0, 0);
+                        A_I.api_ver = mcv_f_mav(0, 1, 2, 0);
+                
+                    //:VkInstanceCreateInfo:
+                    
+                        C_I.typ     = ((I32 )(  1  )) ;
+                        C_I.nex     = ((VOD*)(  0  )) ;
+                        C_I.a_i     =&( A_I )         ;  
+                        C_I.ext_num = mcv_m_n_rie     ;  
+                        C_I.ext_arr = mcv_d_a_rie     ;  
+                        C_I.lay_num       = 0         ;  
+                        C_I.lay_arr =((VOD*)0)        ;  
+                    
+                    //:VkCreateInstance:
+                
+                        res = mcv_f_vkcreateinstance(
+                            &( mcv_d_c_instance )
+                        ,    (       0          )    //:@A_C@://          
+                        ,   &( mcv_d_o_instance )
+                        );;
+                        CHK( res , "[Instance_Create]" );
+                
+                #undef  A_I
+                #undef  C_I
+                //:------------------------:INSTANCE_CREATION://
+                //:WINDOW_SURFACE:---------------------------://
+                #define FUN mcv_f_vkcreatewin32surfacekhr
+                #define V_I mcv_d_o_instance   //:Vulkan_Inst://
+                #define C_I mcv_d_c_sur        //:Create_Info://
+                #define C_B ((VOD*)0)          //:A_Call_Back://
+                #define OBJ mcv_d_o_sur        //:Output_Obj ://
+                
+                    //: C_I : vkwin32surfacecreateinfokhr    ://
+                    //: TYP : WIN32_SURFACE_CREATE_INFO_KHR  ://
 
-                A_I.sType =( 0 );
-                A_I.pApplicationName   ="[Hello Triangle]"    ;
-                A_I.applicationVersion = mcv_f_vmv(   1, 0, 0);
-                A_I.pEngineName        ="[No Engine]"         ;
-                A_I.engineVersion      = mcv_f_vmv(   1, 0, 0);
-                A_I.apiVersion         = mcv_f_mav(0, 1, 2, 0);
+                        C_I  .  typ = ((I32 )( 1000009000  )) ; 
+                        C_I  .  nex = ((VOD*)(      0      )) ;  
+                        C_I  .  c_f = ((U32 )(      0      )) ;  
+                        C_I  .  exe = ((VOD*)(  mcv_d_exe  )) ;
+                        C_I  .  win = ((VOD*)(  mcv_d_win  )) ;
 
-            //:VkInstanceCreateInfo:
-            
-                ICI.sType                   = (  1  )      ;
-                ICI.pApplicationInfo        =&( A_I )      ;
-                ICI.enabledExtensionCount   = mcv_m_n_rie  ;
-                ICI.ppEnabledExtensionNames = mcv_d_a_rie  ;
-                ICI.enabledLayerCount       = 0            ;
-            
-            //:VkCreateInstance:
+                    //: OBJ : VkSurfaceKHR ( void* )         ://
 
-                res = MCV_F_VKCREATEINSTANCE(
-                    &( mcv_d_c_instance )
-                ,    (       0          )   //:Allo_Callbacks://          
-                ,   &( mcv_d_o_instance )
-                );;
-                CHK( res , "[Instance_Create]" );
+                        res = FUN( V_I , &(C_I) , C_B , &(OBJ) );
+                        CHK( res , "[WINDOW_SURFACE]" );
+                        
+                #undef  FUN
+                #undef  V_I
+                #undef  C_I
+                #undef  C_B
+                #undef  OBJ
+                //:---------------------------:WINDOW_SURFACE://
 
-        //:------------------------------------:WHEN_WAS_THIS://
+        
+        //|-- - - - - - - - - - - -- - - - - - - - - - - - --|//
+        //|============:INSTANCE_CREATION:THEN:WINDOW_SURFACE|//
+        //+==================================================+//
         //:VIDEO_013:----------------------------------------://
         //:vkEnumeratePhysicalDevices:-----------------------://
 
@@ -1215,13 +1404,13 @@
         
                 //:Get number of physical devices :
 
-                    res = MCV_F_EPD( INS , &NUM , NIL );
+                    res = mcv_f_epd( INS , &NUM , NIL );
                     CHK( res , "[Enum_Phy_Dev:001]" );
                     if( NUM > CAP ){ ERR("[2MANY_PHY_DEV]"); };
 
                 //:Load physical devices into array :
 
-                    res = MCV_F_EPD( INS , &NUM , ARR );
+                    res = mcv_f_epd( INS , &NUM , ARR );
                     CHK( res , "[Enum_Phy_Dev:002]" );
 
                 //:Smoke Test : Print Number Of[ phy_dev ]:
@@ -1240,16 +1429,16 @@
         //:1: vkGetPhysicalDeviceProperties
         //:2: vkGetPhysicalDeviceFeatures
         //:And acting accordingly.
-        #define G_P MCV_F_VKGETPHYSICALDEVICEPROPERTIES
-        #define G_F MCV_F_VKGETPHYSICALDEVICEFEATURES
+        #define G_P mcv_f_vkgetphysicaldeviceproperties
+        #define G_F mcv_f_vkgetphysicaldevicefeatures
         #define ARR mcv_d_a_phy_dev
         #define NUM mcv_d_n_phy_dev
         #define DEV mcv_d_o_phy_dev
         {
             if( NUM <= 0 ){ ERR("[NO_PHYSICAL_DEVICES]"); };
 
-            struct MCV_T_VKPHYSICALDEVICEPROPERTIES d_p ={ 0 };
-            struct MCV_T_VKPHYSICALDEVICEFEATURES   d_f ={ 0 };
+            struct mcv_t_vkphysicaldeviceproperties d_p ={ 0 };
+            struct mcv_t_vkphysicaldevicefeatures   d_f ={ 0 };
 
             I32 y =( 0 ); //:Y:YES:Has feature.
             I32 n =( 0 ); //:N:NO :Missing Feature.
@@ -1289,7 +1478,7 @@
             P_F( "[yes_features]:%d\n", y               );
             P_F( "[not_features]:%d\n", n               );
             P_F( "\n"                                   );
-            MCV_F_P_VKPHYSICALDEVICEPROPERTIES( &(d_p)  );
+            mcv_f_p_vkphysicaldeviceproperties( &(d_p)  );
             P_F( "\n"                                   );
         }
         if( NIL == DEV ){ ERR("[NIL_PHYSICAL_DEVICE]"); };
@@ -1300,7 +1489,7 @@
         #undef  DEV
         //:----------------------------------------:VIDEO_014://
         //:VIDEO_015:( KanjiCoder_IID_0338 ):----------------://
-        #define GET_QFP MCV_F_G_QFP
+        #define GET_QFP mcv_f_g_qfp
         #define     ARR mcv_d_a_qfp
         #define     NUM mcv_d_n_qfp
         #define     CAP mcv_m_c_qfp
@@ -1342,10 +1531,10 @@
         #undef      DEV
         //:----------------------------------------:VIDEO_015://
         //:VIDEO_016:----------------------------------------://
-        #define QCI struct MCV_T_VKDEVICEQUEUECREATEINFO
-        #define D_V struct MCV_T_VKPHYSICALDEVICEFEATURES
-        #define DCI struct MCV_T_VKDEVICECREATEINFO
-        #define C_D MCV_F_VKCREATEDEVICE
+        #define QCI struct mcv_t_vkdevicequeuecreateinfo
+        #define D_V struct mcv_t_vkphysicaldevicefeatures
+        #define DCI struct mcv_t_vkdevicecreateinfo
+        #define C_D mcv_f_vkcreatedevice
         #define PHY mcv_d_o_phy_dev
         #define LOG mcv_d_log_dev
 
@@ -1365,8 +1554,8 @@
 
             DCI dci     ={ 0 };
             dci.typ     =( 3 /**sType:Device_Create_Info==3**/);
-            dci.num_qci = 1;          //:queueCreateInfoCount://
-            dci.arr_qci = &( qci );   //:pQueueCreateInfos   ://
+            dci.qci_num = 1;          //:queueCreateInfoCount://
+            dci.qci_arr = &( qci );   //:pQueueCreateInfos   ://
             dci.fet     = &( d_v );   //:pEnabledFeatures    ://
 
             //: vkCreateDevice
@@ -1380,115 +1569,81 @@
         #undef  PHY
         #undef  LOG
         //:----------------------------------------:VIDEO_016://
-        //:VIDEO_18:Win32_Window_002:------------------------://
-        #define k32 mcv_d_lib_k32
-        #define u32 mcv_d_lib_u32
-        #define W_C struct mcv_t_wndclassexw
-        #define DEF ((I32)0x80000000)        /**CW_USEDEFAULT**/
 
-            //:REFERENCE[ <AAC>/AAC2020/LIB/GINAWIN.F._ ]://
+    } //:<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<[ MCV_F_INI ]://
 
-            //:Misc Variables:
+    PUBLIC_FUNCTION 
 
-                VOD*  hin = k32.GetModuleHandleW( NIL );
-                UNI*  nam = L"SAMPLE_WINDOW_CLASS";
-                UNI*  txt = L"LEARN_TO_PROGRAM_WINDOWS"      ;
-                U32   w_s = (U32)0x00CF0000 /**OVERLAPPED**/ ;
+        VOD MCV_F_TIK( VOD ){
 
-                if( NIL == hin ){ ERR("[FAIL:GMHW]"); };
-                wprintf( L"[nam]:%ls\n" , nam );
-                wprintf( L"[txt]:%ls\n" , txt );
+            /** Tick Function. Once Per Frame. **/
+
+            #define u32    mcv_d_lib_u32
+            #define P_M u32.PeekMessageW
+            #define MSG struct mcv_t_msg  
+            #define WIN        mcv_d_win 
+            #define REM        (U32)0x0001 /** PM_REMOVE **/
+
+                //: Exit Once Drained. DON'T use      ://
+                //: "GetMessage" because "GetMessage" ://
+                //: will block.                       ://
+
+                MSG msg = { 0 };
+                while( P_M( &msg , WIN , 0 , 0 , REM ) > 0){
+
+                    u32.TranslateMessage( &msg );
+                    u32.DispatchMessageW( &msg );
+                };;
+     
+            #undef  u32
+            #undef  P_M
+            #undef  MSG
+            #undef  WIN
+            #undef  REM
+        }
+
+    PUBLIC_FUNCTION  
+
+        I32 MCV_F_DEM( VOD ){ 
+
+            /** MCV_F_DEM == Library_Demonstration **/
+
+            MCV_F_INI( ); 
+            F_F( stdout );
+
+            while( mcv_d_kot >= 1 ){
+
+                MCV_F_TIK();
         
-            //:Window Class:
-
-                W_C w_c = { 0 };
-                w_c.cbSize = sizeof( W_C );
-                w_c.lpfnWndProc   = (VOD*)&( mcv_f_windowproc );   
-                w_c.hInstance     = hin              ;
-                w_c.lpszClassName = nam              ;
-
-            //:Register Window Class:
-
-                u32.RegisterClassExW( &( w_c ) );
-
-            //:Create Window:
-
-                VOD* mcv_d_win = u32.CreateWindowExW(
-                    //:ExtendedStyle,Class,Text,WindowStyle
-                    0 , nam , txt , w_s
-                    //: _X_ , _Y_ , WID , HIG - - - - - - - -://
-                ,       DEF , DEF , DEF , DEF 
-
-                    //:ParentWin,Menu,hin,ExtraAppData- - - -://
-                ,       u32.GetDesktopWindow()   //:ParentWin://
-                ,       NIL                      //:hMenu    ://
-                ,       hin                      //:hInstance://
-                ,       NIL                      //:lParam(?)://
-                );;
-                if( NIL == mcv_d_win ){ ERR("[WINFAIL]"); };
-
-            //:Make Window Visible:
-
-                u32.ShowWindow( 
-                    mcv_d_win
-                ,  (I32)1 /**nCmdShow==SW_NORMAL**/ 
-                );;
-
-        #undef  k32
-        #undef  u32
-        #undef  W_C
-        #undef  DEF
-        //:------------------------:VIDEO_18:Win32_Window_002://
-
-    #undef  A_I
-    #undef  ICI
-    }
-
-    VOD  MCF_F_TIK( VOD ){
-
-        /** Tick Function. Once Per Frame. **/
-
-        #define u32    mcv_d_lib_u32
-        #define P_M u32.PeekMessageW
-        #define MSG struct mcv_t_msg  
-        #define WIN        mcv_d_win 
-        #define REM        (U32)0x0001 /** PM_REMOVE **/
-
-            //: Exit Once Drained. DON'T use "GetMessage"    ://
-            //: Because "GetMessage" will block.             ://
-
-            MSG msg = { 0 };
-            while( P_M( &msg , WIN , 0 , 0 , REM ) > 0){
-
-                u32.TranslateMessage( &msg );
-                u32.DispatchMessageW( &msg );
             };;
- 
-        #undef  u32
-        #undef  P_M
-        #undef  MSG
-        #undef  WIN
-        #undef  REM
-    }
+            P_F( "\n\n[Outside_Of_Window_Loop]\n\n\n" );
 
-    I32  MCV_F_DEM( VOD ){           //:Library_Demonstration://
-
-        MCV_F_INI( ); 
-        F_F( stdout );
-
-        while( mcv_d_kot >= 1 ){
-
-            MCF_F_TIK();
-    
-        };;
-        P_F( "\n\n[Outside_Of_Window_Loop]\n\n\n" );
-
-        return( 0 );
-    }
+            return( 0 );
+        }
 
 //:================================================:FUNCTIONS://
 //:FILE_MACROS:==============================================://
 
+//: MISC_FILE_MACROS ://
+
+    #undef PUBLIC_FUNCTION
+    #undef PRIVATE_FUNCTION
+
+//: MONKEY_WRENCH_MACROS ://
+
+    #undef num_qci  
+    #undef arr_qci  
+                    
+    #undef num_lay  
+    #undef arr_lay  
+                    
+    #undef num_ext  
+    #undef arr_ext  
+
+    #undef mcv_f_dll_all
+
+//: Basic_File_Macros ://
+                    
     #undef  ECI
     #undef  NIL  
     #undef  VOD  
@@ -1515,17 +1670,23 @@
     #undef  S_O
     #undef  SIZ 
 
+//: Vulkan_Macros_To_Keep_Stuff_Terse ://
+
     #undef  VEP
     #undef  PDL
     #undef  DSP
 
 //:==============================================:FILE_MACROS://
-//:SHORTHAND_COMMENTS:=======================================://
+//::SHORTHAND_COMMENTS:======================================://
+/** SHORTHAND_COMMENTS ************************************* ***
 
-//:     MWM : Monkey Wrench Macro
-//:     KOT : Keep_On_Ticking
+    MWM : Monkey Wrench Macro
+    KOT : Keep_On_Ticking
+    A_C : Allocation_Callbacks
 
-//:=======================================:SHORTHAND_COMMENTS://
+*** ************************************* SHORTHAND_COMMENTS **/
+//:======================================:SHORTHAND_COMMENTS:://
+//::LONGHAND_COMMENTS:=======================================://
 /** LONGHAND_COMMENTS ************************************** ***
 
     #_DO_NOT_POPULATE_FPS_USING_HELPER_FUNCTIONS_#
@@ -1537,6 +1698,32 @@
         Makes it harder to understand the linear narrative
         when reading code from top to bottom.
 
+    #_CREATE_WINDOW_BEFORE_ALL_VULKAN_CODE_#
+
+        :::VIDEO_18:Win32_Window_002:------------------------:::
+        :::                                                  :::
+        :::     Window Creation Added Before All Vulkan      :::
+        :::     Init because SOME (not all) vulkan code      :::
+        :::     depends on Win32 window existing.            :::
+        :::                                                  :::
+        :::     SPECIFICALLY:                                :::
+        :::                                                  :::
+        :::     VkSurfaceKHR                                 :::
+        :::                                                  :::
+        :::     ALSO:                                        :::
+        :::                                                  :::
+        :::     The window surface needs to be created       :::
+        :::     right after the instance creation, because   :::
+        :::     it can  actually influence the physical      :::
+        :::     device selection. The reason we postponed    :::
+        :::     this is because window surfaces are part     :::
+        :::     of the larger topic of render targets        :::
+        :::     and presentation for which the explanation   :::
+        :::     would have cluttered the basic setup.        :::
+        :::                                                  :::
+        :::VIDEO_18:Win32_Window_002:- - - - - ---- - - - - -:::
+
 
 *** ************************************** LONGHAND_COMMENTS **/
+//:=======================================:LONGHAND_COMMENTS:://
 
