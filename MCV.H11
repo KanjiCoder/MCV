@@ -1,7 +1,7 @@
 //[MACROS_CONFIGURATION:=====================================]//
 //[CONFIGURATION_MACROS:=====================================]//
 
-    #define MCV_M_ECI ( 1 )         //:ECI:Error_Check_Inputs://
+    #define mcv_m_eci ( 1 )         //:ECI:Error_Check_Inputs://
 
     //:**************************************************:// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     //:TODO: [If/When] code starts to mysteriously crash,:// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -91,7 +91,7 @@
 
 //: Basic_File_Macros ://
 
-    #define ECI MCV_M_ECI 
+    #define ECI mcv_m_eci 
     #define NIL ((void*)0)
     #define VOD   void
     #define DLL   void
@@ -1185,12 +1185,12 @@
 
             //:Misc Variables:
 
-                VOD*  hin = k32.GetModuleHandleW( NIL );
+                VOD*  exe = k32.GetModuleHandleW( NIL );
                 UNI*  nam = L"SAMPLE_WINDOW_CLASS";
                 UNI*  txt = L"LEARN_TO_PROGRAM_WINDOWS"      ;
                 U32   w_s = (U32)0x00CF0000 /**OVERLAPPED**/ ;
 
-                if( NIL == hin ){ ERR("[FAIL:GMHW]"); };
+                if( NIL == exe ){ ERR("[FAIL:GMHW]"); };
                 wprintf( L"[nam]:%ls\n" , nam );
                 wprintf( L"[txt]:%ls\n" , txt );
         
@@ -1199,7 +1199,7 @@
                 W_C w_c = { 0 };
                 w_c.cbSize = sizeof( W_C );
                 w_c.lpfnWndProc   = (VOD*)&( mcv_f_windowproc );   
-                w_c.hInstance     = hin              ;
+                w_c.hInstance     = exe              ;
                 w_c.lpszClassName = nam              ;
 
             //:Register Window Class:
@@ -1214,10 +1214,10 @@
                     //: _X_ , _Y_ , WID , HIG - - - - - - - -://
                 ,       DEF , DEF , DEF , DEF 
 
-                    //:ParentWin,Menu,hin,ExtraAppData- - - -://
+                    //:ParentWin,Menu,exe,ExtraAppData- - - -://
                 ,       u32.GetDesktopWindow()   //:ParentWin://
                 ,       NIL                      //:hMenu    ://
-                ,       hin                      //:hInstance://
+                ,       exe                      //:hInstance://
                 ,       NIL                      //:lParam(?)://
                 );;
                 if( NIL == mcv_d_win ){ ERR("[WINFAIL]"); };
@@ -1231,7 +1231,7 @@
 
             //:Store Handle To Instance As Global For Later
 
-                mcv_d_exe =( hin );
+                mcv_d_exe =( exe );
 
         #undef  k32
         #undef  u32
@@ -1324,13 +1324,14 @@
         //+==================================================+//
         //|INSTANCE_CREATION:THEN:WINDOW_SURFACE:============|//
         //|-- - - - - - - - - - - -- - - - - - - - - - - - --|//
-        
+        //:SECTION_VIDEO_URL[ xxxxxxxxxxxxxxxxxxxxxxxxxxxxx ]://
+        //:SECTION_VIDEO_NUM[ VIDEO_019                     ]://
 
                 //:INSTANCE_CREATION:------------------------://
                 #define A_I  mcv_d_applicationinfo
                 #define C_I  mcv_d_c_instance
                 
-                    //:VkApplicationInfo:
+                    //:VkApplicationInfo://
                 
                         A_I.typ =(I32 )( 0 )               ;
                         A_I.nex =(VOD*)( 0 )               ;
@@ -1340,7 +1341,7 @@
                         A_I.eng_ver = mcv_f_vmv(   1, 0, 0);
                         A_I.api_ver = mcv_f_mav(0, 1, 2, 0);
                 
-                    //:VkInstanceCreateInfo:
+                    //:VkInstanceCreateInfo:://
                     
                         C_I.typ     = ((I32 )(  1  )) ;
                         C_I.nex     = ((VOD*)(  0  )) ;
@@ -1350,7 +1351,7 @@
                         C_I.lay_num       = 0         ;  
                         C_I.lay_arr =((VOD*)0)        ;  
                     
-                    //:VkCreateInstance:
+                    //:VkCreateInstance:://
                 
                         res = mcv_f_vkcreateinstance(
                             &( mcv_d_c_instance )
@@ -1672,9 +1673,9 @@
 
 //: Vulkan_Macros_To_Keep_Stuff_Terse ://
 
-    #undef  VEP
-    #undef  PDL
-    #undef  DSP
+    #undef  VEP  //: <-- TODO: REMOVE THESE... TOO SPECIFIC FOR ENTIRE FILE SCOPE
+    #undef  PDL  //: <-- TODO: REMOVE THESE... TOO SPECIFIC FOR ENTIRE FILE SCOPE
+    #undef  DSP  //: <-- TODO: REMOVE THESE... TOO SPECIFIC FOR ENTIRE FILE SCOPE
 
 //:==============================================:FILE_MACROS://
 //::SHORTHAND_COMMENTS:======================================://
