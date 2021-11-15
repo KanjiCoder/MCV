@@ -89,6 +89,8 @@
 
     #define mcv_f_dll_all [JUST_INLINE_THE_LOGIC]  //: @MWM@ ://
 
+    #define QFC_NUM [YOU_MEAN( QFI_NUM | QCI_NUM )]
+
 //: Basic_File_Macros ://
 
     #define ECI mcv_m_eci 
@@ -149,15 +151,14 @@
         #define mcv_m_mpd     ( 256U )//: Max_PhyDev_Name    ://
         #define mcv_m_uid     (  16U )//: VK_UUID_SIZE       ://
 
-
         #define mcv_m_c_aie     ( 32 )          //: Capacity ://
         #define mcv_m_c_phy_dev (  8 )          //: Capacity ://
-        #define mcv_m_c_qfp    (  16 )          //: Capacity ://
+        #define mcv_m_c_qfp     ( 16 )          //: Capacity ://
+        #define mcv_m_c_qfi     (  3 )          //: Capacity ://
 
 //:===================================================:MACROS://
 //:TYPES:====================================================://
 
-    
     typedef VOD* ( MCV_T_G00 )(  );  //:Generic_Function_Type://
     typedef I32  ( MCV_T_GI3 )(  );  //:Generic_Function_Type://
 
@@ -565,6 +566,31 @@
         S_A( S_O( W_S ) == 40 , "[win32_surf_size]" );
     
     #undef  W_S
+
+//: VkQueue ://
+
+    /** Use void* because: VK_DEFINE_HANDLE(VkQueue) **/
+
+//: VkDeviceQueueCreateInfo ://
+//
+//  WE ALREADY MADE THIS TYPE. THOUGH I LIKE THE FORMATTING
+//  HERE MORE. MAYBE REFACTORE AND USE THIS LATER?
+//
+//  #define CON const
+//  #define TMP struct mcv_t_vkdevicequeuecreateinfo
+//   
+//      struct mcv_t_vkdevicequeuecreateinfo {
+//                  I32     typ ;       //: sType            ://
+//          CON     VOD*    nex ;       //: pNext            ://
+//                  U32     c_f ;       //: flags            ://
+//                  U32     dex ;       //: queueFamilyIndex ://
+//                  U32     num ;       //: queueCount       ://
+//          CON     F32*    q_p ;       //: pQueuePriorities ://
+//      };
+//      S_A( S_O( TMP ) == 40 , "[VK_DQCI]" );
+//
+//  #undef  CON
+//  #undef  TMP
     
 //:========================================:VULKAN_CORE_TYPES://
 //:DATA:=====================================================://
@@ -639,7 +665,14 @@
 
         //: FOR: VkDeviceQueueCreateInfo
 
-            F32 mcv_d_q_p =( 1.0 );  //: queuePriority  ://
+            const F32 mcv_d_q_p =( 1.0 );  //: queuePriority ://
+
+        //: FOR: uniqueQueueFamilies :
+
+            #define mcv_d_c_qfi [USE_MACRO:mcv_m_c_qfi]
+            #define mcv_m_c_qfi                  ( 3 )
+            U32     mcv_d_a_qfi[ mcv_m_c_qfi ]  ={ 0 };
+            U32     mcv_d_n_qfi                 =( 0 );
 
     //:------------------------------------------:VULKAN_MISC://
     //:VULKAN_OBJECTS:---------------------------------------://
@@ -670,6 +703,7 @@
 
         //: queueFamilies for the given Physical_Device:- - -://
 
+            #define  mcv_d_c_qfp [USE:mcv_m_c_qfp]
             #define  mcv_m_c_qfp (  16 )  
             QFP      mcv_d_a_qfp[ mcv_m_c_qfp ];
             U32      mcv_d_n_qfp =( 0 );
@@ -696,6 +730,27 @@
 
             #undef  C_I
             #undef  OBJ
+
+        //: Queue:- - - - - - - - - - - - - - - - - - - - - -://
+        #define QCI struct mcv_t_vkdevicequeuecreateinfo
+
+            //: VkQueue(s): Compute,Graphics,Present:        ://
+            
+                //:      d_q_*** == data_queue_[com|gra|pre] ://
+                VOD* mcv_d_q_com =(NIL);    //: computeQueue ://
+                VOD* mcv_d_q_gra =(NIL);    //: graphicsQueue://
+                VOD* mcv_d_q_pre =(NIL);    //: presentQueue ://
+
+            //:ARRAY: VkDeviceQueueCreateInfo( qci )
+
+                #define mcv_m_c_qci ( 3 )
+                #define mcv_d_c_qci [USE_MACRO:mcv_m_c_qci]
+                QCI     mcv_d_a_qci[ mcv_m_c_qci ] ={ 0 };
+                I32     mcv_d_n_qci                =( 0 );
+
+                S_A( mcv_m_c_qci == mcv_m_c_qfi , "[QCI:QFI]" );
+
+        #undef  QCI
 
     #undef  ICI
     #undef  A_I
@@ -1055,6 +1110,26 @@
         GI3* fun = mcv_f_gpa_vul( 
             "vkGetPhysicalDeviceSurfaceSupportKHR" );;
         return( (RES)fun( phy , qfi , sur , out  ) );
+    }
+
+//: vkGetDeviceQueue ://
+
+    VOD mcv_f_vkgetdevicequeue(
+        VOD*     log            //:LogicalDevice             ://
+    ,   U32      qfi            //:queueFamilyIndex          ://
+    ,   U32      _0_            //:#_queueIndex_ZERO_ALWAYS_#://
+    ,   VOD*     out            //:VkQueue : pQueue          ://
+    ){
+        if( ECI >= 1 ){
+            if( NIL ==          log  ){ ERR("[LOG]"        ); };
+            if( qfi  >           64  ){ ERR("[#_064_QFI_#]"); };
+            if( _0_ !=            0  ){ ERR("[NOT_ZERO]"   ); };
+            if( NIL ==          out  ){ ERR("[GDQ:@NDP@]"  ); };
+            if( NIL != *((VOD**)out) ){ ERR("[004]"        ); };
+        };;
+
+        GI3* fun = mcv_f_gpa_vul( "vkGetDeviceQueue" );;
+        fun( log , qfi , _0_ , out  );
     }
 
 //:=========================================:FUNCTIONS_VULKAN://
@@ -1630,6 +1705,216 @@
 //:                   device, i, surface, &presentSupport);  ://
 //:                                                          ://
 //:############################:MCV_F_INI:GET_PHYSICAL_DEVICE://
+//:MCF_F_INI:CREATE_LOGICAL_DEVICE:##########################://
+//:MCV_F_INI:createLogicalDevice:############################://
+//:                                                          ://
+//:  VIDEO_021 :                                             ://
+//:         1. Create Logical Device                         ://
+//:         2. Get The Different Queues                      ://
+//:                                                          ://
+//:MCF_F_INI:CREATE_LOGICAL_DEVICE:::::::::::::::::::::::::::://
+//:MCV_F_INI:createLogicalDevice:::::::::::::::::::::::::::::://
+
+    //:VIDEO_021:STEP_001:-----------------------------------://
+    //:Create_Set_Of_Unique_Queue_Families:------------------://
+    #define ARR mcv_d_a_qfi      /** Unique Set   As Array   **/
+    #define CAP mcv_m_c_qfi      /** Capacity     Of Array   **/
+    #define NUM mcv_d_n_qfi      /** Final Length Of Array   **/
+    {
+        //:Hackish Array "Zero Out" :
+
+            ASS( 0 == NUM , "[ZER_NUM]" );
+            ASS( 3 == CAP , "[CAP_NUM]" );
+
+            for( I32 hak = 0 ; hak <=( CAP-1 ) ; hak++ ){
+                //:Zero is value value, so set to highest
+                //:possible value and pray never used.
+                ARR[ hak ]=( 0x7FFFFFFF );
+            };;
+            ASS( ARR[ 0 ] == 0x7FFFFFFF , "[ARR_000]" );;
+            ASS( ARR[ 1 ] == 0x7FFFFFFF , "[ARR_001]" );;
+            ASS( ARR[ 2 ] == 0x7FFFFFFF , "[ARR_002]" );;
+
+        //:Variables To Work With:
+
+            I32     out ;
+            I32     m_i ;
+            I32     qfi =( 0-666 ); //:Cur[ QFI ]To_Add_To_Set
+            I32     has =( 0-444 ); //:Already_Has[ QFI ]In_SET
+            U32 chk_bit =(   0   ); //:Double_Check:Set
+            U32 chk_num =(   0   ); //:Double_Check:Number/Count
+            U32 chk_dex =(   0   ); //:Double_check:INDEX
+        
+        //:Creating The Set:
+        for( I32 cur = 0 ; cur <= (CAP-1) ; cur++ ){
+
+            //: Filter down these[ qfi ]to[ set/unique ]
+
+                if( 0 == cur ){ qfi = mcv_d_i_qfp_com ; }else
+                if( 1 == cur ){ qfi = mcv_d_i_qfp_gra ; }else
+                if( 2 == cur ){ qfi = mcv_d_i_qfp_pre ; }else{
+                    ERR("[CUR_OOB]");
+                };;
+
+            //: Bit flag debugging logic wont work if we have
+            //: queue indexes (qfi) above 31 because U32 bits.
+
+                ASS( qfi >= 0 || qfi <= 31 , "[QFI_BOUNDS]" );
+
+            //:Was[ qfi ]found within our set[ ARR/mcv_d_a_qfi ]
+
+                has=( 0 );
+                out=( 0 );
+                m_i=(   ((I32)NUM) - 1 );
+                for( out = 0 ; out <= m_i ; out++ ){
+                
+                    if( out > (CAP-1) ){ 
+                        P_F("[OUT+0]:%d \n" , out   );
+                        P_F("[CAP-1]:%d \n" , CAP-1 );
+                        P_F("[NUM-1]:%d \n" , NUM-1 );
+                        P_F("[m_i+0]:%d \n" , m_i   );
+                        ERR("[OOB:OUT]");
+                    };;
+
+                    if( ((U32)(qfi)) == ARR[ out ] ){
+                        has =( 1 ); 
+                        break;
+                    };;
+                };;
+
+            //:Add to set if not already in the set:
+
+                if( 0 == has ){
+                    NUM++ ; if( NUM > CAP ){ ERR("[002]"); };
+                    ARR[ NUM-1 ]=( qfi );
+                    chk_bit =( chk_bit | ( 1 << qfi ) );
+
+                    P_F("[SET_ADD:QFI] \n");
+                }else{
+                    P_F("[set_has:qfi] \n");
+                };;
+        };;
+
+        //:Checking Our Logic:
+        for( chk_dex = 0 ; chk_dex <=(32-1) ; chk_dex ++ ){
+
+            if( 0 != ((1<<chk_dex)&(chk_bit)) ){ chk_num++; };
+        };;
+        if( chk_num != NUM ){
+            P_F( "[chk_bit]:%0x \n" , chk_bit );
+            P_F( "[chk_num]%d   \n" , chk_num );
+            P_F( "[::::NUM]%d   \n" ,     NUM );
+            ERR("[SET_DOUBLE_CHECK_FAIL]");
+        };;
+
+        //: Smoke Test To Make Sure We Didn't Confuse These:
+        //:           qfp  !=            qfi
+        //: &(mcv_d_a_qfp) !=  &(mcv_d_a_qfi)
+        //: &(mcv_m_c_qfp) !=  &(mcv_m_c_qfi)
+        //: &(mcv_d_n_qfp) !=  &(mcv_d_n_qfi)
+        #define E ERR
+
+            VOD* a_1 = &(mcv_d_a_qfi[0]) ;
+            VOD* a_2 = &(mcv_d_a_qfp[0]) ;
+            
+            if(          a_1     ==         a_2    ){E("[5]");};
+            if(  mcv_m_c_qfi     >  mcv_m_c_qfp    ){E("[6]");};
+            if(  mcv_d_n_qfi     >  mcv_d_n_qfp    ){E("[7]");};
+            if(  mcv_d_n_qfi     <=           0    ){E("[8]");};
+            if(  mcv_d_n_qfp     <=           0    ){E("[9]");};
+            
+        #undef  E
+    }
+    #undef  ARR  //:-----------------------------------------://
+    #undef  CAP  //:-----------------------------------------://
+    #undef  NUM  //:-----------------------------------------://
+    //:------------------:Create_Set_Of_Unique_Queue_Families://
+    //:-----------------------------------:VIDEO_021:STEP_001://
+    //:VIDEO_021:STEP_002:-----------------------------------://
+    #define QFI_ARR mcv_d_a_qfi /** Unique Set   As Array   **/
+    #define QFI_NUM mcv_d_n_qfi /** Final Length Of Array   **/
+    #define QFI_CAP mcv_m_c_qfi /** Capacity     Of Array   **/
+
+                                //: QCI : Queue_Create_Info  ://
+    #define QCI_ARR mcv_d_a_qci /** QCI : ARRAY   **/
+    #define QCI_NUM mcv_d_n_qci /** QCI : NUMBER  **/
+    #define QCI_CAP mcv_m_c_qci /** QCI : Capacity**/
+
+    #define QCI     struct mcv_t_vkdevicequeuecreateinfo 
+    {
+
+        //: We make one[ QCI ]per[ QFI ]in our set:
+
+            QCI_NUM = QFI_NUM ;
+    
+        //:QCI_NUM & QFI_NUM printout because errors:
+
+            P_F("\n\n");
+
+            if( QCI_NUM <=  0 ){
+                P_F( "[QCI_NUM]:%d <<[BAD_QCI]\n" , QCI_NUM );
+            };;
+            if( QFI_NUM <=  0 ){
+                P_F( "[QFI_NUM]:%d <<[BAD_QFI]\n" , QFI_NUM );
+            };;
+
+            if( QCI_NUM >   0 ){
+                P_F( "[QCI_NUM]:%d <<[OK]     \n" , QCI_NUM );
+            };;
+            if( QFI_NUM >   0 ){
+                P_F( "[QFI_NUM]:%d <<[OK]     \n" , QFI_NUM );
+            };;
+
+            P_F("\n\n");
+
+        //:"Allocate" number of elements:
+
+            S_A( QCI_CAP == QFI_CAP , "[QFI_CAP:QFI_CAP]" );
+
+            ASS( QCI_NUM > 0 , "[QCI_NUM>0]" );
+            ASS( QFI_NUM > 0 , "[QFI_NUM>0]" );
+
+            I32  dex;     //: qfi index. Not the qfi itself. ://
+            U32  qfi;     //: qfi = ARR[ not_qfi ]           ://
+            QCI* qci;     //: selected QueueCreateInfo struct://
+
+        //:Populate:
+
+            //: I hate assymetry and arbitrary choice.
+            //: calculate max valid index ( m_i ) this way.
+            I32  m_i =(( QFI_NUM | QCI_NUM )-1   );
+            ASS( m_i ==( QFI_NUM - 1 ) , "[008]" );
+            ASS( m_i ==( QCI_NUM - 1 ) , "[009]" );
+
+            //: Populate Our Structs:
+            #define  q_f [USE:c_f:(Create_Flags!Queue_Flags)]
+
+            for( dex = 0 ; dex <= m_i ; dex++ ){
+           
+                qfi =   QFI_ARR[ dex ]  ; //:QueueFamilyIndex://
+                qci =&( QCI_ARR[ dex ] ); //:QueueCreateInfo ://
+
+                qci  ->  typ = (        2  ); //:    sType   ://
+                qci  ->  nex = (       NIL ); //:    NO_PNEXT://
+                qci  ->  c_f = ( (U32)( 0 )); //:  #_QCI_F0_#://
+                qci  ->  fam = (       qfi ); //:Q_Family_Dex://
+                qci  ->  num = (        1  ); //:Only 1 Queue://
+                qci  ->  q_p =&( mcv_d_q_p ); //:  Q_Priority://
+            };;
+
+            #undef  q_f
+    }
+    #undef  QFI_ARR  //:-------------------------------------://
+    #undef  QFI_NUM  //:-------------------------------------://
+    #undef  QFI_CAP  //:-------------------------------------://
+                     //:-------------------------------------://
+    #undef  QCI_ARR  //:-------------------------------------://
+    #undef  QCI_NUM  //:-------------------------------------://
+    #undef  QCI_CAP  //:-------------------------------------://
+                     //:-------------------------------------://
+    #undef  QCI      //:-------------------------------------://
+    //:-----------------------------------:VIDEO_021:STEP_002://
+    //:VIDEO_021:STEP_003:MODIFY_QCI_ARR:--------------------://
 
         //:VIDEO_016:----------------------------------------://
         #define QCI struct mcv_t_vkdevicequeuecreateinfo
@@ -1641,27 +1926,37 @@
 
             //:QCI: Queue Create Info ( queueCreateInfo ) ://
 
-            QCI qci =  { 0 };
-            qci.typ =  ( 2 );  //:2==DEVICE_QUEUE_CREATE_INFO://
-            qci.fam =  ( mcv_d_i_qfp_gra ); //:q_family_index://
-            qci.q_p = &( mcv_d_q_p );     //:pQueuePriorities://
-            qci.num =  (     1     );           //:queueCount://
-
+                U32  qci_num = ((U32)( mcv_d_n_qci     ));
+                QCI* qci_arr =&(     ( mcv_d_a_qci[ 0 ]));
+                
             //:D_V: Specifiy[ deviceFeatures ]we will be using:
 
-            D_V d_v = { 0 }; //:REQUESTING_NO_FEATURES://
+                D_V d_v = { 0 }; //:REQUESTING_NO_FEATURES://
+                //: d_v <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< d_v = &( d_f ) maybe from previous device selection that got what device features we had?
 
             //:DCI: Device Create Info:
 
-            DCI dci     ={ 0 };
-            dci.typ     =( 3 /**sType:Device_Create_Info==3**/);
-            dci.qci_num = 1;          //:queueCreateInfoCount://
-            dci.qci_arr = &( qci );   //:pQueueCreateInfos   ://
-            dci.fet     = &( d_v );   //:pEnabledFeatures    ://
+                DCI dci     ={ 0 };
+
+                dci.typ     =( 3 /**Device_Create_Info==3**/);
+                dci.nex     =(  NIL  );
+                dci.c_f     =((U32)0 );
+
+                dci.qci_num =(qci_num);  //:Q_CreateInfoCount://
+                dci.qci_arr =(qci_arr);  //:p_Q_CreateInfos  ://
+
+                dci.lay_num =(   0   );
+                dci.lay_arr =(   0   );
+
+                dci.ext_num =(   0   );
+                dci.ext_arr =(   0   );
+
+                dci.fet     = &( d_v );  //:pEnabledFeatures ://
 
             //: vkCreateDevice
-            res = C_D(  PHY, &dci, NIL, &LOG  );
-            CHK( res , "[C_D:vkCreateDevice]" );
+
+                res = C_D(  PHY, &dci, NIL, &LOG  );
+                CHK( res , "[C_D:vkCreateDevice]" );
 
         #undef  QCI
         #undef  D_V
@@ -1670,6 +1965,40 @@
         #undef  PHY
         #undef  LOG
         //:----------------------------------------:VIDEO_016://
+
+    //:--------------------:VIDEO_021:STEP_003:MODIFY_QCI_ARR://
+    //:VIDEO_021:STEP_004:GET_DEVICE_QUEUES:-----------------://
+    #define GET_D_Q mcv_f_vkgetdevicequeue
+    #define     LOG mcv_d_log_dev
+
+        ASS( NIL == mcv_d_q_com , "[HAS:mcv_d_q_com]" );
+        ASS( NIL == mcv_d_q_gra , "[HAS:mcv_d_q_gra]" );
+        ASS( NIL == mcv_d_q_pre , "[HAS:mcv_d_q_pre]" );
+
+        //#  #_QCI_F0_# : VkDeviceQueueCreateInfo.q_f === 0  #//
+        
+        GET_D_Q( LOG , mcv_d_i_qfp_com , 0 , &( mcv_d_q_com ) );
+        GET_D_Q( LOG , mcv_d_i_qfp_gra , 0 , &( mcv_d_q_gra ) );
+        GET_D_Q( LOG , mcv_d_i_qfp_pre , 0 , &( mcv_d_q_pre ) );
+
+        ASS( NIL != mcv_d_q_com , "[NIL:mcv_d_q_com]" );
+        ASS( NIL != mcv_d_q_gra , "[NIL:mcv_d_q_gra]" );
+        ASS( NIL != mcv_d_q_pre , "[NIL:mcv_d_q_pre]" );
+
+        printf( "\n\n" );
+        printf( "[ADDR:mcv_d_q_com]:%0x \n", mcv_d_q_com );
+        printf( "[ADDR:mcv_d_q_gra]:%0x \n", mcv_d_q_gra );
+        printf( "[ADDR:mcv_d_q_pre]:%0x \n", mcv_d_q_pre );
+        printf( "\n\n" );
+
+    #undef  GET_D_Q
+    #undef      LOG
+    //:-----------------:VIDEO_021:STEP_004:GET_DEVICE_QUEUES://
+
+//:############################:MCV_F_INI:createLogicalDevice://
+//:##########################:MCF_F_INI:CREATE_LOGICAL_DEVICE://
+
+        SAY( "[EXITING:MCV_F_INI]" );
 
     } //:<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<[ MCV_F_INI ]://
 
@@ -1742,6 +2071,7 @@
     #undef arr_ext  
 
     #undef mcv_f_dll_all
+    #undef QFC_NUM
 
 //: Basic_File_Macros ://
                     
@@ -1782,10 +2112,11 @@
 //::SHORTHAND_COMMENTS:======================================://
 /** SHORTHAND_COMMENTS ************************************* ***
 
-    MWM : Monkey Wrench Macro
-    KOT : Keep_On_Ticking
-    A_C : Allocation_Callbacks
-    VIL : Vestigial "i" Loop (Loop Can Be Removed From Code)
+    @ MWM @ : Monkey Wrench Macro
+    @ KOT @ : Keep_On_Ticking
+    @ A_C @ : Allocation_Callbacks
+    @ VIL @ : Vestigial "i" Loop (Loop Can Be Removed From Code)
+    @ NDP @ : NIL_DOUBLE_POINTER
 
 *** ************************************* SHORTHAND_COMMENTS **/
 //:======================================:SHORTHAND_COMMENTS:://
@@ -1843,6 +2174,38 @@
         Keep these queue types in alphabetical order to
         avoid arbitraryness in our code.
 
+    #_queueIndex_ZERO_ALWAYS_#
+
+        When using vkGetDeviceQueue , the queueIndex property
+        is always zero because in this library we only make
+        one queue of any given [type/ability].
+
+        1 compute  queue
+        1 graphics queue
+        1 present  queue
+        
+        Thus sub index for queue is always zero.
+
+    #_064_QFI_#
+    
+        A QFI over 64 is probably wrong. But it might not
+        be if graphics card actually has more than 64
+        queues. I just find it highly unlikely.
+
+        Remove this error if graphics cards start to support
+        higher numbers.
+
+    #_QCI_F0_#
+
+        //[ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ]//
+        //# vkGetDeviceQueue must only be used to get  #//
+        //# queues that were created with the flags    #//
+        //# parameter of VkDeviceQueueCreateInfo set   #//
+        //# to zero. To get queues  that were created  #//
+        //# with a non-zero flags parameter use        #//
+        //# vkGetDeviceQueue2.                         #//
+        //[ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ]//
+
 *** ************************************** LONGHAND_COMMENTS **/
 //:=======================================:LONGHAND_COMMENTS:://
 //::HELP_FINDING_THINGS:=====================================://
@@ -1856,10 +2219,34 @@
     mcv_d_i_qfp_gra
     PASTE_LINE
 
-    presentFamily | presentFamilyIndex
+    presentFamily | presentFamilyIndex    
+    mcv_d_i_qfp_pre
+    PASTE_LINE
+    
+    ------------------------------------------------------------
+
+    mcv_d_i_qfi_com | mcv_d_i_com | mcv_qfi_com | qfi_com
+    mcv_d_i_qfp_com
+    PASTE_LINE
+
+    mcv_d_i_qfi_gra | mcv_d_i_gra | mcv_qfi_gra | qfi_gra
+    mcv_d_i_qfp_gra
+    PASTE_LINE
+
+    mcv_d_i_qfi_pre | mcv_d_i_pre | mcv_qfi_pre | qfi_pre
     mcv_d_i_qfp_pre
     PASTE_LINE
 
+    ------------------------------------------------------------
+
+    VkQueueCreateInfo | QueueCreateInfo
+    YOU_MEAN[ VkDeviceQueueCreateInfo ]
+    PASTE_LINE
+
+    mcv_t_vkqueuecreateinfo
+    YOU_MEAN[ mcv_t_vkdevicequeuecreateinfo ]
+    PASTE_LINE
+    
 
 *** ******************************************************** **/
 //:=====================================:HELP_FINDING_THINGS:://
