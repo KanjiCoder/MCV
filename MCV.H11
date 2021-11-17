@@ -1742,7 +1742,7 @@
             };;
         
         //:----------------------------------------:VIDEO_015://
-        //:VIDEO_###:DeviceExtensionSupport:-----------------://
+        //:VIDEO_022:DeviceExtensionSupport:-----------------://
         #define FUN mcv_f_vkenumeratedeviceextensionproperties
         #define   P mcv_d_o_phy_dev
         #define   _ NIL
@@ -1757,7 +1757,7 @@
                           N=( 0 ); //:Reset_From_Prev_Loop://
                 ASS(     &N != NIL , "[AND_N_NIL]" );
                 FUN( P,_,&N, _ ); 
-                if(  N>=C ){ 
+                if(  N> C ){ 
                     P_F( "\n"               );
                     P_F( "[N:ade]:%d\n" , N );
                     P_F( "[C:ade]:%d\n" , C );
@@ -1801,14 +1801,13 @@
                 P_F( "[mcv_d_i_qfp_gra]:%d\n" , I_G );
                 P_F( "[mcv_d_i_qfp_pre]:%d\n" , I_P );
             };;
-
         #undef FUN  //:--------------------------------------://
         #undef   P  //:--------------------------------------://
         #undef   _  //:--------------------------------------://
         #undef   N  //:--------------------------------------://
         #undef   A  //:--------------------------------------://
         #undef   C  //:--------------------------------------://
-        //:VIDEO_###:DeviceExtensionSupport:-----------------://
+        //:-----------------:VIDEO_022:DeviceExtensionSupport://
 
     };; //:<<<<<<<<<<<<<<< dev_pik:picking_a_physical_device ://
 
@@ -2093,7 +2092,7 @@
                 dci.lay_num =(   0   );
                 dci.lay_arr =(   0   );
 
-                //:#_ENABLING_DEVICE_EXTENSIONS_#://
+                //:VIDEO_022: #_ENABLING_DEVICE_EXTENSIONS_# ://
                 dci.ext_num =( mcv_m_n_rde );
                 dci.ext_arr =( mcv_d_a_rde );
 
