@@ -143,18 +143,31 @@
     //: mpd : VK_MAX_PHYSICAL_DEVICE_NAME_SIZE :- - - - - - -://
     //: uid : VK_UUID_SIZE :- - - - - - - - - -:- - - - - - -://
 
-        #define       mcv_m_n_rie ( 2 )   //: Number : rie ://
-        extern  CHR*  mcv_d_a_rie[  2 ] ; //: Array  : rie ://
-        #define       mcv_d_n_rie [USE:mcv_m_n_rie]
+        //: Arrays Of Strings ://
 
-        #define mcv_m_men     ( 256U )//: Max_Extension_Name ://
-        #define mcv_m_mpd     ( 256U )//: Max_PhyDev_Name    ://
-        #define mcv_m_uid     (  16U )//: VK_UUID_SIZE       ://
+            #define       mcv_m_n_rie ( 2 )   //: Number:rie ://
+            extern  CHR*  mcv_d_a_rie[  2 ] ; //: Array :rie ://
+            #define       mcv_d_n_rie [USE:mcv_m_n_rie]
 
-        #define mcv_m_c_aie     ( 32 )          //: Capacity ://
-        #define mcv_m_c_phy_dev (  8 )          //: Capacity ://
-        #define mcv_m_c_qfp     ( 16 )          //: Capacity ://
-        #define mcv_m_c_qfi     (  3 )          //: Capacity ://
+            #define       mcv_m_n_rde ( 1 )   //: Number:rde ://
+            extern  CHR*  mcv_d_a_rde[  1 ] ; //: Array :rde ://
+            #define       mcv_d_n_rde [USE:mcv_m_n_rde]
+
+        //: Max Values And Indexes ://
+
+            #define mcv_m_men     ( 256U )         //: [men] ://
+            #define mcv_m_mpd     ( 256U )         //: [mpd] ://
+            #define mcv_m_uid     (  16U )         //: [uid] ://
+
+        //: Capacities Of Arrays ://
+
+            #define mcv_m_c_rie [NO_CAPACITY_SIZE_KNOWN]
+            #define mcv_m_c_rde [NO_CAPACITY_SIZE_KNOWN]
+            #define mcv_m_c_aie     ( 32 )      //: Capacity ://
+            #define mcv_m_c_ade     ( 32 )      //: Capacity ://
+            #define mcv_m_c_phy_dev (  8 )      //: Capacity ://
+            #define mcv_m_c_qfp     ( 16 )      //: Capacity ://
+            #define mcv_m_c_qfi     (  3 )      //: Capacity ://
 
 //:===================================================:MACROS://
 //:TYPES:====================================================://
@@ -630,38 +643,54 @@
     //:-------------------------------------------:WIN32_DATA://
     //:VULKAN_MISC:(Not Vulkan Object Instances):------------://
 
-        //:FOR: VkEnumerateInstanceExtensionProperties://
+        //:EXTENSIONS:- - - - - - - - - - - - - - - - - - - -://
+    
+            //: [aie] : Available_Instance_Extensions
+            //: [rie] : Required__Instance_Extensions
+            //: [ade] : Available___Device_Extensions
+            //: [rde] : Required____Device_Extensions
+
+            //::instance_extensions: : : : : : : : : : : : : ://
+
+                //:FOR:VkEnumerateInstanceExtensionProperties://
+                
+                    //:ins_ext ==           Instance_Extensions
+                    //:    aie == Available_Instance_Extensions
+
+                    #define  mcv_m_c_aie                ( 32 )    
+                    VEP      mcv_d_a_aie[ mcv_m_c_aie ]={  0 };
+                    U32      mcv_d_n_aie               =(  0 ); 
+                    #define  mcv_d_c_aie [USE:mcv_m_c_aie]
+                    #define  mcv_m_n_aie [USE:mcv_d_n_aie]
+                    
+                //:FOR: ppEnabledExtensionNames://
+
+                    CHR* mcv_d_a_rie[ mcv_m_n_rie ]={
+                        "VK_KHR_surface"
+                    ,   "VK_KHR_win32_surface"
+                    };  //:#_HOW_DID_I_DECIDE_ON_RIE_#://
+
+            //:: : : : : : : : : : : : : :instance_extensions://
+            //:device_extensions:: : : : : : : : : : : : : : ://
+
+                //:FOR:vkEnumerateDeviceExtensionProperties  ://
         
-            //:ins_ext ==           Instance_Extensions
-            //:    aie == Available_Instance_Extensions
+                    #define  mcv_m_c_ade                ( 32 )    
+                    VEP      mcv_d_a_ade[ mcv_m_c_ade ]={  0 };
+                    U32      mcv_d_n_ade               =(  0 ); 
+                    #define  mcv_d_c_ade [USE:mcv_m_c_ade]
+                    #define  mcv_m_n_ade [USE:mcv_d_n_ade]
+                
+                //:FOR:cross checking to see if we have what
+                //:    we require.
 
-            #define  mcv_m_c_aie                ( 32 )    
-            VEP      mcv_d_a_aie[ mcv_m_c_aie ]={  0 };
-            U32      mcv_d_n_aie               =(  0 ); 
-            #define  mcv_d_c_aie [USE:mcv_m_c_aie]
-            #define  mcv_m_n_aie [USE:mcv_d_n_aie]
-            
-        //:FOR: ppEnabledExtensionNames://
+                    CHR* mcv_d_a_rde[ mcv_m_n_rde ]={
+                        "VK_KHR_swapchain"  
+                    };
 
-            CHR* mcv_d_a_rie[ mcv_m_n_rie ]={
-            /** ******************************************** ***                                 
-            *** www.khronos.org/registry/vulkan/specs/       ***
-            *** 1.2-khr-extensions/html/chap47.html          ***
-            ***                                              ***
-            *** Also: Cross Checked: GLFW Library            ***
-            *** glfwGetRequiredInstanceExtensions            ***
-            *** _glfwPlatformGetRequiredInstanceExtensions   ***
-            *** ******************************************** **/
+            //:: : : : : : : : : : : : : : :device_extensions://
 
-                "VK_KHR_surface"
-            //: "VK_KHR_swapchain"                <-- DEVICE_EXT 
-            ,   "VK_KHR_win32_surface"
-
-            //: "VK_KHR_external_memory_win32"  
-            //: "VK_KHR_win32_keyed_mutex"  
-            //: "VK_KHR_external_semaphore_win32"  
-            //: "VK_KHR_external_fence_win32" 
-            };
+        //:- - - - - - - - - - - - - - - - - - - -:EXTENSIONS://
 
         //: FOR: VkDeviceQueueCreateInfo
 
@@ -1132,6 +1161,33 @@
         fun( log , qfi , _0_ , out  );
     }
 
+//: vkEnumerateDeviceExtensionProperties ://
+
+    #define E_P struct mcv_t_vkextensionproperties
+
+        RES mcv_f_vkenumeratedeviceextensionproperties(
+            VOD*   phy                  //:  physicalDevice  ://
+        ,   CHR*   nil                  //:  NIL:pLayerName  ://              
+        ,   U32*   num                  //:  pPropertyCount  ://
+        ,   E_P*   arr                  //:  pProperties     ://
+        ){
+            if( ECI >= 1 ){
+                if( NIL == phy ){ ERR("[007]"); };
+                if( NIL != nil ){ ERR("[008]"); };
+                if( NIL == num ){ ERR("[009]"); };
+                if( NIL == arr ){  /** OKAY **/ };
+
+                if( NIL == arr ){
+                    if( 0 != num ){ ERR("[010]" ); };//:@AMS@://
+                };;
+            };;
+
+            GI3* fun = mcv_f_gpa_vul( 
+                "vkEnumerateDeviceExtensionProperties" );
+            fun( phy , nil , num , arr  );
+        }
+    #undef  E_P
+
 //:=========================================:FUNCTIONS_VULKAN://
 //:=========================================:VULKAN_FUNCTIONS://
 //:FUNCTIONS:================================================://
@@ -1534,9 +1590,11 @@
        
 //:MCV_F_INI:GET_PHYSICAL_DEVICE:############################://
 //:                                                          ://
-//:     VIDEO_020:GET_PHYSICAL_DEVICE:
+//:     VIDEO_020:GET_PHYSICAL_DEVICE:                       ://
 //:     This stuff got a bit more complex than I expected.   ://
 //:     we need more column space, so just un-indent here.   ://
+//:                                                          ://
+//:     TAG[isdevicesuitable]TAG[isDeviceSuitable]           ://
 //:                                                          ://
 //:MCV_F_INI:GET_PHYSICAL_DEVICE:::::::::::::::::::::::::::::://
 #define     N_C mcv_f_n_c           //:------------:NillCheck://
@@ -1559,7 +1617,9 @@
 #define     I_P mcv_d_i_qfp_pre     //:---------:QFI:PRESENT ://
                                     //:                      ://                
 #define     SUR mcv_d_o_sur         //:---------:VkSurfaceKHR://
+{
 
+    I32     o_k =(    0    ); //: Undefined State.           ://
     I32 dev_pik =(    1    ); //: picking_a_physical_device ?://
     I32 dev_dex =(   0-1   ); //: current device index       :// 
     I32 dev_m_i =( P_N - 1 ); //: max device dex             ://
@@ -1574,6 +1634,10 @@
 
                 ERR("[CANT_FIND_SUITABLE_PHYSICAL_DEVICE]");
             };;
+
+        //:Reset Our Okay Status To Innocent/NoProblem/Positive:
+    
+            o_k =( 0+1 );
 
         //:Reset Criteria We Want:
         
@@ -1656,6 +1720,50 @@
             };;
 
             if( I_C >= 0 && I_G >= 0 && I_P >= 0 ){ 
+                //:Device Is Still Suitable.
+                //:Do nothing.
+            }else{
+                o_k=( 0-1 ); //:UnsuitableDevice
+            };;
+        
+        //:----------------------------------------:VIDEO_015://
+        //:VIDEO_###:DeviceExtensionSupport:-----------------://
+        #define FUN mcv_f_vkenumeratedeviceextensionproperties
+        #define   P mcv_d_o_phy_dev
+        #define   _ NIL
+        #define   N mcv_d_n_ade
+        #define   A mcv_d_a_ade
+        #define   C mcv_m_c_ade
+
+            if( o_k >= 1 ){
+
+                FUN( P,_,&N, _ ); ASS( N<=C,"[009]");
+                FUN( P,_,&N,&A );
+
+                //:Paired Array Checklist:
+                I32     chk_A[ mcv_m_n_rde ]={ 0 };
+                I32     chk_N =mcv_m_n_rde ;
+                #define chk_C [NO_CAPACITY_SIZE_KNOWN]
+                #undef  chk_C
+                CHR*    rde =(NIL); //:Current:@RDE@://
+
+                //:[r]:Loop over all required extensions:
+                //:[a]:Check Against All Available Extensions:
+                for( I32 r = 0 ; r <=(chk_N-1) ; r++ ){
+                for( I32 a = 0 ; a <=(    N-1) ; a++ ){
+
+                    rde = mcv_d_a_rde[ r ];    //:mcv_d_a_rde://
+                    ade =           A[ a ];    //:mcv_d_a_ade://
+                    if( 0==strcmp(ade,rde) ){ chk_A[ r ]=(1); };
+                    if( 1==chk_A[ r ] ){ break; };
+                };;};;
+                for( I32 r = 0 ; r <=(chk_N-1) ; r++ ){
+
+                    if( 1 != chk_A[ r ] ){ o_k =( 0-1); };
+                    if( 1 != chk_A[ r ] ){ break;       };
+                };;
+            };;
+            if( o_k >= 1 ){
 
                 dev_pik=( 0 ); //:No_Longer_Searching://
 
@@ -1663,8 +1771,14 @@
                 P_F( "[mcv_d_i_qfp_gra]:%d\n" , I_G );
                 P_F( "[mcv_d_i_qfp_pre]:%d\n" , I_P );
             };;
-        
-        //:----------------------------------------:VIDEO_015://
+
+        #undef FUN  //:--------------------------------------://
+        #undef   P  //:--------------------------------------://
+        #undef   _  //:--------------------------------------://
+        #undef   N  //:--------------------------------------://
+        #undef   A  //:--------------------------------------://
+        #undef   C  //:--------------------------------------://
+        //:VIDEO_###:DeviceExtensionSupport:-----------------://
 
     };; //:<<<<<<<<<<<<<<< dev_pik:picking_a_physical_device ://
 
@@ -1675,6 +1789,7 @@
         P_F("[DEVICE_WAS_PICKED]\n");
     };;
 
+}
 #undef      N_C  //:-----------------------------------------://
                  //:-----------------------------------------://
 #undef  GET_QFP  //:-----------------------------------------://
@@ -2117,6 +2232,13 @@
     @ A_C @ : Allocation_Callbacks
     @ VIL @ : Vestigial "i" Loop (Loop Can Be Removed From Code)
     @ NDP @ : NIL_DOUBLE_POINTER
+    @ AMS @ : Avoid_Memory_Stomping
+    @ RDE @ : Required_Device_Extension (Name/String)
+
+    @ men @ : Max_Extension_Name
+    @ mpd @ : Max_PhyDev_Name   
+    @ uid @ : VK_UUID_SIZE      
+
 
 *** ************************************* SHORTHAND_COMMENTS **/
 //:======================================:SHORTHAND_COMMENTS:://
@@ -2206,6 +2328,21 @@
         //# vkGetDeviceQueue2.                         #//
         //[ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ]//
 
+    #_HOW_DID_I_DECIDE_ON_RIE_#
+
+        /** ******************************************** ***                                 
+        *** www.khronos.org/registry/vulkan/specs/       ***
+        *** 1.2-khr-extensions/html/chap47.html          ***
+        ***                                              ***
+        *** Also: Cross Checked: GLFW Library            ***
+        *** glfwGetRequiredInstanceExtensions            ***
+        *** _glfwPlatformGetRequiredInstanceExtensions   ***
+        *** ******************************************** **/
+        //: "VK_KHR_external_memory_win32"  
+        //: "VK_KHR_win32_keyed_mutex"  
+        //: "VK_KHR_external_semaphore_win32"  
+        //: "VK_KHR_external_fence_win32" 
+
 *** ************************************** LONGHAND_COMMENTS **/
 //:=======================================:LONGHAND_COMMENTS:://
 //::HELP_FINDING_THINGS:=====================================://
@@ -2247,7 +2384,26 @@
     YOU_MEAN[ mcv_t_vkdevicequeuecreateinfo ]
     PASTE_LINE
     
+    mcv_d_ade_arr | mcv_data_available_device_extension_array
+    USE[ mcv_d_a_ade ]
+    PASTE_LINE
+
+    mcv_d_ade_num | mcv_data_available_device_extension_count
+    USE[ mcv_d_n_ade ]
+    PASTE_LINE
+
+    mcv_d_ade_cap | mcv_data_available_device_extension_capacity
+    USE[ mcv_m_c_ade ]
+    PASTE_LINE
 
 *** ******************************************************** **/
 //:=====================================:HELP_FINDING_THINGS:://
+//:YOU_CANT_TYPE_WORTH_SHIT:=================================://
+/** ******************************************************** ***
 
+    mcv_f_enumeratedeviceextensionproperties
+    YOU_MEAN[ mcv_f_vkenumeratedeviceextensionproperties ]
+    PASTE_LINE
+
+*** ******************************************************** **/
+//:YOU_CANT_TYPE_WORTH_SHIT:=================================://
