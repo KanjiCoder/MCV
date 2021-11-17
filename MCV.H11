@@ -164,7 +164,7 @@
             #define mcv_m_c_rie [NO_CAPACITY_SIZE_KNOWN]
             #define mcv_m_c_rde [NO_CAPACITY_SIZE_KNOWN]
             #define mcv_m_c_aie     ( 32 )      //: Capacity ://
-            #define mcv_m_c_ade     ( 32 )      //: Capacity ://
+            #define mcv_m_c_ade     ( 256)      //: Capacity ://
             #define mcv_m_c_phy_dev (  8 )      //: Capacity ://
             #define mcv_m_c_qfp     ( 16 )      //: Capacity ://
             #define mcv_m_c_qfi     (  3 )      //: Capacity ://
@@ -515,7 +515,7 @@
     /** Resolves to a U32 for bit packing flags. **/
     /** So just use   U32.                       **/
 
-//:VkDeviceCreateInfo:
+//:VkDeviceCreateInfo: (LogicalDevice):
 
     #define DCI struct mcv_t_vkdevicecreateinfo
     #define C_I struct mcv_t_vkdevicequeuecreateinfo
@@ -675,7 +675,7 @@
 
                 //:FOR:vkEnumerateDeviceExtensionProperties  ://
         
-                    #define  mcv_m_c_ade                ( 32 )    
+                    #define  mcv_m_c_ade                ( 256)    
                     VEP      mcv_d_a_ade[ mcv_m_c_ade ]={  0 };
                     U32      mcv_d_n_ade               =(  0 ); 
                     #define  mcv_d_c_ade [USE:mcv_m_c_ade]
@@ -790,7 +790,7 @@
 //:FUNCTIONS_BASIC:==========================================://
 
     VOD  mcv_f_err( CHR* msg ){
-        P_F( "[mcv_f_err]:%s" , msg );
+        P_F( "\n\n\n\n[mcv_f_err]:%s \n\n\n\n\n" , msg );
         F_F( stdout );
         exit( 0xFF );
     }
@@ -1057,7 +1057,7 @@
     #undef  DEV
     #undef  QFP
 
-//: vkCreateDevice ://
+//: vkCreateDevice (LogicalDevice) ://
 
     #define DCI struct mcv_t_vkdevicecreateinfo
     #define C_B struct mcv_t_vkallocationcallbacks
@@ -1174,17 +1174,31 @@
             if( ECI >= 1 ){
                 if( NIL == phy ){ ERR("[007]"); };
                 if( NIL != nil ){ ERR("[008]"); };
-                if( NIL == num ){ ERR("[009]"); };
+                
                 if( NIL == arr ){  /** OKAY **/ };
+                if( NIL == num ){ 
 
+                    ERR("[009:@NNP@]"); //:NullNumberPointer://
+
+                };;
                 if( NIL == arr ){
-                    if( 0 != num ){ ERR("[010]" ); };//:@AMS@://
+                    if( ((U32)0) != (*num) ){ 
+
+                        P_F( "[010:NUM]:%d\n" , num );
+                        ERR("[010]" ); //:@AMS@://
+                    };
                 };;
             };;
 
             GI3* fun = mcv_f_gpa_vul( 
                 "vkEnumerateDeviceExtensionProperties" );
             fun( phy , nil , num , arr  );
+
+            if( ECI >= 1 ){
+                if( NIL == num ){
+                    ERR("[num_made_nil]");
+                };;
+            };;
         }
     #undef  E_P
 
@@ -1255,7 +1269,8 @@
             A( &( t ) , &( t.pipelineCacheUUID ) , 276 ,"[1]");
             A( &( t ) , &( t.limits            ) , 296 ,"[2]");
             A( &( t ) , &( t.sparseProperties  ) , 800 ,"[3]");
-             
+            
+        #undef  A
         }
         //:--------------------------------------------:Debug://
         //:Declare_Variables:--------------------------------://
@@ -1737,23 +1752,38 @@
 
             if( o_k >= 1 ){
 
-                FUN( P,_,&N, _ ); ASS( N<=C,"[009]");
-                FUN( P,_,&N,&A );
+                SAY( "\n[DeviceExtensionSupport:CHK:...]\n\n" );
+
+                          N=( 0 ); //:Reset_From_Prev_Loop://
+                ASS(     &N != NIL , "[AND_N_NIL]" );
+                FUN( P,_,&N, _ ); 
+                if(  N>=C ){ 
+                    P_F( "\n"               );
+                    P_F( "[N:ade]:%d\n" , N );
+                    P_F( "[C:ade]:%d\n" , C );
+                    P_F( "\n"               );
+                };;
+                ASS( N<=C,"[011]");
+                FUN( P,_,&N,(A));
 
                 //:Paired Array Checklist:
-                I32     chk_A[ mcv_m_n_rde ]={ 0 };
-                I32     chk_N =mcv_m_n_rde ;
-                #define chk_C [NO_CAPACITY_SIZE_KNOWN]
-                #undef  chk_C
-                CHR*    rde =(NIL); //:Current:@RDE@://
+                I32      chk_A[ mcv_m_n_rde ]={ 0 };
+                I32      chk_N =mcv_m_n_rde ;
+                #define  chk_C [NO_CAPACITY_SIZE_KNOWN]
+                #undef   chk_C
+                CHR*     rde =(NIL); //:Current:@RDE@://
+                VEP  ent_ade ={ 0 }; //:Current:@ADE@://
+                CHR*     ade =(NIL); //:Current:@ADE@://
 
                 //:[r]:Loop over all required extensions:
                 //:[a]:Check Against All Available Extensions:
                 for( I32 r = 0 ; r <=(chk_N-1) ; r++ ){
                 for( I32 a = 0 ; a <=(    N-1) ; a++ ){
 
-                    rde = mcv_d_a_rde[ r ];    //:mcv_d_a_rde://
-                    ade =           A[ a ];    //:mcv_d_a_ade://
+                        rde = mcv_d_a_rde[ r ];//:mcv_d_a_rde://
+                    ent_ade =           A[ a ];//:-----------://
+                        ade = ent_ade.ext_nam ;//:mcv_d_a_ade://
+
                     if( 0==strcmp(ade,rde) ){ chk_A[ r ]=(1); };
                     if( 1==chk_A[ r ] ){ break; };
                 };;};;
@@ -2063,8 +2093,9 @@
                 dci.lay_num =(   0   );
                 dci.lay_arr =(   0   );
 
-                dci.ext_num =(   0   );
-                dci.ext_arr =(   0   );
+                //:#_ENABLING_DEVICE_EXTENSIONS_#://
+                dci.ext_num =( mcv_m_n_rde );
+                dci.ext_arr =( mcv_d_a_rde );
 
                 dci.fet     = &( d_v );  //:pEnabledFeatures ://
 
@@ -2233,7 +2264,9 @@
     @ VIL @ : Vestigial "i" Loop (Loop Can Be Removed From Code)
     @ NDP @ : NIL_DOUBLE_POINTER
     @ AMS @ : Avoid_Memory_Stomping
-    @ RDE @ : Required_Device_Extension (Name/String)
+    @ RDE @ : Required__Device_Extension (Name/String)
+    @ ADE @ : Available_Device_Extension (Name/String)
+    @ NNP @ : Nill_Number_Pointer
 
     @ men @ : Max_Extension_Name
     @ mpd @ : Max_PhyDev_Name   
@@ -2330,18 +2363,39 @@
 
     #_HOW_DID_I_DECIDE_ON_RIE_#
 
-        /** ******************************************** ***                                 
-        *** www.khronos.org/registry/vulkan/specs/       ***
-        *** 1.2-khr-extensions/html/chap47.html          ***
-        ***                                              ***
-        *** Also: Cross Checked: GLFW Library            ***
-        *** glfwGetRequiredInstanceExtensions            ***
-        *** _glfwPlatformGetRequiredInstanceExtensions   ***
-        *** ******************************************** **/
+        /// ******************************************** ///                                 
+        /// www.khronos.org/registry/vulkan/specs/       ///
+        /// 1.2-khr-extensions/html/chap47.html          ///
+        ///                                              ///
+        /// Also: Cross Checked: GLFW Library            ///
+        /// glfwGetRequiredInstanceExtensions            ///
+        /// _glfwPlatformGetRequiredInstanceExtensions   ///
+        /// ******************************************** ///
         //: "VK_KHR_external_memory_win32"  
         //: "VK_KHR_win32_keyed_mutex"  
         //: "VK_KHR_external_semaphore_win32"  
         //: "VK_KHR_external_fence_win32" 
+
+    #_ENABLING_DEVICE_EXTENSIONS_#
+
+        Enabling device extensions
+        Using a swapchain requires enabling the 
+        VK_KHR_swapchain extension first. Enabling the 
+        extension just requires a small change to the  
+        logical device creation structure:
+
+        createInfo.enabledExtensionCount = 
+            static_cast<uint32_t>(deviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = 
+            deviceExtensions.data();
+
+        Make sure to replace the existing line
+        createInfo.enabledExtensionCount = 0; 
+        when you do so.
+
+        https://vulkan-tutorial.com/.../Swap_chain
+
+
 
 *** ************************************** LONGHAND_COMMENTS **/
 //:=======================================:LONGHAND_COMMENTS:://
