@@ -1,7 +1,8 @@
 //[MACROS_CONFIGURATION:=====================================]//
 //[CONFIGURATION_MACROS:=====================================]//
 
-    #define mcv_m_eci ( 1 )         //:ECI:Error_Check_Inputs://
+    #define mcv_m_eci ( 1 )        //:ECI:Error_Check_Inputs ://
+    #define mcv_m_eco ( 1 )        //:ECO:Error_Check_Outputs://
 
     //:**************************************************:// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     //:TODO: [If/When] code starts to mysteriously crash,:// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -69,6 +70,13 @@
     #include <stdlib.h>                           //: exit() ://
                              
 //:=================================================:INCLUDES://
+//:MACRO_COLLISION_CHECK:====================================://
+
+    #if defined( OUT )
+        //: We can't use "OUT" because used by GCC I think?  ://
+    #endif
+
+//:====================================:MACRO_COLLISION_CHECK://
 //:FILE_MACROS:==============================================://
 
 //: MISC_FILE_MACROS ://
@@ -94,6 +102,7 @@
 //: Basic_File_Macros ://
 
     #define ECI mcv_m_eci 
+    #define ECO mcv_m_eco
     #define NIL ((void*)0)
     #define VOD   void
     #define DLL   void
@@ -168,6 +177,8 @@
             #define mcv_m_c_phy_dev (  8 )      //: Capacity ://
             #define mcv_m_c_qfp     ( 16 )      //: Capacity ://
             #define mcv_m_c_qfi     (  3 )      //: Capacity ://
+            #define mcv_m_c_sur_fmt ( 16 )      //: Capacity ://
+            #define mcv_m_c_sur_pre ( 16 )      //: Capacity ://
 
 //:===================================================:MACROS://
 //:TYPES:====================================================://
@@ -604,7 +615,79 @@
 //
 //  #undef  CON
 //  #undef  TMP
+
+//: SwapChainSupportDetails(SCSD) ://
+
+    //:VIDEO_023:--------------------------------------------://
+    //:******************************************************://
+    //:                                                      ://
+    //:   Unlike VulkanTutorial.com , we are not going to    ://
+    //:   create a "SwapChainSupportDetails" helper struct.  ://
+    //:                                                      ://
+    //:******************************************************://
+    //:SCSD:Dependency_Cascade:------------------------------://
+
+        //: SCSD:VkExtent2D ://
+
+            #define TYP struct mcv_t_vkextent2d
+
+                    struct mcv_t_vkextent2d {
+                        U32  wid ;
+                        U32  hig ;
+                    };
+                    S_A( S_O( TYP ) == 8 , "[VKE2D]" );
+
+            #undef  TYP
+
+        //: SCSD:VkFormat ://
+
+            //: Enum. So Just Use[ I32 ] ://
+
+        //: SCSD:VkColorSpaceKHR ://
+
+            //: Enum. So Just Use[ I32 ] ://
+
+    //:------------------------------:SCSD:Dependency_Cascade://
+    //:SCSD:Main_Struct_Members:-----------------------------://
+
+        //: SCSD:VkSurfaceCapabilitiesKHR : - - - - - - - - -://
+        #define E2D struct mcv_t_vkextent2d
+        #define TYP struct mcv_t_vksurfacecapabilitieskhr
+
+            struct mcv_t_vksurfacecapabilitieskhr {
+                U32         img_min      ; //: minImageCount ://
+                U32         img_max      ; //: maxImageCount ://
+                                           
+                E2D         ext_cur      ; //: currentExtent ://
+                E2D         ext_min      ; //: minImageExtent://
+                E2D         ext_max      ; //: maxImageExtent://
+
+                U08         therest[ 20 ]; //:IDontGiveAFuck ://
+            };
+            S_A( 52-4-4-8-8-8 == 20 , "[52_4_4_8_8_8]" );
+            S_A( S_O( TYP ) == 52 , "[VKSCKHR]" );
+
+        #undef E2D
+        #undef TYP
+
+        //: SCSD:VkSurfaceFormatKHR ::::::: - - - - - - - - -://
+        #define TYP struct mcv_t_vksurfaceformatkhr
+
+            struct mcv_t_vksurfaceformatkhr {
+                I32 fmt ;   //: VkFormat format              ://
+                I32 col ;   //: VkColorSpaceKHR  colorSpace  ://
+            };
+            S_A( S_O( TYP ) == 8 , "[VKSFKHR]" );
+
+        #undef TYP
+
+        //: SCSD:VkPresentModeKHR ::::::::: - - - - - - - - -://
+
+            //: Enum. So Just Use[ I32 ] ://
     
+    //:-----------------------------:SCSD:Main_Struct_Members://
+    //:--------------------------------------------:VIDEO_023://
+
 //:========================================:VULKAN_CORE_TYPES://
 //:DATA:=====================================================://
 
@@ -780,6 +863,36 @@
                 S_A( mcv_m_c_qci == mcv_m_c_qfi , "[QCI:QFI]" );
 
         #undef  QCI
+
+        //: SurfaceCapabilities:- - - - - - - - - - - - - - -://
+
+            #define TYP struct mcv_t_vksurfacecapabilitieskhr
+            
+                TYP mcv_d_o_cap ={ 0 };
+
+            #undef  TYP
+
+        //: SurfaceFormats::- - - - - - - - - - - - - - - - -://
+
+            #define TYP struct mcv_t_vksurfaceformatkhr
+
+                #define mcv_m_c_sur_fmt ( 16 )
+                I32     mcv_d_n_sur_fmt                     ;
+                TYP     mcv_d_a_sur_fmt[ mcv_m_c_sur_fmt ]  ;
+                #define mcv_d_c_sur_fmt [USE:mcv_m_c_sur_fmt]
+
+            #undef  TYP
+
+        //: PresentModes::- - - - - - - - - - - - - - - - - -://
+
+            #define TYP I32 /**mcv_t_vkpresentmodekhr**/
+
+                #define mcv_m_c_sur_pre ( 16 )
+                I32     mcv_d_n_sur_pre                     ;
+                TYP     mcv_d_a_sur_pre[ mcv_m_c_sur_pre ]  ;
+                #define mcv_d_c_sur_pre [USE:mcv_m_c_sur_pre]
+
+            #undef  TYP
 
     #undef  ICI
     #undef  A_I
@@ -1201,6 +1314,97 @@
             };;
         }
     #undef  E_P
+
+//:VIDEO_023://
+
+    //:VIDEO_023:--------------------------------------------://
+
+        //: vkGetPhysicalDeviceSurfaceCapabilitiesKHR ://
+
+            #define TYP struct mcv_t_vksurfacecapabilitieskhr
+
+                RES mcv_f_g_phy_sur_cap(
+                    VOD*   phy   //: physicalDevice          ://
+                ,   VOD*   sur   //: NIL:pLayerName          ://              
+                ,   TYP*   cap   //: VkSurfaceCapabilitiesKHR://
+                ){
+                    GI3* fun = mcv_f_gpa_vul( 
+                    "vkGetPhysicalDeviceSurfaceCapabilitiesKHR" 
+                    );;
+                    RES res = (RES)fun( phy , sur , cap );
+                    if( ECO >= 1 ){
+                        if( 0 != res ){ ERR("[017]"); };
+                    };;
+                    return( res );
+                }
+            #undef  TYP
+
+        //: vkGetPhysicalDeviceSurfaceFormatsKHR      ://
+
+            #define TYP struct mcv_t_vksurfaceformatkhr
+
+                RES mcv_f_g_phy_sur_fmt(
+                    VOD*   phy       //: physicalDevice      :// 
+                ,   VOD*   sur       //: VkSurfaceKHR        ://
+                ,   U32*   num       //: pSurfaceFormatCount :// 
+                ,   TYP*   arr       //: pSurfaceFormats     ://
+                ){
+                    if( ECI >= 1 ){
+                    
+                        if( NIL == phy ){   ERR("[013]"); };
+                        if( NIL == sur ){   ERR("[014]"); };      
+                        if( NIL == num ){   ERR("[015]"); };
+                        if( NIL == arr ){ /** Allowed **/ };
+                    
+                        //:Memory Stomp Protection:
+                        if( NIL == arr ){
+                            if( ((U32)0) != (*num) ){
+                                ERR("[019]");
+                            };;
+                        };;
+                    };;
+                    
+                    GI3* fun = mcv_f_gpa_vul( 
+                    "vkGetPhysicalDeviceSurfaceFormatsKHR" );;
+                    RES res = (RES)fun(phy , sur , num , arr);
+                    
+                    if( ECO >= 1 ){
+                    
+                        if( NIL == arr ){
+                            if( (*num) > mcv_m_c_sur_fmt ){
+                                ERR("[012]");
+                            };;
+                        };;
+                    
+                        if( 0 != res ){ ERR("[016]"); };
+                    };;
+                    return( res );
+                }
+            #undef  TYP
+
+        //: vkGetPhysicalDeviceSurfacePresentModesKHR ://
+
+            #define TYP I32
+
+                RES mcv_f_g_phy_sur_pre(
+                    VOD* phy  //: physicalDevice    ://
+                ,   VOD* sur  //: VkSurfaceKHR      ://
+                ,   U32* num  //: pPresentModeCount ://
+                ,   TYP* arr  //: pPresentModes     ://
+                ){
+                    GI3* fun = mcv_f_gpa_vul( 
+                    "vkGetPhysicalDeviceSurfacePresentModesKHR" 
+                    );;
+                    RES res = (RES)fun( phy , sur , num , arr );
+
+                    if( ECO >= 1 ){
+                        if( 0 != res ){ ERR("[018]"); };
+                    };;
+                    return( res );
+                }
+            #undef  TYP
+
+    //:--------------------------------------------:VIDEO_023://
 
 //:=========================================:FUNCTIONS_VULKAN://
 //:=========================================:VULKAN_FUNCTIONS://
@@ -1793,14 +1997,57 @@
                     if( 1 != chk_A[ r ] ){ break;       };
                 };;
             };;
+            if( o_k >= 1 ){ 
+                #define     PHY mcv_d_o_phy_dev
+                #define     SUR mcv_d_o_sur
+
+                #define CAP_GET mcv_f_g_phy_sur_cap
+                #define CAP_OBJ mcv_d_o_cap
+
+                #define FMT_GET mcv_f_g_phy_sur_fmt
+                #define FMT_NUM mcv_d_n_sur_fmt
+                #define FMT_ARR mcv_d_a_sur_fmt
+
+                #define PRE_GET mcv_f_g_phy_sur_pre
+                #define PRE_NUM mcv_d_n_sur_pre
+                #define PRE_ARR mcv_d_a_sur_pre
+
+                    //: VIDEO_0023:SwapChainSupportDetails   ://
+ 
+                    CAP_GET( PHY , SUR , &( CAP_OBJ ) );
+
+                    FMT_GET( PHY , SUR , &(FMT_NUM) , ( NIL ) );
+                    FMT_GET( PHY , SUR , &(FMT_NUM) , FMT_ARR );
+     
+                    PRE_GET( PHY , SUR , &(PRE_NUM) , ( NIL ) );
+                    PRE_GET( PHY , SUR , &(PRE_NUM) , PRE_ARR );
+
+                    //:Check What We've got:
+                    ERR( "[TODO:FINISH_HERE]" );
+                    
+                #undef      PHY  //:-------------------------://
+                #undef      SUR  //:-------------------------://
+                                 //:-------------------------://
+                #undef  CAP_GET  //:-------------------------://
+                #undef  CAP_OBJ  //:-------------------------://
+                                 //:-------------------------://
+                #undef  FMT_GET  //:-------------------------://
+                #undef  FMT_NUM  //:-------------------------://
+                #undef  FMT_ARR  //:-------------------------://
+                                 //:-------------------------://
+                #undef  PRE_GET  //:-------------------------://
+                #undef  PRE_NUM  //:-------------------------://
+                #undef  PRE_ARR  //:-------------------------://
+            };;
             if( o_k >= 1 ){
 
                 dev_pik=( 0 ); //:No_Longer_Searching://
 
-                P_F( "[mcv_d_i_qfp_com]:%d\n" , I_C );
-                P_F( "[mcv_d_i_qfp_gra]:%d\n" , I_G );
-                P_F( "[mcv_d_i_qfp_pre]:%d\n" , I_P );
+                P_F( "[mcv_d_i_qfp_com:(I_C)]:%d\n" , I_C );
+                P_F( "[mcv_d_i_qfp_gra:(I_G)]:%d\n" , I_G );
+                P_F( "[mcv_d_i_qfp_pre:(I_P)]:%d\n" , I_P );
             };;
+
         #undef FUN  //:--------------------------------------://
         #undef   P  //:--------------------------------------://
         #undef   _  //:--------------------------------------://
@@ -2221,6 +2468,7 @@
 //: Basic_File_Macros ://
                     
     #undef  ECI
+    #undef  ECO
     #undef  NIL  
     #undef  VOD  
     #undef  DLL  
@@ -2447,6 +2695,22 @@
 
     mcv_d_ade_cap | mcv_data_available_device_extension_capacity
     USE[ mcv_m_c_ade ]
+    PASTE_LINE
+
+    mcv_t_vksurfaceformatskhr | vksurfaceformatskhr
+    YOU_WANT[ mcv_t_vksurfaceformatkhr ]
+    PASTE_LINE
+
+    mcv_t_surfacecapabilitieskhr | surfacecapabilitieskhr   
+    YOU_WANT[ mcv_t_vksurfacecapabilitieskhr ]
+    PASTE_LINE
+
+    mcv_t_vkpresentmodekhr | vkpresentmodekhr 
+    JUST_USE[ I32 ]BECAUSE_ENUM
+    PASTE_LINE
+
+    mcv_t_vksurfacepresentmodekhr | vksurfacepresentmode
+    JUST_USE[ I32 ]BECAUSE_ENUM
     PASTE_LINE
 
 *** ******************************************************** **/
