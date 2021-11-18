@@ -273,6 +273,19 @@
             };
 
     #undef  P_T
+    #define OBLIGATORY_DEFINE_FOR_FORMATTING
+
+        struct mcv_t_rect{
+
+            I32 lef  ;                            //: left   ://
+            I32 top  ;                            //: top    ://
+            I32 rig  ;                            //: right  ://
+            I32 bot  ;                            //: bottom ://
+        };
+
+    #undef  OBLIGATORY_DEFINE_FOR_FORMATTING
+
+
 
 //:=======================================:WIN32_WINDOW_TYPES://
 //:VULKAN_CORE_TYPES:========================================://
@@ -880,6 +893,8 @@
                 I32     mcv_d_n_sur_fmt                     ;
                 TYP     mcv_d_a_sur_fmt[ mcv_m_c_sur_fmt ]  ;
                 #define mcv_d_c_sur_fmt [USE:mcv_m_c_sur_fmt]
+                I32     mcv_d_i_sur_fmt =( 0 - 1 ); //:PICKED://
+                TYP     mcv_d_o_sur_fmt ={   0   }; //:PICKED://
 
             #undef  TYP
 
@@ -891,6 +906,17 @@
                 I32     mcv_d_n_sur_pre                     ;
                 TYP     mcv_d_a_sur_pre[ mcv_m_c_sur_pre ]  ;
                 #define mcv_d_c_sur_pre [USE:mcv_m_c_sur_pre]
+                I32     mcv_d_i_sur_pre =( 0 - 1 ); //:PICKED://
+                TYP     mcv_d_o_sur_pre =( 0 -666); //:PICKED://
+
+            #undef  TYP
+
+        //: SwapChainExtent:- - - - - - - - - - - - - - - - -://
+
+            #define TYP struct mcv_t_vkextent2d
+
+                TYP  mcv_d_o_swa_ext ={ 0 }; //: Obj:swa_ext ://
+                I32  mcv_d_h_swa_ext =( 0 ); //: Has:swa_ext ://
 
             #undef  TYP
 
@@ -1015,6 +1041,24 @@
             }
 
     //:-----------------------------------------:GPA_Specific://
+    //:MISC_HELPER_FUNCS:------------------------------------://
+
+        U32 mcv_f_cur_min_max(
+            U32 cur
+        ,   U32 min
+        ,   U32 max
+        ){
+            //:VIDEO_023://
+
+            if( min > max ){ ERR("[MIN>MAX]"); };
+            if( max < min ){ ERR("[MAX<MIN]"); };
+
+            if( cur < min ){ cur = min ; };
+            if( cur > max ){ cur = max ; };
+
+            return( cur );
+        }
+    //:MISC_HELPER_FUNCS:------------------------------------://
 
 //:==========================================:FUNCTIONS_BASIC://
 //:FUNCTIONS_DEBUGGING:======================================://
@@ -1041,6 +1085,31 @@
     }
 
 //:======================================:FUNCTIONS_DEBUGGING://
+//:FUNCTIONS_WIN32:==========================================://
+//:WIN32_FUNCTIONS:==========================================://
+#define REC mcv_t_rect
+#define u32 mcv_d_lib_u32
+
+    #define MCV_F_WIN_WID [USE:MCV_F_G_WIN_WID]
+    #define MCV_F_WIN_HIG [USE:MCV_F_G_WIN_HIG]
+
+    I32 MCV_F_G_WIN_WID( VOD ){ //: VIDEO_023:GET_WINDOW_WID ://
+
+        struct REC rec ={ 0 };
+        u32.GetClientRect( mcv_d_win , &rec );
+        I32 wid = ( rec.rig - rec.lef  ) + 0;  //:#_EXC_REC_#://             
+    }                               
+                                    
+    I32 MCV_F_G_WIN_HIG( VOD ){ //: VIDEO_023:GET_WINDOW_HIG ://
+        struct REC rec ={ 0 };
+        u32.GetClientRect( mcv_d_win , &rec );
+        I32 wid = ( rec.bot - rec.top  ) + 0;  //:#_EXC_REC_#://
+    }
+
+#undef  REC
+#undef  u32
+//:==========================================:FUNCTIONS_WIN32://
+//:==========================================:WIN32_FUNCTIONS://
 //:FUNCTIONS_VULKAN:=========================================://
 //:VULKAN_FUNCTIONS:=========================================://
 
@@ -1420,6 +1489,12 @@
     }
 
     //:Default_Win32_WindowProc:-----------------------------://
+    //:                                                      ://
+    //:  Do __NOT__ Put in WIN32_FUNCTIONS section because   ://
+    //:  there is possibility that windowproc will need to   ://
+    //:  call __BOTH__ VULKAN_FUNCTIONS and WIN32_FUNCTIONS  ://
+    //:                                                      ://
+    //:Default_Win32_WindowProc:- - - - - - - - - - - - - - -://
 
         I64 __stdcall mcv_f_windowproc(
             VOD*    hwnd
@@ -1997,55 +2072,205 @@
                     if( 1 != chk_A[ r ] ){ break;       };
                 };;
             };;
+            #define     PHY mcv_d_o_phy_dev
+            #define     SUR mcv_d_o_sur
+            
+            #define CAP_GET mcv_f_g_phy_sur_cap
+            #define CAP_OBJ mcv_d_o_cap
+            
+            #define FMT_GET mcv_f_g_phy_sur_fmt
+            #define FMT_NUM mcv_d_n_sur_fmt
+            #define FMT_ARR mcv_d_a_sur_fmt
+            #define FMT_OBJ mcv_d_o_sur_fmt
+            #define FMT_DEX mcv_d_i_sur_fmt
+            
+            #define PRE_GET mcv_f_g_phy_sur_pre
+            #define PRE_NUM mcv_d_n_sur_pre
+            #define PRE_ARR mcv_d_a_sur_pre
+            #define PRE_OBJ mcv_d_o_sur_pre
+            #define PRE_DEX mcv_d_i_sur_pre
             if( o_k >= 1 ){ 
-                #define     PHY mcv_d_o_phy_dev
-                #define     SUR mcv_d_o_sur
 
-                #define CAP_GET mcv_f_g_phy_sur_cap
-                #define CAP_OBJ mcv_d_o_cap
-
-                #define FMT_GET mcv_f_g_phy_sur_fmt
-                #define FMT_NUM mcv_d_n_sur_fmt
-                #define FMT_ARR mcv_d_a_sur_fmt
-
-                #define PRE_GET mcv_f_g_phy_sur_pre
-                #define PRE_NUM mcv_d_n_sur_pre
-                #define PRE_ARR mcv_d_a_sur_pre
-
-                    //: VIDEO_0023:SwapChainSupportDetails   ://
- 
-                    CAP_GET( PHY , SUR , &( CAP_OBJ ) );
-
-                    FMT_GET( PHY , SUR , &(FMT_NUM) , ( NIL ) );
-                    FMT_GET( PHY , SUR , &(FMT_NUM) , FMT_ARR );
-     
-                    PRE_GET( PHY , SUR , &(PRE_NUM) , ( NIL ) );
-                    PRE_GET( PHY , SUR , &(PRE_NUM) , PRE_ARR );
-
-                    //:Check What We've got:
-                    ERR( "[TODO:FINISH_HERE]" );
-                    
-                #undef      PHY  //:-------------------------://
-                #undef      SUR  //:-------------------------://
-                                 //:-------------------------://
-                #undef  CAP_GET  //:-------------------------://
-                #undef  CAP_OBJ  //:-------------------------://
-                                 //:-------------------------://
-                #undef  FMT_GET  //:-------------------------://
-                #undef  FMT_NUM  //:-------------------------://
-                #undef  FMT_ARR  //:-------------------------://
-                                 //:-------------------------://
-                #undef  PRE_GET  //:-------------------------://
-                #undef  PRE_NUM  //:-------------------------://
-                #undef  PRE_ARR  //:-------------------------://
+                //: VIDEO_0023:SwapChainSupportDetails   ://
+                
+                CAP_GET( PHY , SUR , &( CAP_OBJ ) );
+                
+                FMT_GET( PHY , SUR , &(FMT_NUM) , ( NIL ) );
+                FMT_GET( PHY , SUR , &(FMT_NUM) , FMT_ARR );
+                
+                PRE_GET( PHY , SUR , &(PRE_NUM) , ( NIL ) );
+                PRE_GET( PHY , SUR , &(PRE_NUM) , PRE_ARR );
             };;
+            if( o_k >= 1 ){
+
+                //:Vulkan Tutorial Does This ( VIDEO_0023 ):
+
+                if( FMT_NUM >= 1 
+                &&  PRE_NUM >= 1
+                ){
+                    //:Do nothing. Still Okay.
+                }else{
+                    P_F("\n***[EMPTY:sur_fmt|sur_pre]***\n\n");
+                    o_k =( 0 - 1 );
+                };;
+
+                //:Vulkan Tutorial Made Us GET surface
+                //:capabilities, but never check them.
+                //:Here is my check.
+                //:(Actually, I just didn't read far enough.)
+
+                if( CAP_OBJ.img_min >= 1
+                &&  CAP_OBJ.img_max >= 1
+
+                &&  CAP_OBJ.ext_cur.wid >= 0
+                &&  CAP_OBJ.ext_cur.hig >= 0
+
+                &&  CAP_OBJ.ext_min.wid >= 0
+                &&  CAP_OBJ.ext_min.hig >= 0
+
+                &&  CAP_OBJ.ext_max.wid >= 0
+                &&  CAP_OBJ.ext_max.hig >= 0
+                ){
+                    //:Do nothing. Still Okay.
+                }else{
+                    P_F("\n***[IMG_OR_EXT_PROBLEM]***\n\n");
+                    o_k =( 0 - 1 );
+                };;
+
+            };;
+            if( o_k >= 1 ){
+
+                //:Pick Surface Format ( VIDEO_0023 ):
+
+                #define B8G8R8A8_SRGB   50
+                #define B8G8R8A8_UINT   48
+                #define R8G8B8A8_UINT   41
+                #define SRGB_NONLINEAR   0
+
+                    ASS( FMT_NUM >= 1 , "[ASS:n_sur_fmt:001]" );
+                    ASS( PRE_NUM >= 1 , "[ASS:n_sur_pre:001]" );
+
+                    for( I32 f = 0 ; f <=(FMT_NUM-1) ; f++ ){
+
+                        if( FMT_ARR[ f ].fmt == B8G8R8A8_SRGB ){
+                        if( FMT_ARR[ f ].col == SRGB_NONLINEAR){
+
+                            FMT_OBJ =( FMT_ARR[ f ] );
+                            FMT_DEX =(          f   );
+                            break;
+                        };;};;
+                    };;
+                    if( FMT_DEX < 0 ){ o_k =( 0 - 1 );};
+                
+                #undef  B8G8R8A8_SRGB    
+                #undef  B8G8R8A8_UINT    
+                #undef  R8G8B8A8_UINT   //: <-- AAC2020_FMT  ://
+                #undef  SRGB_NONLINEAR   
+            };;
+            if( o_k >= 1 ){
+
+                //:Pick Best Present Mode ( VIDEO_0023 ):
+
+                #define MAILBOX ( 1 )
+                #define FIFO    ( 2 )
+
+                    ASS( FMT_NUM >= 1 , "[ASS:n_sur_fmt:002]" );
+                    ASS( PRE_NUM >= 1 , "[ASS:n_sur_pre:002]" );
+
+                    for( I32 p = 0 ; p <=(PRE_NUM-1) ; p++ ){
+
+                        if( 0
+                        ||  FIFO    == PRE_ARR[ p ]  
+                        ||  MAILBOX == PRE_ARR[ p ]  
+                        ){
+                            //:Great Or Good Enough:
+                            PRE_OBJ = PRE_ARR[ p ];
+                            PRE_DEX =(         p );
+
+                            //:Found the one we really want:
+                            if( MAILBOX == PRE_ARR[ p ] ){
+                                break;
+                            };;
+                        };;
+                    };;
+                    if( PRE_DEX < 0 ){ o_k =( 0 - 1 );};
+
+                #undef  MAILBOX
+                #undef  FIFO
+            };;
+            if( o_k >= 1 ){
+
+                //: chooseSwapExtent ( VIDEO_0023 ) ://
+
+                if( CAP_OBJ.ext_cur.wid != 0xFFFFFFFF 
+                &&  CAP_OBJ.ext_cur.hig != 0xFFFFFFFF
+                ){
+                    mcv_d_h_swa_ext =( 1 );
+                    mcv_d_o_swa_ext.wid = CAP_OBJ.ext_cur.wid ;
+                    mcv_d_o_swa_ext.hig = CAP_OBJ.ext_cur.hig ;
+
+                    P_F("\n[YAY]\n\n");
+                }else{
+                    //:Screen Coords Don't Match Pixel Coords:
+                    //:Set to size of native window in pixels,
+                    //:and clamp between allowed size range.
+
+                    P_F("\n[HACKISH_UNTESTED_CODE]\n\n");
+
+                    mcv_d_h_swa_ext =( 2 );
+
+                    mcv_d_o_swa_ext    .wid=mcv_f_cur_min_max( 
+                            MCV_F_G_WIN_WID() 
+                    ,   CAP_OBJ.ext_min.wid
+                    ,   CAP_OBJ.ext_max.wid
+                    );;
+
+                    mcv_d_o_swa_ext    .hig=mcv_f_cur_min_max( 
+                            MCV_F_G_WIN_HIG() 
+                    ,   CAP_OBJ.ext_min.hig
+                    ,   CAP_OBJ.ext_max.hig
+                    );;
+                };;
+
+                if( mcv_d_h_swa_ext <= 0 ){
+                    o_k = ( 0 - 1 );
+                    ERR("[NO:SWA_EXT]");
+                };;
+            };;
+            #undef      PHY  //:-----------------------------://
+            #undef      SUR  //:-----------------------------://
+                             //:-----------------------------://
+            #undef  CAP_GET  //:-----------------------------://
+            #undef  CAP_OBJ  //:-----------------------------://
+                             //:-----------------------------://
+            #undef  FMT_GET  //:-----------------------------://
+            #undef  FMT_NUM  //:-----------------------------://
+            #undef  FMT_ARR  //:-----------------------------://
+            #undef  FMT_OBJ  //:-----------------------------://
+            #undef  FMT_DEX  //:-----------------------------://
+                             //:-----------------------------://
+            #undef  PRE_GET  //:-----------------------------://
+            #undef  PRE_NUM  //:-----------------------------://
+            #undef  PRE_ARR  //:-----------------------------://
+            #undef  PRE_OBJ  //:-----------------------------://
+            #undef  PRE_DEX  //:-----------------------------://
             if( o_k >= 1 ){
 
                 dev_pik=( 0 ); //:No_Longer_Searching://
 
-                P_F( "[mcv_d_i_qfp_com:(I_C)]:%d\n" , I_C );
-                P_F( "[mcv_d_i_qfp_gra:(I_G)]:%d\n" , I_G );
-                P_F( "[mcv_d_i_qfp_pre:(I_P)]:%d\n" , I_P );
+                P_F( "\n[PHY_DEV:PICKED!]\n\n" );
+
+                P_F( "\t[mcv_d_i_sur_pre:PRE_DEX]:%d\n"
+                     ,   mcv_d_i_sur_pre );;
+
+                P_F( "\t[mcv_d_i_sur_fmt:FMT_DEX]:%d\n"
+                     ,   mcv_d_i_sur_fmt );;
+
+                P_F( "\t[mcv_d_i_qfp_com:(I_C)]:%d\n" , I_C );
+                P_F( "\t[mcv_d_i_qfp_gra:(I_G)]:%d\n" , I_G );
+                P_F( "\t[mcv_d_i_qfp_pre:(I_P)]:%d\n" , I_P );
+
+                P_F( "\n" );
             };;
 
         #undef FUN  //:--------------------------------------://
@@ -2642,7 +2867,9 @@
 
         https://vulkan-tutorial.com/.../Swap_chain
 
-
+    #_EXC_REC_#
+        Win32 rect uses an EXCLUSIVE RECTANGLE. Hence there
+        is no minus one after taking delta between bounds.
 
 *** ************************************** LONGHAND_COMMENTS **/
 //:=======================================:LONGHAND_COMMENTS:://
@@ -2711,6 +2938,10 @@
 
     mcv_t_vksurfacepresentmodekhr | vksurfacepresentmode
     JUST_USE[ I32 ]BECAUSE_ENUM
+    PASTE_LINE
+
+    mcv_d_o_win
+    USE[ mcv_d_win ]
     PASTE_LINE
 
 *** ******************************************************** **/
