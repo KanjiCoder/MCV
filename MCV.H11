@@ -700,6 +700,54 @@
     
     //:-----------------------------:SCSD:Main_Struct_Members://
     //:--------------------------------------------:VIDEO_023://
+    //:VIDEO_024:createSwapChain:----------------------------://
+
+        //: VkSurfaceTransformFlagBitsKHR ://
+    
+            //: Bitmask , just use U32 ://
+
+        //: VkCompositeAlphaFlagBitsKHR   ://
+
+            //: Bitmaks , just use U32 ://
+
+        //:VkSwapchainKHR://
+
+            //: Opaque Type, use void* ://
+
+        //:VkSwapchainCreateInfoKHR://
+
+        #define CON const
+        #define E2D struct mcv_t_vkextent2d
+
+            struct mcv_t_vkswapchaincreateinfokhr{
+                    I32       typ ; //: sType                ://
+                CON VOD*      nex ; //: pNext                ://
+                    U32       c_f ; //: Create_Flags         ://
+                    VOD*      sur ; //: VkSurfaceKHR         ://
+                           
+                    U32    img_min; //:minImageCount         ://
+                    I32    img_fmt; //:imageFormat           ://
+                    I32    img_col; //: imageColorSpace      ://
+                    E2D    img_ext; //: imageExtent          ://
+                    U32    img_lay_001; //:imageArrayLayers  ://
+                    U32    img_use; //: imageUsage           ://
+                    I32    img_s_m; //: imageSharingMode     ://
+                           
+                    U32    qfi_num; //: queueFamilyIndexCount://
+                CON U32*   qfi_arr; //: pQueueFamilyIndices  ://
+                           
+                    U32    pretran; //: preTransform         ://
+                    U32    com_alp; //: compositeAlpha       ://
+                    I32    pre_mod; //: VkPresentModeKHR     ://
+                    U32    clipped; //: VkBool32             ://
+                    VOD*   oldchan; //: oldSwapChain         ://
+            };
+            S_A( S_O( TYP ) == 104 , "[SCCI]" );
+
+        #undef  CON
+        #undef  E2D
+
+    //:----------------------------:VIDEO_024:createSwapChain://
 
 //:========================================:VULKAN_CORE_TYPES://
 //:DATA:=====================================================://
@@ -798,6 +846,11 @@
             #define mcv_m_c_qfi                  ( 3 )
             U32     mcv_d_a_qfi[ mcv_m_c_qfi ]  ={ 0 };
             U32     mcv_d_n_qfi                 =( 0 );
+
+        //: FOR: VIDEO_024 : createSwapChain
+
+            I32 mcv_d_n_img ; //:SwapChainImageCount://
+            
 
     //:------------------------------------------:VULKAN_MISC://
     //:VULKAN_OBJECTS:---------------------------------------://
@@ -919,6 +972,17 @@
                 I32  mcv_d_h_swa_ext =( 0 ); //: Has:swa_ext ://
 
             #undef  TYP
+
+        //: VIDEO_024:createSwapChain:- - - - - - - - - - - -://
+
+            #define C_I struct mcv_t_vkswapchaincreateinfokhr
+            #define OBJ VOD
+
+                C_I  mcv_d_c_swapcha = { 0 };
+                VOD* mcv_d_o_swapcha = (NIL);
+
+            #undef  C_I
+            #undef  OBJ
 
     #undef  ICI
     #undef  A_I
@@ -2611,6 +2675,13 @@
     #undef  GET_D_Q
     #undef      LOG
     //:-----------------:VIDEO_021:STEP_004:GET_DEVICE_QUEUES://
+    //:VIDEO_024:createSwapChain:----------------------------://
+
+        
+
+
+
+    //:----------------------------:VIDEO_024:createSwapChain://
 
 //:############################:MCV_F_INI:createLogicalDevice://
 //:##########################:MCF_F_INI:CREATE_LOGICAL_DEVICE://
