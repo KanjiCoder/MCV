@@ -675,10 +675,16 @@
                 E2D         ext_min      ; //: minImageExtent://
                 E2D         ext_max      ; //: maxImageExtent://
 
-                U08         therest[ 20 ]; //:IDontGiveAFuck ://
+                U32         tra_has ; //: supportedTransforms://
+                U32         tra_cur ; //: currentTransform   ://
+
+                U08         therest[ 12 ]; //:Idontgiveafuck ://
+
+            //  U08         therest[ 20 ]; //:IDontGiveAFuck ://
             };
-            S_A( 52-4-4-8-8-8 == 20 , "[52_4_4_8_8_8]" );
-            S_A( S_O( TYP ) == 52 , "[VKSCKHR]" );
+            S_A( 52-4-4-8-8-8     == 20 , "[52_4_4_8_8_8]" );
+            S_A( 52-4-4-8-8-8-4-4 == 12 , "[52_44_888_44]" );
+            S_A( S_O( TYP )       == 52 , "[VKSCKHR]"      );
 
         #undef E2D
         #undef TYP
@@ -718,6 +724,7 @@
 
         #define CON const
         #define E2D struct mcv_t_vkextent2d
+        #define TYP struct mcv_t_vkswapchaincreateinfokhr
 
             struct mcv_t_vkswapchaincreateinfokhr{
                     I32       typ ; //: sType                ://
@@ -736,7 +743,7 @@
                     U32    qfi_num; //: queueFamilyIndexCount://
                 CON U32*   qfi_arr; //: pQueueFamilyIndices  ://
                            
-                    U32    pretran; //: preTransform         ://
+                    U32    tra_pre; //: preTransform         ://
                     U32    com_alp; //: compositeAlpha       ://
                     I32    pre_mod; //: VkPresentModeKHR     ://
                     U32    clipped; //: VkBool32             ://
@@ -746,6 +753,7 @@
 
         #undef  CON
         #undef  E2D
+        #undef  TYP
 
     //:----------------------------:VIDEO_024:createSwapChain://
 
@@ -850,6 +858,7 @@
         //: FOR: VIDEO_024 : createSwapChain
 
             I32 mcv_d_n_img ; //:SwapChainImageCount://
+                              //:[mcv_d_img_num]    ://
             
 
     //:------------------------------------------:VULKAN_MISC://
@@ -999,7 +1008,7 @@
     }
 
     VOD  mcv_f_say( CHR* msg ){
-        P_F( "[mcv_f_say]:%s" , msg );
+        P_F( "[mcv_f_say]:%s \n" , msg );
         F_F( stdout );
     }
 
@@ -1122,6 +1131,24 @@
 
             return( cur );
         }
+
+        U32 mcv_f_strcmp( CHR* s_1 , CHR* s_2 ){
+
+            U32 same=( 1 );
+
+            while( 1 ){
+
+                if( *s_1 != *s_2 ){ same=( 0 ); break; };
+                if( 0 == *s_1    ){ break; };
+                if( 0 == *s_2    ){ break; };
+                s_1++;
+                s_2++;
+            };;
+
+            return( same );
+        }
+
+
     //:MISC_HELPER_FUNCS:------------------------------------://
 
 //:==========================================:FUNCTIONS_BASIC://
@@ -1176,6 +1203,7 @@
 //:==========================================:WIN32_FUNCTIONS://
 //:FUNCTIONS_VULKAN:=========================================://
 //:VULKAN_FUNCTIONS:=========================================://
+#define GET mcv_f_gpa_vul
 
 //: vkCreateInstance ://
 
@@ -1185,7 +1213,7 @@
     ,   const VOD*                           pAllocator 
     ,   VOD*                                 pInstance
     ){
-        GI3* fun = mcv_f_gpa_vul( "vkCreateInstance" );
+        GI3* fun = GET( "vkCreateInstance" );
         return( (RES)fun( pCreateInfo,pAllocator,pInstance ) );
     }
 
@@ -1219,8 +1247,7 @@
     ,   U32*    C                  //: Count: pPropertyCount ://
     ,   VEP*    A                  //: Array: pProperties    ://
     ){
-        GI3* fun =mcv_f_gpa_vul( 
-        "vkEnumerateInstanceExtensionProperties" );;
+        GI3* fun =GET( "vkEnumerateInstanceExtensionProperties" );;
         return( fun( N,C,A ) );
     }
 
@@ -1231,14 +1258,13 @@
     ,   U32*  N //: NumberOf:Devices ( pPhysicalDeviceCount )://
     ,   VOD** A //: Array_Of:Devices ( pPhysicalDevices     )://
     ){
-        GI3* fun =mcv_f_gpa_vul( "vkEnumeratePhysicalDevices" );
+        GI3* fun =GET( "vkEnumeratePhysicalDevices" );
         return( (RES)fun( I,N,A ) );
     }
 
 //: vkGetPhysicalDeviceProperties ://
 
     #define TMP struct mcv_t_vkphysicaldeviceproperties
-    #define GET mcv_f_gpa_vul
 
         VOD mcv_f_vkgetphysicaldeviceproperties(
             VOD* phy_dev
@@ -1248,12 +1274,10 @@
             fun( phy_dev , pdp );
         }
     #undef  TMP
-    #undef  GET
 
 //: vkGetPhysicalDeviceFeatures ://
 
     #define TMP struct mcv_t_vkphysicaldevicefeatures
-    #define GET mcv_f_gpa_vul
 
         VOD mcv_f_vkgetphysicaldevicefeatures(
             VOD* phy_dev
@@ -1263,7 +1287,6 @@
             fun( phy_dev , pdf );
         }
     #undef  TMP
-    #undef  GET
 
 //: PRINT: PhysicalDeviceProperties:
 
@@ -1296,7 +1319,7 @@
         ,   QFP* qfp_arr //: VkQueueFamilyProperties*        ://
                          //: pQueueFamilyProperties          ://
         ){
-            GI3* fun =mcv_f_gpa_vul( 
+            GI3* fun =GET( 
                 "vkGetPhysicalDeviceQueueFamilyProperties" );;
             fun( phy_dev , qfp_num , qfp_arr );
         }
@@ -1321,10 +1344,36 @@
                 if(  3  != dci -> typ){ ERR("[DCI_TYP]"); };
                 if( NIL != nil_001   ){ ERR("[NIL!001]"); };
                 if( NIL == log       ){ ERR("[NIL_LOG]"); };
+
+                //:Make absolutely fucking sure that
+                //:"VK_KHR_swapchain" is in our list.
+                I32            ext_num = dci -> ext_num ;
+                CHR* const*    ext_arr = dci -> ext_arr ;
+                CHR*           ext_cur ; //:Current_Extension://
+                CHR*           ext_tar =( "VK_KHR_swapchain" );  
+                I32            ext_has =( 0 );
+
+                for( I32 i = 0 ; i <= ( ext_num-1 ); i++ ){
+                    ext_cur=ext_arr[i];
+                    if( mcv_f_strcmp( ext_cur , ext_tar ) ){
+                        ext_has++;
+                    };;
+                    P_F( "[ext_cur]:%s\n" , ext_cur );
+                };;
+
+                if( 1 != ext_has ){
+                    ERR("[NO__SWAPCHAIN_SUPPORT_IN_LIST]");
+                    
+                }else{
+                    SAY("[yes:swapchain_support_in_list]");
+                };;
             };;
 
-            GI3* fun =mcv_f_gpa_vul( "vkCreateDevice" );
-            return( (RES)fun( phy , dci , nil_001 , log  ) );
+            GI3* fun =GET( "vkCreateDevice" );
+            RES  res = ( (RES)fun( phy , dci , nil_001 , log ));
+            if( 0 != res ){ ERR("[028]"); };
+
+            return( res );
         };
 
     #undef  DCI
@@ -1343,9 +1392,7 @@
         ,   CON C_B*    c_b      //: pAllocator              ://
         ,       VOD*    out      //: VkSurfaceKHR : pSurface ://
         ){
-            GI3* fun = mcv_f_gpa_vul( 
-                "vkCreateWin32SurfaceKHR" 
-            );;
+            GI3* fun = GET( "vkCreateWin32SurfaceKHR" );
 
             if( ECI >= 1 ){  //:- - - - - - - - - - - - - - -://
 
@@ -1382,8 +1429,7 @@
     ,   VOD*    sur                 //: surface              ://
     ,   U32*    out                 //: VkBool32*:pSupported ://
     ){
-        GI3* fun = mcv_f_gpa_vul( 
-            "vkGetPhysicalDeviceSurfaceSupportKHR" );;
+        GI3* fun = GET( "vkGetPhysicalDeviceSurfaceSupportKHR" );
         return( (RES)fun( phy , qfi , sur , out  ) );
     }
 
@@ -1403,7 +1449,7 @@
             if( NIL != *((VOD**)out) ){ ERR("[004]"        ); };
         };;
 
-        GI3* fun = mcv_f_gpa_vul( "vkGetDeviceQueue" );;
+        GI3* fun = GET( "vkGetDeviceQueue" );;
         fun( log , qfi , _0_ , out  );
     }
 
@@ -1436,8 +1482,7 @@
                 };;
             };;
 
-            GI3* fun = mcv_f_gpa_vul( 
-                "vkEnumerateDeviceExtensionProperties" );
+            GI3* fun = GET( "vkEnumerateDeviceExtensionProperties" );
             fun( phy , nil , num , arr  );
 
             if( ECI >= 1 ){
@@ -1461,7 +1506,7 @@
                 ,   VOD*   sur   //: NIL:pLayerName          ://              
                 ,   TYP*   cap   //: VkSurfaceCapabilitiesKHR://
                 ){
-                    GI3* fun = mcv_f_gpa_vul( 
+                    GI3* fun = GET( 
                     "vkGetPhysicalDeviceSurfaceCapabilitiesKHR" 
                     );;
                     RES res = (RES)fun( phy , sur , cap );
@@ -1497,7 +1542,7 @@
                         };;
                     };;
                     
-                    GI3* fun = mcv_f_gpa_vul( 
+                    GI3* fun = GET( 
                     "vkGetPhysicalDeviceSurfaceFormatsKHR" );;
                     RES res = (RES)fun(phy , sur , num , arr);
                     
@@ -1525,7 +1570,7 @@
                 ,   U32* num  //: pPresentModeCount ://
                 ,   TYP* arr  //: pPresentModes     ://
                 ){
-                    GI3* fun = mcv_f_gpa_vul( 
+                    GI3* fun = GET( 
                     "vkGetPhysicalDeviceSurfacePresentModesKHR" 
                     );;
                     RES res = (RES)fun( phy , sur , num , arr );
@@ -1539,6 +1584,56 @@
 
     //:--------------------------------------------:VIDEO_023://
 
+//:VIDEO_024:Create_Swap_Chain:
+
+    //:VIDEO_024:--------------------------------------------://
+
+        #define CON const
+        #define C_I struct mcv_t_vkswapchaincreateinfokhr
+        #define OBJ VOD  //: vkswapchainkhr ://
+
+            RES mcv_f_vkcreateswapchainkhr(
+                     VOD*  log  //: device(logical)          ://
+            ,   CON  C_I*  c_i  //: VkSwapchainCreateInfoKHR ://
+            ,        VOD*  nil  //: VkAllocationCallbacks    ://
+            ,        OBJ*  obj  //: VkSwapchainKHR           ://
+            ){
+                if( ECI >= 1 ){
+                #define E ERR
+
+                    if( NIL == log ){              E("[020]");};
+                    if( NIL == c_i ){              E("[021]");};
+                    if( NIL != nil ){              E("[022]");};
+                    if( NIL == obj ){              E("[023]");}; 
+    
+                    //:Memory_Stomp_Protection:
+                    if( NIL != (*(void**)obj)    ){E("[024]");};
+
+                    if( log !=  mcv_d_log_dev    ){E("[025]");};    
+                    if( c_i !=&(mcv_d_c_swapcha) ){E("[026]");};
+                    if( obj !=&(mcv_d_o_swapcha) ){E("[027]");};
+
+                    if( c_i -> typ !=(1000001000)){E("[029]");};
+                    if( c_i -> sur != mcv_d_o_sur){E("[030]");};
+
+                    if( NIL == c_i -> sur        ){E("[031]");};
+
+                #undef  E
+                };;
+
+                GI3* fun = GET( "vkCreateSwapchainKHR" );
+                if( NIL == fun ){ ERR("[024]"); };
+
+                RES res = (RES)fun( log , c_i , nil , obj );
+                return( res );
+            }
+
+        #undef  C_I
+        #undef  OBJ
+        #undef  CON
+    //:--------------------------------------------:VIDEO_024://
+
+#undef  GET
 //:=========================================:FUNCTIONS_VULKAN://
 //:=========================================:VULKAN_FUNCTIONS://
 //:FUNCTIONS:================================================://
@@ -2093,7 +2188,9 @@
         #define   A mcv_d_a_ade
         #define   C mcv_m_c_ade
 
-            if( o_k >= 1 ){
+            P_F("[VIDEO_022:DeviceExtensionSupport]\n");
+
+            if( o_k >= 1 ){                     SAY("[OK:001]");
 
                 SAY( "\n[DeviceExtensionSupport:CHK:...]\n\n" );
 
@@ -2153,7 +2250,7 @@
             #define PRE_ARR mcv_d_a_sur_pre
             #define PRE_OBJ mcv_d_o_sur_pre
             #define PRE_DEX mcv_d_i_sur_pre
-            if( o_k >= 1 ){ 
+            if( o_k >= 1 ){                     SAY("[OK:002]");
 
                 //: VIDEO_0023:SwapChainSupportDetails   ://
                 
@@ -2165,7 +2262,7 @@
                 PRE_GET( PHY , SUR , &(PRE_NUM) , ( NIL ) );
                 PRE_GET( PHY , SUR , &(PRE_NUM) , PRE_ARR );
             };;
-            if( o_k >= 1 ){
+            if( o_k >= 1 ){                     SAY("[OK:003]");
 
                 //:Vulkan Tutorial Does This ( VIDEO_0023 ):
 
@@ -2202,7 +2299,7 @@
                 };;
 
             };;
-            if( o_k >= 1 ){
+            if( o_k >= 1 ){                     SAY("[OK:004]");
 
                 //:Pick Surface Format ( VIDEO_0023 ):
 
@@ -2231,7 +2328,7 @@
                 #undef  R8G8B8A8_UINT   //: <-- AAC2020_FMT  ://
                 #undef  SRGB_NONLINEAR   
             };;
-            if( o_k >= 1 ){
+            if( o_k >= 1 ){                     SAY("[OK:005]");
 
                 //:Pick Best Present Mode ( VIDEO_0023 ):
 
@@ -2262,8 +2359,8 @@
                 #undef  MAILBOX
                 #undef  FIFO
             };;
-            if( o_k >= 1 ){
-
+            if( o_k >= 1 ){                     SAY("[OK:006]");
+ 
                 //: chooseSwapExtent ( VIDEO_0023 ) ://
 
                 if( CAP_OBJ.ext_cur.wid != 0xFFFFFFFF 
@@ -2318,7 +2415,7 @@
             #undef  PRE_ARR  //:-----------------------------://
             #undef  PRE_OBJ  //:-----------------------------://
             #undef  PRE_DEX  //:-----------------------------://
-            if( o_k >= 1 ){
+            if( o_k >= 1 ){                     SAY("[OK:007]");
 
                 dev_pik=( 0 ); //:No_Longer_Searching://
 
@@ -2336,6 +2433,8 @@
 
                 P_F( "\n" );
             };;
+
+            if( o_k >= 1 ){ SAY("[OK:FINAL]"); };
 
         #undef FUN  //:--------------------------------------://
         #undef   P  //:--------------------------------------://
@@ -2676,11 +2775,104 @@
     #undef      LOG
     //:-----------------:VIDEO_021:STEP_004:GET_DEVICE_QUEUES://
     //:VIDEO_024:createSwapChain:----------------------------://
+    {
+    SAY("[BEG:VIDEO_024:createSwapChain]");
 
+        //:Declare Variables:
+
+            I32 all_queues_have_different_indexes =( 0 );
+
+        //:SwapChainImageCount:
+        #define NO_MAXIMUM_LIMIT ( 0 == mcv_d_o_cap.img_max )
+            if( 0
+            ||  NO_MAXIMUM_LIMIT  
+            ||  mcv_d_o_cap.img_max > mcv_d_o_cap.img_min
+            ){
+                mcv_d_n_img = mcv_d_o_cap.img_min + 1;
+            }else{
+                mcv_d_n_img = mcv_d_o_cap.img_min + 0;
+            };;
+        #undef  NO_MAXIMUM_LIMIT
+    
+        //:Fill Create Info:
+        #define TYP struct mcv_t_vkswapchaincreateinfokhr
+        #define C_I        mcv_d_c_swapcha
+        #define OBJ        mcv_d_o_swapcha
+
+        #define FUN mcv_f_vkcreateswapchainkhr
+        #define LOG mcv_d_log_dev
+
+        #define CAB 0x00000010 //: #_COL_ATT_BIT_#     ://
+        #define C_A 0x00000001 //: #_CA_ALPHA_OPAQUE_# ://
+
+            S_A( S_O( C_I ) == S_O( TYP ) ); //:TypeCheck://
+
+            //: Vulkan Tutorial Misses These In Main Text    ://
+            //: (I am sure it is in the source code though)  ://
+
+                C_I.typ =(  1000001000  );
+                C_I.nex =(      NIL     );
+                C_I.c_f =( (U32)(0x00 ) );
+                C_I.sur =( mcv_d_o_sur  );
+
+            //: Covered By Vulkan Tutorial.com :
+
+                C_I.img_min     =( mcv_d_n_img         );
+                C_I.img_fmt     =( mcv_d_o_sur_fmt.fmt );
+                C_I.img_col     =( mcv_d_o_sur_fmt.col );
+                C_I.img_ext     =( mcv_d_o_swa_ext     );
+                C_I.img_lay_001 =(        1            );
+                C_I.img_use     =(       CAB           );
+                C_I.tra_pre     =( mcv_d_o_cap.tra_cur );
+                C_I.com_alp     =( C_A                 ); 
+                C_I.pre_mod     =( mcv_d_o_sur_pre     );
+                C_I.clipped     =(        1            ); 
+                C_I.oldchan     =(       NIL           );
+
+            //: EXCLUSIVE OR CONCURRENT ?
+
+                if( mcv_d_i_qfp_com != mcv_d_i_qfp_gra
+                &&  mcv_d_i_qfp_gra != mcv_d_i_qfp_pre
+                &&  mcv_d_i_qfp_pre != mcv_d_i_qfp_com
+                ){
+                    all_queues_have_different_indexes=( 0+1 );
+                }else{
+                    all_queues_have_different_indexes=( 0-1 );
+                };;
+
+                if( all_queues_have_different_indexes >= 1 ){
+                    ERR("[BRANCH_IS_UNTESTED_ON_MY_MACHINE]");
+                
+                    C_I.img_s_m = ((I32)1)   ;//: CONCURRENT ://
+                    C_I.qfi_num = (   3  )   ;   
+                    C_I.qfi_arr = mcv_d_a_qfi;   
+                }else
+                if( all_queues_have_different_indexes <= 0 ){
+                
+                    C_I.img_s_m = ((I32)0)   ;//: EXCLUSIVE  ://
+                    C_I.qfi_num = (   0  )   ;//: OPTIONAL   ://
+                    C_I.qfi_arr = (   0  )   ;//: OPTIONAL   ://
+                }else{
+                    ERR("[INVALIDVALUE]");
+                };;
+
+            //: CreateSwapChain:
+
+                res = FUN( LOG , &(C_I) , NIL , &( OBJ ) );
+                CHK( res , "[vkCreateSwapChainKHR]" );
+
+        #undef  TYP
+        #undef  C_I
+        #undef  OBJ
+   
+        #undef  FUN
+        #undef  LOG
         
+        #undef  CAB
+        #undef  C_A
 
-
-
+    SAY("[END:VIDEO_024:createSwapChain]");
+    }
     //:----------------------------:VIDEO_024:createSwapChain://
 
 //:############################:MCV_F_INI:createLogicalDevice://
@@ -2942,6 +3134,34 @@
         Win32 rect uses an EXCLUSIVE RECTANGLE. Hence there
         is no minus one after taking delta between bounds.
 
+    #_COL_ATT_BIT_# :
+        
+        KHRONOS_DOT_COM:
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT = 0x00000010
+        specifies that the image can be used to create 
+        a VkImageView suitable for use as a color or 
+        resolve attachment in a VkFramebuffer.
+
+        VULKAN_TUTORIAL_DOT_COM:
+        The imageUsage bit field specifies what kind of 
+        operations we'll use the images in the swap chain for. 
+        In this tutorial we're going to render directly to 
+        them, which means that they're used as color attachment. 
+        It is also possible that you'll render images to a 
+        separate image first to perform operations like 
+        post-processing. In that case you may use a value like 
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT instead and use a 
+        memory operation to transfer the rendered image to 
+        a swap chain image.
+
+    #_CA_ALPHA_OPAQUE_# :
+
+        VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR: 
+        The alpha component, if it exists, of the images 
+        is ignored in the compositing process. Instead, the 
+        image is treated as if it has a constant alpha of 1.0.
+        
+
 *** ************************************** LONGHAND_COMMENTS **/
 //:=======================================:LONGHAND_COMMENTS:://
 //::HELP_FINDING_THINGS:=====================================://
@@ -3013,6 +3233,38 @@
 
     mcv_d_o_win
     USE[ mcv_d_win ]
+    PASTE_LINE
+
+    mcv_d_swa_cap | swapchaincapabilities | mcv_d_o_swa_cap
+    USE[ mcv_d_o_cap ]
+    PASTE_LINE
+
+    mcv_d_fmt | mcv_data_format | swapchain_data_format
+    mcv_d_o_sur_fmt
+    PASTE_LINE
+
+    mcv_d_o_sur_ext | surface_extent | swapchain_extent
+    USE[ mcv_d_o_swa_ext.[wid|hig] ]
+    PASTE_LINE
+
+    curtran | cur_tran | cur_tra
+    USE[ mcv_d_o_cap.tra_cur ]
+    PASTE_LINE
+ 
+    pretran | pre_tran | pretransform
+    USE[ tra_pre ]( TransformPre )
+    PASTE_LINE
+
+    presentmode | presentMode | present_mode
+    SEE[ C_I.pre_mod     =( mcv_d_o_sur_pre     ); ]
+    PASTE_LINE
+
+    mcv_t_vkswapchainkhr | vkswapchainkhr
+    USE[ VOD* ]( void* because opaque type )
+    PASTE_LINE
+
+    STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO
+    VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
     PASTE_LINE
 
 *** ******************************************************** **/
