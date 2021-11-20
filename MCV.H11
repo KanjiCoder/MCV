@@ -174,7 +174,7 @@
             #define mcv_m_c_rde [NO_CAPACITY_SIZE_KNOWN]
             #define mcv_m_c_aie     ( 32 )      //: Capacity ://
             #define mcv_m_c_ade     ( 256)      //: Capacity ://
-            #define mcv_m_c_phy_dev (  8 )      //: Capacity ://
+            #define mcv_m_c_phy (  8 )      //: Capacity ://
             #define mcv_m_c_qfp     ( 16 )      //: Capacity ://
             #define mcv_m_c_qfi     (  3 )      //: Capacity ://
             #define mcv_m_c_sur_fmt ( 16 )      //: Capacity ://
@@ -532,7 +532,7 @@
 //:VkDevice ( logical device ):
 
     /** Do not create this. It is just a void pointer. **/
-    /** SEE: mcv_d_log_dev *************************** **/
+    /** SEE: mcv_d_o_log *************************** **/
 
 //:VkDeviceCreateFlags:
 
@@ -756,6 +756,11 @@
         #undef  TYP
 
     //:----------------------------:VIDEO_024:createSwapChain://
+    
+//: VkImage ://
+
+    //: Just use VOD* because :                    ://
+    //: VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkImage) ://
 
 //:========================================:VULKAN_CORE_TYPES://
 //:DATA:=====================================================://
@@ -876,17 +881,17 @@
             ICI   mcv_d_c_instance  ={   0   };
             VOD*  mcv_d_o_instance  =((VOD*)0);
 
-        //: Physical_Device:( phy_dev ):- - - - - - - - - - -://
+        //: Physical_Device:( phy ):- - - - - - - - - - -://
         //:     m_c : Macro_Capacity                         ://
         //:     d_a : Data__Array                            ://
         //:     d_n : Data__NumberOf( in array )             ://
         //:     d_o : Data__Object( Choosen Physical Device )://
 
-            #define  mcv_m_c_phy_dev (  8 ) 
-            VOD*     mcv_d_a_phy_dev[ mcv_m_c_phy_dev ];
-            U32      mcv_d_n_phy_dev =( 0 );
-            VOD*     mcv_d_o_phy_dev =( NIL ); 
-            #define    mcv_d_phy_dev [USE:mcv_d_o_phy_dev]
+            #define  mcv_m_c_phy (  8 ) 
+            VOD*     mcv_d_a_phy[ mcv_m_c_phy ];
+            U32      mcv_d_n_phy =( 0 );
+            VOD*     mcv_d_o_phy =( NIL ); 
+            #define    mcv_d_phy [USE:mcv_d_o_phy]
 
         //: queueFamilies for the given Physical_Device:- - -://
 
@@ -899,10 +904,10 @@
             I32      mcv_d_i_qfp_gra =( 0 - 1 );  //:GRAPHICS://
             I32      mcv_d_i_qfp_pre =( 0 - 1 );  //:PRESENT ://
             
-        //: Logical_Device: ( log_dev ):- - - - - - - - - - -://
+        //: Logical_Device: ( log ):- - - - - - - - - - - - -://
 
-            VOD*       mcv_d_log_dev =( NIL );
-            #define  mcv_d_o_log_dev [USE:mcv_d_log_dev]
+            VOD*     mcv_d_o_log =( NIL );
+            #define  mcv_d_o_log_dev [USE:mcv_d_o_log]
 
         //: Surface:- - - - - - - - - - - - - - - - - - - - -://
         
@@ -987,11 +992,21 @@
             #define C_I struct mcv_t_vkswapchaincreateinfokhr
             #define OBJ VOD
 
-                C_I  mcv_d_c_swapcha = { 0 };
-                VOD* mcv_d_o_swapcha = (NIL);
+                C_I  mcv_d_c_swa = { 0 };
+                VOD* mcv_d_o_swa = (NIL);
 
             #undef  C_I
             #undef  OBJ
+
+        //: VIDEO_025:GetSwapChainImages::- - - - - - - - - -://
+
+            //: Array Of VkImage      ://
+            //: SCI == SwapChainImage ://
+
+            #define  mcv_m_c_sci ( 8 )
+            #define  mcv_d_c_sci [USE:mcv_m_c_sci]
+            U32      mcv_d_n_sci =( 0 );
+            VOD*     mcv_d_a_sci[ mcv_m_c_sci ];
 
     #undef  ICI
     #undef  A_I
@@ -1267,11 +1282,11 @@
     #define TMP struct mcv_t_vkphysicaldeviceproperties
 
         VOD mcv_f_vkgetphysicaldeviceproperties(
-            VOD* phy_dev
+            VOD* phy
         ,   TMP*     pdp
         ){
             GI3* fun =GET( "vkGetPhysicalDeviceProperties" );
-            fun( phy_dev , pdp );
+            fun( phy , pdp );
         }
     #undef  TMP
 
@@ -1280,11 +1295,11 @@
     #define TMP struct mcv_t_vkphysicaldevicefeatures
 
         VOD mcv_f_vkgetphysicaldevicefeatures(
-            VOD* phy_dev
+            VOD* phy
         ,   TMP*     pdf
         ){
             GI3* fun =GET( "vkGetPhysicalDeviceFeatures" );
-            fun( phy_dev , pdf );
+            fun( phy , pdf );
         }
     #undef  TMP
 
@@ -1314,14 +1329,14 @@
     #define QFP struct     mcv_t_vkqueuefamilyproperties
 
         VOD mcv_f_g_qfp(
-            DEV  phy_dev //: VkPhysicalDevice physicalDevice ://
+            DEV  phy //: VkPhysicalDevice physicalDevice ://
         ,   U32* qfp_num //: pQueueFamilyPropertyCount       ://
         ,   QFP* qfp_arr //: VkQueueFamilyProperties*        ://
                          //: pQueueFamilyProperties          ://
         ){
             GI3* fun =GET( 
                 "vkGetPhysicalDeviceQueueFamilyProperties" );;
-            fun( phy_dev , qfp_num , qfp_arr );
+            fun( phy , qfp_num , qfp_arr );
         }
     #undef  DEV
     #undef  QFP
@@ -1609,9 +1624,9 @@
                     //:Memory_Stomp_Protection:
                     if( NIL != (*(void**)obj)    ){E("[024]");};
 
-                    if( log !=  mcv_d_log_dev    ){E("[025]");};    
-                    if( c_i !=&(mcv_d_c_swapcha) ){E("[026]");};
-                    if( obj !=&(mcv_d_o_swapcha) ){E("[027]");};
+                    if( log !=  mcv_d_o_log  ){E("[025]");};    
+                    if( c_i !=&(mcv_d_c_swa) ){E("[026]");};
+                    if( obj !=&(mcv_d_o_swa) ){E("[027]");};
 
                     if( c_i -> typ !=(1000001000)){E("[029]");};
                     if( c_i -> sur != mcv_d_o_sur){E("[030]");};
@@ -1632,6 +1647,35 @@
         #undef  OBJ
         #undef  CON
     //:--------------------------------------------:VIDEO_024://
+
+//:VIDEO_025:GetSwapChainIMages://
+
+    //:VIDEO_025:--------------------------------------------://
+
+        RES mcv_f_vkgetswapchainimageskhr(
+            VOD*  log               //: VkDevice             ://
+        ,   VOD*  swa               //: VkSwapchainKHR       ://
+        ,   U32*  num               //: pSwapchainImageCount ://
+        ,   VOD** arr               //: pSwapchainImages     ://
+        ){
+
+            GI3* fun = GET( "vkGetSwapchainImagesKHR" );
+            if( NIL == fun ){ ERR("[032]"); };
+            RES res = fun( log , swa , num , arr );
+            if( 0 != res ){ ERR("[033]"); };
+
+            if( ECO >= 1 ){
+                if( NIL == arr ){
+    
+                    //:Array Capacity Exceeded:
+                    if( *num > mcv_m_c_sci ){ ERR("[034]"); };
+
+                };;
+            };;
+
+            return( res );
+        }
+    //:--------------------------------------------:VIDEO_025://
 
 #undef  GET
 //:=========================================:FUNCTIONS_VULKAN://
@@ -2014,9 +2058,9 @@
         //:vkEnumeratePhysicalDevices:-----------------------://
 
             #define INS mcv_d_o_instance      //:[ vul_ins  ]://
-            #define NUM mcv_d_n_phy_dev       //:[ number of]://
-            #define ARR mcv_d_a_phy_dev       //:[ array  of]://
-            #define CAP mcv_m_c_phy_dev       //:[ capacity ]://
+            #define NUM mcv_d_n_phy       //:[ number of]://
+            #define ARR mcv_d_a_phy       //:[ array  of]://
+            #define CAP mcv_m_c_phy       //:[ capacity ]://
         
                 //:Get number of physical devices :
 
@@ -2031,7 +2075,7 @@
 
                 //:Smoke Test : Print Number Of[ phy_dev ]:
 
-                    P_F( "[num_phy_dev]:%d\n" , NUM );
+                    P_F( "[num_phy]:%d\n" , NUM );
 
             #undef  INS  //:---------------------------------://
             #undef  NUM  //:---------------------------------://
@@ -2057,9 +2101,9 @@
 #define GET_D_F mcv_f_vkgetphysicaldevicefeatures    //:-----://
 #define GET_SSK mcv_f_g_phy_ssk     //:---------:GET_SSK     ://
                                     //:                      ://
-#define     P_A mcv_d_a_phy_dev     //:---------:PHY_ARR     ://
-#define     P_N mcv_d_n_phy_dev     //:---------:PHY_NUM     ://
-#define     P_D mcv_d_o_phy_dev     //:---------:PHY_DEV     ://
+#define     P_A mcv_d_a_phy     //:---------:PHY_ARR     ://
+#define     P_N mcv_d_n_phy     //:---------:PHY_NUM     ://
+#define     P_D mcv_d_o_phy     //:---------:PHY_DEV     ://
                                     //:                      :// 
 #define     Q_A mcv_d_a_qfp         //:---------:QFP_ARR     ://
 #define     Q_N mcv_d_n_qfp         //:---------:QFP_NUM     ://
@@ -2182,7 +2226,7 @@
         //:----------------------------------------:VIDEO_015://
         //:VIDEO_022:DeviceExtensionSupport:-----------------://
         #define FUN mcv_f_vkenumeratedeviceextensionproperties
-        #define   P mcv_d_o_phy_dev
+        #define   P mcv_d_o_phy
         #define   _ NIL
         #define   N mcv_d_n_ade
         #define   A mcv_d_a_ade
@@ -2233,7 +2277,7 @@
                     if( 1 != chk_A[ r ] ){ break;       };
                 };;
             };;
-            #define     PHY mcv_d_o_phy_dev
+            #define     PHY mcv_d_o_phy
             #define     SUR mcv_d_o_sur
             
             #define CAP_GET mcv_f_g_phy_sur_cap
@@ -2700,8 +2744,8 @@
         #define D_V struct mcv_t_vkphysicaldevicefeatures
         #define DCI struct mcv_t_vkdevicecreateinfo
         #define C_D mcv_f_vkcreatedevice
-        #define PHY mcv_d_o_phy_dev
-        #define LOG mcv_d_log_dev
+        #define PHY mcv_d_o_phy
+        #define LOG mcv_d_o_log
 
             //:QCI: Queue Create Info ( queueCreateInfo ) ://
 
@@ -2749,7 +2793,7 @@
     //:--------------------:VIDEO_021:STEP_003:MODIFY_QCI_ARR://
     //:VIDEO_021:STEP_004:GET_DEVICE_QUEUES:-----------------://
     #define GET_D_Q mcv_f_vkgetdevicequeue
-    #define     LOG mcv_d_log_dev
+    #define     LOG mcv_d_o_log
 
         ASS( NIL == mcv_d_q_com , "[HAS:mcv_d_q_com]" );
         ASS( NIL == mcv_d_q_gra , "[HAS:mcv_d_q_gra]" );
@@ -2774,6 +2818,11 @@
     #undef  GET_D_Q
     #undef      LOG
     //:-----------------:VIDEO_021:STEP_004:GET_DEVICE_QUEUES://
+
+//:############################:MCV_F_INI:createLogicalDevice://
+//:##########################:MCF_F_INI:CREATE_LOGICAL_DEVICE://
+//:MCV_F_INI:CreateSwapChain:################################://
+
     //:VIDEO_024:createSwapChain:----------------------------://
     {
     SAY("[BEG:VIDEO_024:createSwapChain]");
@@ -2796,11 +2845,11 @@
     
         //:Fill Create Info:
         #define TYP struct mcv_t_vkswapchaincreateinfokhr
-        #define C_I        mcv_d_c_swapcha
-        #define OBJ        mcv_d_o_swapcha
+        #define C_I        mcv_d_c_swa
+        #define OBJ        mcv_d_o_swa
 
         #define FUN mcv_f_vkcreateswapchainkhr
-        #define LOG mcv_d_log_dev
+        #define LOG mcv_d_o_log
 
         #define CAB 0x00000010 //: #_COL_ATT_BIT_#     ://
         #define C_A 0x00000001 //: #_CA_ALPHA_OPAQUE_# ://
@@ -2875,8 +2924,29 @@
     }
     //:----------------------------:VIDEO_024:createSwapChain://
 
-//:############################:MCV_F_INI:createLogicalDevice://
-//:##########################:MCF_F_INI:CREATE_LOGICAL_DEVICE://
+//:################################:MCV_F_INI:CreateSwapChain://
+
+
+        //:VIDEO_025:GetSwapChainImages:---------------------://
+        #define FUN mcv_f_vkgetswapchainimageskhr
+        #define LOG mcv_d_o_log 
+        #define SWA mcv_d_o_swa 
+        #define NUM mcv_d_n_sci
+        #define ARR mcv_d_a_sci
+
+            VOD** arr_type_check =( ARR );
+
+            FUN( LOG , SWA , &( NUM ) ,  ( NIL ) );
+            FUN( LOG , SWA , &( NUM ) ,  ( ARR ) );
+
+            P_F( "[num_swapchain_images]:%d\n" , NUM );
+
+        #undef  FUN
+        #undef  LOG
+        #undef  SWA
+        #undef  NUM
+        #undef  ARR
+        //:---------------------:VIDEO_025:GetSwapChainImages://
 
         SAY( "[EXITING:MCV_F_INI]" );
 
@@ -3266,6 +3336,17 @@
     STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO
     VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
     PASTE_LINE
+    
+    mcv_d_o_swachan | mcv_d_swachan | mcv_d_c_swapcha 
+    USE[ mcv_d_o_swa ]
+    PASTE_LINE
+
+    swapcha
+    PIK[ mcv_d_o_swa | mcv_d_c_swa ]
+    PASTE_LINE
+
+     
+    
 
 *** ******************************************************** **/
 //:=====================================:HELP_FINDING_THINGS:://
