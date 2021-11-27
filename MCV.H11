@@ -101,6 +101,13 @@
 
 //: Basic_File_Macros ://
 
+    //: #define   H(nam) mcv_d_h_##nam
+    //: #define   A mcv_lib_dat.arr
+    //: #define   N mcv_lib_dat.num
+    //: #define   I mcv_lib_dat.ind
+    //: #define   C mcv_lib_dat.cap
+    //: #define   O mcv_lib_dat.obj
+
     #define ECI mcv_m_eci 
     #define ECO mcv_m_eco
     #define NIL ((void*)0)
@@ -762,6 +769,61 @@
     //: Just use VOD* because :                    ://
     //: VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkImage) ://
 
+//: VkImageViewType ://
+
+    //: Just use I32 because ENUM ://
+
+//: VkComponentSwizzle ://
+
+    //: Just use I32 because ENUM ://
+
+//: VkComponentMapping ://
+
+    //: Just use I32[4] instead of struct ://
+
+//:  VkImageAspectFlags ://
+    
+    //: Just use U32 because it's array of bitflags. ://
+
+//: VkImageSubresourceRange : ( VIDEO_027 ) ://
+
+    #define TYP struct mcv_t_vkimagesubresourcerange
+
+        struct mcv_t_vkimagesubresourcerange{
+
+            U32 asp_msk ; //: apsectMask           ://
+                                                   
+            U32 mip_bas ; //: baseMipLevel         ://
+            U32 mip_num ; //: levelCount / mip_lev ://
+
+            U32 lay_bas ; //: baseArrayLayer       ://
+            U32 lay_num ; //: layerCount / lay_lev ://
+        };
+        S_A( S_O( TYP ) == 20 , "[VKISRR]" );
+
+    #undef  TYP
+
+//: VkImageViewCreateInfo : ( VIDEO_027 ) ://
+
+    #define TYP struct mcv_t_vkimageviewcreateinfo
+    #define RNG struct mcv_t_vkimagesubresourcerange
+
+        struct mcv_t_vkimageviewcreateinfo {
+            I32    typ    ;       //: sType                  ://
+            VOD*   nex    ;       //: pNext                  ://
+            U32    c_f    ;       //: VkImageViewCreateFlags ://
+            VOD*   img    ;       //: VkImage                ://
+            I32    v_t    ;       //: VkImageViewType        ://
+            I32    fmt    ;       //: VkFormat               ://
+            I32    com[4] ;       //: VkComponentMapping     ://
+            RNG    rng    ;       //: VkImageSubresourceRange://
+        };
+        S_A( S_O( TYP ) == 80 , "[VKIVCI]" );
+
+    #undef  TYP
+    #undef  RNG
+    
+
 //:========================================:VULKAN_CORE_TYPES://
 //:DATA:=====================================================://
 
@@ -1008,12 +1070,63 @@
             U32      mcv_d_n_sci =( 0 );
             VOD*     mcv_d_a_sci[ mcv_m_c_sci ];
 
+        //: VIDEO_026: StoreFormatAndExtent:- - - - - - - - -://
+
+            #define EXT extern
+            #define E2D struct mcv_t_vkextent2d
+
+                     I32     mcv_d_o_swa_fmt =( 0 - 1 );
+                EXT  E2D     mcv_d_o_swa_ext ;  
+            
+            #undef  EXT
+            #undef  E2D
+
+        //: VIDEO_027: imageviews:- - - - - - - - - - - - - -://
+        //:   swapChainImageViews:- - - - - - - - - - - - - -://
+
+            #define              mcv_d_c_siv [USE:mcv_m_c_siv]
+            #define              mcv_m_c_siv ( 8 )
+            VOD*    mcv_d_a_siv[ mcv_m_c_siv ]={ 0 };
+            U32     mcv_d_n_siv               =( 0 );
+
     #undef  ICI
     #undef  A_I
     #undef  QFP
     //:---------------------------------------:VULKAN_OBJECTS://
 
 //:=====================================================:DATA://
+//:DATA_LIBS:================================================://
+//: struct mcv_lib_has{  
+//:  
+//: 
+//: }has;struct mcv_lib_arr{  
+//:                             VOD* siv[ mcv_d_c_siv ]; 
+//: 
+//: }arr;struct mcv lib_num{  
+//:  
+//: 
+//: }num;struct mcv_lib_ind{ 
+//: 
+//: }ind;struct mcv_lib_cap{   
+//:                             I32  siv ;
+//: 
+//: }cap;struct mcv_lib_obj{  
+//: 
+//: 
+//: 
+//: }obj;
+//: 
+//: 
+//: struct mcv_lib_dat_struct{
+//:     struct mcv_lib_has has ;
+//:     struct mcv_lib_arr arr ;
+//:     struct mcv_lib_num num ;
+//:     struct mcv_lib_ind ind ;
+//:     struct mcv_lib_cap cap ;
+//:     struct mcv_lib_obj obj ;
+//: }mcv_lib_dat={ 0 };
+
+//:================================================:DATA_LIBS://
 //:FUNCTIONS_BASIC:==========================================://
 
     VOD  mcv_f_err( CHR* msg ){
@@ -1677,6 +1790,42 @@
         }
     //:--------------------------------------------:VIDEO_025://
 
+//:VIDEO_026:CreateImageViews://
+
+    //:VIDEO_026:--------------------------------------------://
+    #define CON const
+    #define C_I struct mcv_t_vkimageviewcreateinfo
+    #define C_B VOD  //:VkAllocationCallbacks://
+
+        RES mcv_f_vkcreateimageview(
+                VOD*  log    //: LogicalDevice ://
+        ,   CON C_I*  c_i    //: pCreateInfo   ://
+        ,   CON C_B*  nil    //: pAllocator    ://
+        ,       VOD*  i_v    //: VkImageView   ://
+        ){
+            if( ECI >= 1 ){
+                if( NIL ==  log ){ ERR("[043]" ); };
+                if( NIL ==  c_i ){ ERR("[044]" ); };
+                if( NIL !=  nil ){ ERR("[045]" ); };
+                if( NIL ==  i_v ){ ERR("[046]" ); };
+
+                //:Memory Stomp Protection:
+                if( NIL !=(*((VOD**)i_v)) ){ ERR("[047]"); };
+            };;
+
+            GI3* fun = GET( "vkCreateImageView" );
+            if( NIL == fun ){ ERR("[041]"); };
+            RES res = fun( log , c_i , nil , i_v );
+            if( 0 != res ){ ERR("[042]"); };
+
+            return( res );
+        } 
+
+    #undef  CON
+    #undef  C_I
+    #undef  C_B
+    //:--------------------------------------------:VIDEO_026://
+
 #undef  GET
 //:=========================================:FUNCTIONS_VULKAN://
 //:=========================================:VULKAN_FUNCTIONS://
@@ -1740,6 +1889,8 @@
     PUBLIC_FUNCTION
 
     VOD  MCV_F_INI( VOD ){              //:Initialize Library://
+
+        
 
         //:Debug:--------------------------------------------://
         {
@@ -2926,7 +3077,6 @@
 
 //:################################:MCV_F_INI:CreateSwapChain://
 
-
         //:VIDEO_025:GetSwapChainImages:---------------------://
         #define FUN mcv_f_vkgetswapchainimageskhr
         #define LOG mcv_d_o_log 
@@ -2947,6 +3097,89 @@
         #undef  NUM
         #undef  ARR
         //:---------------------:VIDEO_025:GetSwapChainImages://
+        //:VIDEO_026:STORE_FORMAT_AND_EXTENT:----------------://
+
+            //:Seems Kind Of Fucking Redundant... Okay.
+
+            //: mcv_d_o_swa_fmt = mcv_d_o_sur_fmt.fmt ;
+            //: mcv_d_o_swa_ext = mcv_d_o_sur_ext     ;
+
+            ASS( mcv_d_o_swa_ext.wid > 0 , "[035]" );
+            ASS( mcv_d_o_swa_ext.hig > 0 , "[036]" );
+
+            mcv_d_o_swa_fmt = mcv_d_o_sur_fmt.fmt ;
+
+
+        //:----------------:VIDEO_026:STORE_FORMAT_AND_EXTENT://
+        //:VIDEO_027:IMAGE_VIEWS:----------------------------://
+        #define FUN        mcv_f_vkcreateimageview
+        #define C_I struct mcv_t_vkimageviewcreateinfo
+        #define LOG mcv_d_o_log
+        #define TYP ((I32)15 )      //:IMAGE_VIEW_CREATE_INFO://
+        #define V_T ((I32) 1 )      //: VK_IMAGE_VIEW_TYPE_2D://
+        #define A_M ((U32) 1 )      //:      ASPECT_COLOR_BIT://
+        #define ARR mcv_d_a_siv
+
+            mcv_d_n_siv = mcv_d_n_sci ;
+            if( mcv_d_n_siv > mcv_m_c_siv ){ ERR("[037]"); };
+            for( I32 i = 0 ; i <= mcv_d_n_siv-1 ; i++ ){
+
+                //:SwapChainImageView[ i ]==SwapChainImage[ i ]
+
+                C_I c_i ={ 0 };
+                    c_i.img =( mcv_d_a_sci[ i ]  );
+                    c_i.fmt =( mcv_d_o_swa_fmt   );
+                    c_i.typ =( TYP );
+                    c_i.v_t =( V_T );
+                
+                    c_i.com[ 0 ]=( 0 ); //:R:SWIZZEL_IDENTITY://
+                    c_i.com[ 1 ]=( 0 ); //:G:SWIZZEL_IDENTITY://
+                    c_i.com[ 2 ]=( 0 ); //:B:SWIZZEL_IDENTITY://
+                    c_i.com[ 3 ]=( 0 ); //:A:SWIZZEL_IDENTITY://
+    
+                    c_i.rng.asp_msk =( A_M );//:ASPECTMASK   ://
+
+                    c_i.rng.mip_bas =(  0  );//:MIP_MAPPINGSl://
+                    c_i.rng.mip_num =(  1  );
+
+                    c_i.rng.lay_bas =(  0  );//:IMAGE_LAYERS ://
+                    c_i.rng.lay_num =(  1  );
+                    
+                if( NIL != ARR[ i ] ){ ERR("[040]"); };
+                res = FUN( LOG , &(c_i) , NIL , &(ARR[ i ]) );
+                if( 0 != res ){ ERR("[038]"); };
+                if( NIL == ARR[ i ] ){ ERR("[039]"); };
+            };;
+
+            SAY("[CHECKPOINT:VIDEO_027:IMAGE_VIEWS]" );
+
+        #undef  FUN
+        #undef  C_I
+        #undef  LOG
+        #undef  TYP
+        #undef  V_T
+        #undef  A_M
+        #undef  ARR
+        //:----------------------------:VIDEO_027:IMAGE_VIEWS://
+
+//:MCV_F_INI:CREATE_GRAPHICS_PIPELINE:=======================://
+//:MCV_F_INI:CREATEGRAPHICSPIPELINE:=========================://
+
+    //: ADDED_FILE_HERE[ MCV.VERT ] :::::::::::::::::::::://
+    //: ADDED_FILE_HERE[ MVC.FRAG ] :::::::::::::::::::::://
+
+    //:--------------------------------------------------://
+    //:     64bit glslc found here:                      ://
+    //:     github.com/pixeljetstream                    ://
+    //:         /glslc/tree/master/bin_Windows_64        ://
+    //:--------------------------------------------------://
+
+
+
+
+//:=========================:MCV_F_INI:CREATEGRAPHICSPIPELINE://
+//:=======================:MCV_F_INI:CREATE_GRAPHICS_PIPELINE://
+
 
         SAY( "[EXITING:MCV_F_INI]" );
 
@@ -3025,6 +3258,13 @@
 
 //: Basic_File_Macros ://
                     
+//:  #undef    H
+//:  #undef    A
+//:  #undef    N
+//:  #undef    I
+//:  #undef    C
+//:  #undef    O
+
     #undef  ECI
     #undef  ECO
     #undef  NIL  
@@ -3230,6 +3470,18 @@
         The alpha component, if it exists, of the images 
         is ignored in the compositing process. Instead, the 
         image is treated as if it has a constant alpha of 1.0.
+
+    #_CONSISTENT_FRAMERATE_60_FPS_#
+
+        If you want to limit to 60 fps then you
+        should use VK_PRESENT_MODE_FIFO_KHR instead
+        of VK_PRESENT_MODE_MAILBOX_KHR. The mailbox
+        mode is about rendering as many frames as
+        possible to ensure that the one presented to
+        the screen is as "fresh" as possible.
+        -Alexander Overvoorde
+        -https://vulkan-tutorial.com/Drawing_a_triangle
+                               /Presentation/Swap_chain
         
 
 *** ************************************** LONGHAND_COMMENTS **/
@@ -3345,8 +3597,17 @@
     PIK[ mcv_d_o_swa | mcv_d_c_swa ]
     PASTE_LINE
 
-     
+    imageviews | image_views | img_vew | imgvew | imgvews
+    xxxxxxxxxxxxxxxx
+    PASTE_LINE
     
+    swapChainImageFormat | swap_chain_image_format
+    USE[ mcv_d_o_swa_fmt ]
+    PASTE_LINE
+
+    imageformat
+    TRY[ img_fmt | fmt | mcv_d_o_swa_fmt ]
+    PASTE_LINE
 
 *** ******************************************************** **/
 //:=====================================:HELP_FINDING_THINGS:://
