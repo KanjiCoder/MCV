@@ -4,7 +4,15 @@
     //: myself is too big of an undertaking for now.         ://
     //: 3P == 3rd Party                                      ://
 
+    #if defined( __cplusplus ) 
+        #error [THIS_IS_A_C_LIBRARY:001]
+    #endif
+
     #include "./3P/shaderc_hack.h"
+
+    #if defined( __cplusplus ) 
+        #error [THIS_IS_A_C_LIBRARY:001]
+    #endif
 
 //############################################################//
 //[MACROS_CONFIGURATION:=====================================]//
@@ -19,6 +27,8 @@
     //:      vulkan function calls and then prey that    :// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     //:      you discover a problem.                     :// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     //:**************************************************:// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
 
 //[=====================================:MACROS_CONFIGURATION]//
 //[=====================================:CONFIGURATION_MACROS]//
@@ -3173,6 +3183,7 @@
 
 //:MCV_F_INI:CREATE_GRAPHICS_PIPELINE:=======================://
 //:MCV_F_INI:CREATEGRAPHICSPIPELINE:=========================://
+// #define COM shaderc_compiler_t
 
     //: ADDED_FILE_HERE[ MCV.VERT ] :::::::::::::::::::::://
     //: ADDED_FILE_HERE[ MVC.FRAG ] :::::::::::::::::::::://
@@ -3183,9 +3194,25 @@
     //:         /glslc/tree/master/bin_Windows_64        ://
     //:--------------------------------------------------://
 
-    /////////////////////////////////////////////////////////////////////
+    //:NOTE: googles libshaderc seems like a good idea because
+    //:      you could compile at runtime... BUT... the
+    //:      implementations are C++ code not "C" (pure c).
+
+    //:TRYING TO FIGURE OUT HOW TO GET:
+    //: glslangValidator.exe into our project.
+
+    //:MAKE:
+    //: COM com = shaderc_compiler_initialize( );
 
 
+
+    //:KILL:
+    //: shaderc_compiler_release( com );
+
+    
+
+
+// #undef  COM
 //:=========================:MCV_F_INI:CREATEGRAPHICSPIPELINE://
 //:=======================:MCV_F_INI:CREATE_GRAPHICS_PIPELINE://
 
